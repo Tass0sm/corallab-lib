@@ -1,0 +1,2 @@
+Utilities for controlling a robot in a pybullet environment, and smoothly
+transferring that setup to a UR robot simulator, and finally to reality.
