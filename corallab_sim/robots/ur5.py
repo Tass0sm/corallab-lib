@@ -42,7 +42,7 @@ class UR5(ABC):
 
 
 class RealUR5(UR5):
-    def __init__(self, base_pos, base_orn, ip_address, with_gripper=False, move_timestep=0):
+    def __init__(self, ip_address, base_pos=(0, 0, 0), base_orn=(0, 0, 0, 1), gripper=None, move_timestep=0):
         """
         base_pos - position of robot base in world frame
         base_orn - orientation of robot base in world frame
@@ -51,11 +51,9 @@ class RealUR5(UR5):
         self.rec = RTDEReceiveInterface(ip_address)
         self.con.setTcp([0, 0, 0.145, 0, 0, 0])
 
-        self.with_gripper = with_gripper
-        if with_gripper:
-            self.gripper = RobotiqGripper()
-            self.gripper.connect(ip_address, 63352)
-            self.gripper.activate()
+        self.gripper = gripper
+        self.gripper.connect(ip_address, 63352)
+        self.gripper.activate()
 
         self.base_pos = base_pos
         self.base_orn = base_orn
@@ -72,12 +70,21 @@ class RealUR5(UR5):
         self.con.moveL(position2);
         self.con.stopL(10.0, False);
 
-        if self.with_gripper:
+        if self.gripper is not None:
             print("Testing gripper...")
             self.gripper.move_and_wait_for_pos(255, 255, 255)
             log_info(self.gripper)
             self.gripper.move_and_wait_for_pos(0, 255, 255)
             log_info(self.gripper)
+
+    def go_home(self):
+        pass
+
+    def enter_teach_mode(self):
+        self.con.teachMode()
+
+    def exit_teach_mode(self):
+        self.con.endTeachMode()
 
     def convert_pose_to_base_frame(self, pos, rot):
         """convert position (meters given in the world frame) and rot (a scipy
@@ -146,13 +153,57 @@ class RealUR5(UR5):
         a_pos = np.add(pos, above_offt)
         self.move_ee(a_pos, orn)
 
-    def suction(self, on, colmask=True):
-        pass
+    def get_gripper_state(self):
+        if self.gripper is not None:
+            return self.gripper.get_state()
+
+    def toggle_gripper(self):
+        if self.gripper is not None:
+            return self.gripper.toggle()
 
     def __del__(self):
         self.con.stopScript()
         print("Stopping robot control script")
 
+
+def teach_trajectory(robot):
+    """Set robot to freedrive mode, and repeatedly prompt user to set positions
+    for a trajectory. Return the recorded list of poses."""
+
+    poses = []
+    robot.enter_teach_mode()
+
+    print("Robot is now in free-drive mode.")
+
+    print("Move the robot to the desired positions.")
+    print("Record a pose with 'r' + RET")
+    print("Toggle the gripper with 't' + RET")
+    print("Quit the loop with 'q' + RET")
+
+    i = 0
+    while True:
+        print(f"Set robot in position {i}")
+        command = input("> ")
+
+        if command == "r":
+            print(f"Recorded position {i}")
+            pose = robot.ee_pose()
+            gripper_state = robot.get_gripper_state()
+            poses.append((*pose, gripper_state))
+            i += 1
+        elif command == "t":
+            new_state = robot.toggle_gripper()
+            print(f"Gripper is now in state {new_state}")
+        elif command == "q":
+            break
+        else:
+            print("Unknown command")
+
+    print(f"Recorded {i} poses")
+
+    robot.exit_teach_mode()
+
+    return poses
 
 
 class SimulatedUR5(UR5):
@@ -284,32 +335,3 @@ class SimulatedUR5(UR5):
     @property
     def ee_frame(self):
         return p.getLinkState(self.id, self.ee_id)[4:6]
-
-
-def setup(pos=(-0.5, 0, 0)):
-    ur5 = UR5(pos)
-
-    for _ in range(100):
-        p.stepSimulation()
-
-    return ur5
-
-
-def main():
-    physics_client = p.connect(p.GUI)
-    p.setGravity(0, 0, -9.81)
-
-    target = (-0.07796166092157364, 0.005451506469398737, -0.06238798052072525)
-    dist = 1.0
-    yaw = 89.6000747680664
-    pitch = -17.800016403198242
-    p.resetDebugVisualizerCamera(dist, yaw, pitch, target)
-
-    p.setAdditionalSearchPath(pybullet_data.getDataPath())
-    plane_id = p.loadURDF("plane.urdf")
-
-    robot = setup()
-
-
-if __name__ == '__main__':
-    main()

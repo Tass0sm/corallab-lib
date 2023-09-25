@@ -6,8 +6,6 @@ import pybullet as p
 from importlib.resources import files
 
 
-
-
 def load_urdf(pybullet_client, file_path, *args, **kwargs):
     """Loads the given URDF filepath."""
     # Handles most general file open case.

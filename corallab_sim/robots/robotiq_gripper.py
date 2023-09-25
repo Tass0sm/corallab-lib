@@ -100,7 +100,7 @@ class RobotiqGripper:
         # atomic commands send/rcv
         with self.command_lock:
             cmd = f"GET {variable}\n"
-            print(cmd)
+            # print(cmd)
             self.socket.sendall(cmd.encode(self.ENCODING))
             data = self.socket.recv(1024)
 
@@ -109,7 +109,7 @@ class RobotiqGripper:
         var_name, value_str = data.decode(self.ENCODING).split()
         if var_name != variable:
             raise ValueError(f"Unexpected response {data} ({data.decode(self.ENCODING)}): does not match '{variable}'")
-        print(value_str)
+        # print(value_str)
         value = int(value_str)
         return value
 
@@ -291,3 +291,19 @@ class RobotiqGripper:
         final_pos = self._get_var(self.POS)
         final_obj = cur_obj
         return final_pos, RobotiqGripper.ObjectStatus(final_obj)
+
+    def toggle(self):
+        min_p = self.get_min_position()
+        max_p = self.get_max_position()
+
+        if self.get_current_position() > min_p:
+            self.move_and_wait_for_pos(min_p, 255, 255)
+            self.state = 0
+        else:
+            self.move_and_wait_for_pos(max_p, 255, 255)
+            self.state = 1
+
+        return self.state
+
+    def get_state(self):
+        return self.state
