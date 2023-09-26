@@ -235,11 +235,19 @@ class SimulatedUR5(UR5):
 
     def ik(self, pos, orn):
         """ Written with help of TransporterNet code: https://arxiv.org/pdf/2010.14406.pdf"""
+
+        # flip this orientation to match the conventions of the real robot
+        rot = R.from_quat(orn)
+        rot_x_180 = R.from_euler("xyz", [180, 0, 0], degrees=True)
+        new_rot = rot * rot_x_180
+        new_orn = new_rot.as_quat()
+
+
         joints = p.calculateInverseKinematics(
             bodyUniqueId=self.id,
             endEffectorLinkIndex=self.ee_id,
             targetPosition=pos,
-            targetOrientation=orn,
+            targetOrientation=new_orn,
             lowerLimits=[-3*np.pi/2, -2.3562, -17, -17, -17, -17],
             upperLimits=[-np.pi/2, 0, 17, 17, 17, 17],
             jointRanges=[np.pi, 2.3562, 34, 34, 34, 34],  # * 6,
