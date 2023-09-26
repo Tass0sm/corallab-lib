@@ -1,5 +1,6 @@
 import pybullet as p
 import pybullet_data
+from scipy.spatial.transform import Rotation as R
 
 
 def setup_basic(plane_height=0, headless=False):
@@ -16,3 +17,22 @@ def setup_basic(plane_height=0, headless=False):
     plane_id = p.loadURDF('plane.urdf', basePosition=[0, 0, plane_height])
 
     return physics_client, plane_id
+
+
+def draw_frame(position, quaternion):
+    m = R.from_quat(quaternion).as_matrix()
+    x_vec = m[:, 0]
+    colors = [[1, 0, 0],
+              [0, 1, 0],
+              [0, 0, 1]]
+
+    for color, column in zip(colors, range(3)):
+        vec = m[:, column]
+        from_p = position
+        to_p = position + (vec * 0.1)
+        p.addUserDebugLine(from_p, to_p, color, lineWidth=3, lifeTime=0)
+
+
+def draw_poses(poses):
+    for position, quat, _ in poses:
+        draw_frame(position, quat)
