@@ -46,5 +46,36 @@ def transform_point(transform, point):
     return point_prime
 
 
+def compute_transform(a_points, b_points):
+    """
+    - a_points: N x 3 matrix of points p1, p2, ... pn expressed in space A
+    - b_points: N x 3 matrix of points p1, p2, ... pn expressed in space B
+
+    returns T mapping points from space A to space B
+
+    https://math.stackexchange.com/questions/1519134/how-to-find-the-best-fit-transformation-between-two-sets-of-3d-observations#1519503
+    """
+    a_cen = a_points.mean(axis=0)
+    b_cen = b_points.mean(axis=0)
+
+    P = a_points.T @ a_points - np.outer(a_cen, a_cen)
+    Q = b_points.T @ a_points - np.outer(b_cen, a_cen)
+
+    # # transformation which subtracts a_cen
+    # a_reset_t = np.array([
+    # T_a_to_b = Q @ np.linalg.pinv(P)
+
+    return Q, np.linalg.pinv(P), a_cen, b_cen
+
+
+def apply_transform(tr: tuple, src: np.ndarray) -> np.ndarray:
+    Q, Pinv, s_cen, d_cen = tr
+    return (Q @ Pinv @ (src - s_cen).T).T + d_cen
+
+
+def change_basis():
+    pass
+
+
 def change_basis():
     pass

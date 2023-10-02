@@ -112,6 +112,9 @@ class RealUR5(UR5):
         pose = np.hstack([pos, rotvec])
         return pose
 
+    def get_joint_positions(self):
+        return self.rec.getActualQ()
+
     def ee_pose(self):
         fk = self.con.getForwardKinematics(self.rec.getActualQ(), self.con.getTCPOffset())
 
@@ -164,46 +167,6 @@ class RealUR5(UR5):
     def __del__(self):
         self.con.stopScript()
         print("Stopping robot control script")
-
-
-def teach_trajectory(robot):
-    """Set robot to freedrive mode, and repeatedly prompt user to set positions
-    for a trajectory. Return the recorded list of poses."""
-
-    poses = []
-    robot.enter_teach_mode()
-
-    print("Robot is now in free-drive mode.")
-
-    print("Move the robot to the desired positions.")
-    print("Record a pose with 'r' + RET")
-    print("Toggle the gripper with 't' + RET")
-    print("Quit the loop with 'q' + RET")
-
-    i = 0
-    while True:
-        print(f"Set robot in position {i}")
-        command = input("> ")
-
-        if command == "r":
-            print(f"Recorded position {i}")
-            pose = robot.ee_pose()
-            gripper_state = robot.get_gripper_state()
-            poses.append((*pose, gripper_state))
-            i += 1
-        elif command == "t":
-            new_state = robot.toggle_gripper()
-            print(f"Gripper is now in state {new_state}")
-        elif command == "q":
-            break
-        else:
-            print("Unknown command")
-
-    print(f"Recorded {i} poses")
-
-    robot.exit_teach_mode()
-
-    return poses
 
 
 class SimulatedUR5(UR5):
@@ -343,3 +306,48 @@ class SimulatedUR5(UR5):
     @property
     def ee_frame(self):
         return p.getLinkState(self.id, self.ee_id)[4:6]
+
+# Utilities
+
+def teach_and_record_trajectory(robot):
+    """Set robot to freedrive mode, and repeatedly prompt user to set positions
+    for a trajectory. Return the recorded list of poses."""
+
+    poses = []
+    configurations = []
+    robot.enter_teach_mode()
+
+    print("- Robot is now in free-drive mode.")
+    print("- Move the robot to the desired positions.")
+    print("- Record a pose with 'r' + RET")
+    print("- Toggle the gripper with 't' + RET")
+    print("- Quit the loop with 'q' + RET")
+
+    i = 0
+    while True:
+        command = input("> ")
+
+        if command == "r":
+            pose = robot.ee_pose()
+            gripper_state = robot.get_gripper_state()
+            poses.append((*pose, gripper_state))
+            print(f"Recorded position {i}")
+
+            config = robot.get_joint_positions()
+            configurations.append(config)
+            print(f"Recorded configuration {i}")
+
+            i += 1
+        elif command == "t":
+            new_state = robot.toggle_gripper()
+            print(f"Gripper is now in state {new_state}")
+        elif command == "q":
+            break
+        else:
+            print("Unknown command")
+
+    print(f"Recorded {i} poses")
+
+    robot.exit_teach_mode()
+
+    return poses, configurations
