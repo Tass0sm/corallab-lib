@@ -5,8 +5,10 @@ import threading
 import time
 from enum import Enum
 from typing import Union, Tuple, OrderedDict
+from corallab_sim.robots.gripper import Gripper
 
-class RobotiqGripper:
+
+class RealRobotiqGripper:
     """
     Communicates with the gripper directly, via socket with string commands, leveraging string names for variables.
     """
