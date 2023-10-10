@@ -1,18 +1,9 @@
 """Adapted from TransporterNet code: https://arxiv.org/pdf/2010.14406.pdf"""
 
-import os
 import numpy as np
 import pybullet as p
 from importlib.resources import files
-
-
-def load_urdf(pybullet_client, file_path, *args, **kwargs):
-    """Loads the given URDF filepath."""
-    # Handles most general file open case.
-    try:
-        return pybullet_client.loadURDF(file_path, *args, **kwargs)
-    except pybullet_client.error:
-        pass
+from corallab_sim.utilities.bullet import load_urdf
 
 
 class Gripper:

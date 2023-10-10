@@ -8,11 +8,12 @@ import pybullet_data
 from scipy.spatial.transform import Rotation as R
 import time
 
+# import rtde.rtde as rtde
 from rtde_control import RTDEControlInterface
 from rtde_receive import RTDEReceiveInterface
 from .robotiq_gripper import RobotiqGripper
 
-from corallab_sim.robots.gripper import Suction
+from corallab_sim.robots.suction_gripper import Suction
 from corallab_sim.utilities.spatial import get_transform, get_rotation, transform_point, invert_transform
 from abc import ABC, abstractmethod
 from importlib.resources import files
@@ -307,7 +308,6 @@ class SimulatedUR5(UR5):
     def ee_frame(self):
         return p.getLinkState(self.id, self.ee_id)[4:6]
 
-# Utilities
 
 def teach_and_record_trajectory(robot):
     """Set robot to freedrive mode, and repeatedly prompt user to set positions

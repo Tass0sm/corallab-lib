@@ -19,6 +19,15 @@ def setup_basic(plane_height=0, headless=False):
     return physics_client, plane_id
 
 
+def load_urdf(pybullet_client, file_path, *args, **kwargs):
+    """Loads the given URDF filepath."""
+    # Handles most general file open case.
+    try:
+        return pybullet_client.loadURDF(file_path, *args, **kwargs)
+    except pybullet_client.error:
+        pass
+
+
 def draw_frame(position, quaternion):
     m = R.from_quat(quaternion).as_matrix()
     x_vec = m[:, 0]
