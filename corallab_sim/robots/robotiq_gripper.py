@@ -3,9 +3,130 @@
 import socket
 import threading
 import time
+import numpy as np
+import pybullet as p
 from enum import Enum
 from typing import Union, Tuple, OrderedDict
 from corallab_sim.robots.gripper import Gripper
+from corallab_sim.utilities.bullet import load_urdf
+from importlib.resources import files
+
+
+class RobotiqGripper(Gripper):
+    """Base gripper class.
+
+    Args:
+      robot: int representing PyBullet ID of robot.
+      ee: int representing PyBullet ID of end effector link.
+      obj_ids: list of PyBullet IDs of all suctionable objects in the env.
+    """
+
+    def __init__(self, robot, ee, obj_ids):
+        super().__init__()
+
+        # TODO: investigate
+        # Load suction gripper base model (visual only).
+        pose = ((0.487, 0.109, 0.438), p.getQuaternionFromEuler((np.pi, 0, 0)))
+
+        # corallab_sim.robots "assets/grippers/robotiq/robotiq_85.urdf
+        robotiq_gripper_urdf = files("corallab_sim.robots").joinpath("assets/ur5/gripper/robotiq_2f_85.urdf")
+        self.id = load_urdf(p, str(robotiq_gripper_urdf), pose[0], pose[1])
+
+        p.createConstraint(
+            parentBodyUniqueId=robot,
+            parentLinkIndex=ee,
+            childBodyUniqueId=self.id,
+            childLinkIndex=-1,
+            jointType=p.JOINT_FIXED,
+            jointAxis=(0, 0, 0),
+            parentFramePosition=(0, 0, 0),
+            childFramePosition=(0, 0, 0.01))
+
+        self.gripper_range = [0, 0.085]
+
+        # TODO: investigate useFixedBase=True, flags=p.URDF_ENABLE_CACHED_GRAPHICS_SHAPES
+
+        # self.activated = False
+        # self.gripper_range = [0, 0.085]
+
+        # self.eef_id = 7
+        # self.arm_num_dofs = 6
+        # self.arm_rest_poses = [-1.5690622952052096, -1.5446774605904932, 1.343946009733127, -1.3708613585093699,
+        #                        -1.5707970583733368, 0.0009377758247187636]
+        # self.gripper_range = [0, 0.085]
+
+    def __post_load__(self):
+        # To control the gripper
+        # gripper_main_control_joint_name = "robotiq_85_left_knuckle_joint"
+        # mimic_joint_name = ["robotiq_85_right_knuckle_joint",
+        #                     "robotiq_85_left_inner_knuckle_joint",
+        #                     "robotiq_85_right_inner_knuckle_joint",
+        #                     "robotiq_85_left_finger_tip_joint",
+        #                     "robotiq_85_right_finger_tip_joint"]
+
+        mimic_parent_name = 'finger_joint'
+        mimic_children_names = {'right_outer_knuckle_joint': 1,
+                                'left_inner_knuckle_joint': 1,
+                                'right_inner_knuckle_joint': 1,
+                                'left_inner_finger_joint': -1,
+                                'right_inner_finger_joint': -1}
+        self.__setup_mimic_joints__(mimic_parent_name, mimic_children_names)
+
+    def __setup_mimic_joints__(self, mimic_parent_name, mimic_children_names):
+        self.mimic_parent_id = [joint.id for joint in self.joints if joint.name == mimic_parent_name][0]
+        self.mimic_child_multiplier = {
+            joint.id: mimic_children_names[joint.name] for joint in self.joints if joint.name in mimic_children_names
+        }
+
+        for joint_id, multiplier in self.mimic_child_multiplier.items():
+            c = p.createConstraint(self.id, self.mimic_parent_id,
+                                   self.id, joint_id,
+                                   jointType=p.JOINT_GEAR,
+                                   jointAxis=[0, 1, 0],
+                                   parentFramePosition=[0, 0, 0],
+                                   childFramePosition=[0, 0, 0])
+            p.changeConstraint(c, gearRatio=-multiplier, maxForce=100, erp=1)  # Note: the mysterious `erp` is of EXTREME importance
+
+    def step(self):
+        """This function can be used to create gripper-specific behaviors."""
+        return
+
+    def activate(self):
+        """Simulate suction using a rigid fixed constraint to contacted object."""
+        # TODO(andyzeng): check deformables logic.
+        # del def_ids
+
+        if not self.activated:
+            points = p.getContactPoints(bodyA=self.body, linkIndexA=0)
+            # print(points)
+            if points:
+
+                # Handle contact between suction with a rigid object.
+                for point in points:
+                    obj_id, contact_link = point[2], point[4]
+                # if obj_id in self.obj_ids['rigid']:
+                body_pose = p.getLinkState(self.body, 0)
+                obj_pose = p.getBasePositionAndOrientation(obj_id)
+                world_to_body = p.invertTransform(body_pose[0], body_pose[1])
+                obj_to_body = p.multiplyTransforms(world_to_body[0],
+                                                   world_to_body[1],
+                                                   obj_pose[0], obj_pose[1])
+                self.contact_constraint = p.createConstraint(
+                    parentBodyUniqueId=self.body,
+                    parentLinkIndex=0,
+                    childBodyUniqueId=obj_id,
+                    childLinkIndex=contact_link,
+                    jointType=p.JOINT_FIXED,
+                    jointAxis=(0, 0, 0),
+                    parentFramePosition=obj_to_body[0],
+                    parentFrameOrientation=obj_to_body[1],
+                    childFramePosition=(0, 0, 0),
+                    childFrameOrientation=(0, 0, 0))
+
+                self.activated = True
+
+    def release(self):
+        return
 
 
 class RealRobotiqGripper:

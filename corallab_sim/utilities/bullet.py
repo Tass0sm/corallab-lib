@@ -28,7 +28,7 @@ def load_urdf(pybullet_client, file_path, *args, **kwargs):
         pass
 
 
-def draw_frame(position, quaternion):
+def draw_frame(position, quaternion=[0, 0, 0, 1]):
     m = R.from_quat(quaternion).as_matrix()
     x_vec = m[:, 0]
     colors = [[1, 0, 0],

@@ -44,7 +44,7 @@ class UR5(ABC):
 
 
 class SimulatedUR5(UR5):
-    def __init__(self, base_pos, orn=(0, 0, 0), move_timestep=0):
+    def __init__(self, base_pos, orn=(0, 0, 0), move_timestep=0, GripperClass=Suction):
         """
         base_pos - position of robot base in world frame
         """
@@ -54,7 +54,7 @@ class SimulatedUR5(UR5):
 
         ddict = {'fixed': [], 'rigid': [], 'deformable': []}
         self.ee_id = 10
-        self.ee = Suction(self.id, self.ee_id-1, ddict)
+        self.ee = GripperClass(self.id, self.ee_id-1, ddict)
 
         self.n_joints = p.getNumJoints(self.id)
         joints = [p.getJointInfo(self.id, i) for i in range(self.n_joints)]
