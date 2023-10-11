@@ -3,6 +3,7 @@
 import socket
 import threading
 import time
+import math
 import numpy as np
 import pybullet as p
 from enum import Enum
@@ -31,8 +32,9 @@ class RobotiqGripper(Gripper):
         # corallab_sim.robots "assets/grippers/robotiq/robotiq_85.urdf
         robotiq_gripper_urdf = files("corallab_sim.robots").joinpath("assets/ur5/gripper/robotiq_2f_85.urdf")
         self.id = load_urdf(p, str(robotiq_gripper_urdf), pose[0], pose[1])
+        # TODO: investigate useFixedBase=True, flags=p.URDF_ENABLE_CACHED_GRAPHICS_SHAPES
 
-        p.createConstraint(
+        c = p.createConstraint(
             parentBodyUniqueId=robot,
             parentLinkIndex=ee,
             childBodyUniqueId=self.id,
@@ -41,51 +43,67 @@ class RobotiqGripper(Gripper):
             jointAxis=(0, 0, 0),
             parentFramePosition=(0, 0, 0),
             childFramePosition=(0, 0, 0.01))
+        p.changeConstraint(c, maxForce=10000)
+
 
         self.gripper_range = [0, 0.085]
 
-        # TODO: investigate useFixedBase=True, flags=p.URDF_ENABLE_CACHED_GRAPHICS_SHAPES
+        n_joints = p.getNumJoints(self.id)
+        self.joints = [p.getJointInfo(self.id, i) for i in range(n_joints)]
+        self.__create_mimic_joints__()
 
         # self.activated = False
-        # self.gripper_range = [0, 0.085]
-
         # self.eef_id = 7
         # self.arm_num_dofs = 6
         # self.arm_rest_poses = [-1.5690622952052096, -1.5446774605904932, 1.343946009733127, -1.3708613585093699,
         #                        -1.5707970583733368, 0.0009377758247187636]
-        # self.gripper_range = [0, 0.085]
 
-    def __post_load__(self):
-        # To control the gripper
-        # gripper_main_control_joint_name = "robotiq_85_left_knuckle_joint"
-        # mimic_joint_name = ["robotiq_85_right_knuckle_joint",
-        #                     "robotiq_85_left_inner_knuckle_joint",
-        #                     "robotiq_85_right_inner_knuckle_joint",
-        #                     "robotiq_85_left_finger_tip_joint",
-        #                     "robotiq_85_right_finger_tip_joint"]
-
-        mimic_parent_name = 'finger_joint'
-        mimic_children_names = {'right_outer_knuckle_joint': 1,
-                                'left_inner_knuckle_joint': 1,
-                                'right_inner_knuckle_joint': 1,
-                                'left_inner_finger_joint': -1,
-                                'right_inner_finger_joint': -1}
-        self.__setup_mimic_joints__(mimic_parent_name, mimic_children_names)
-
-    def __setup_mimic_joints__(self, mimic_parent_name, mimic_children_names):
-        self.mimic_parent_id = [joint.id for joint in self.joints if joint.name == mimic_parent_name][0]
-        self.mimic_child_multiplier = {
-            joint.id: mimic_children_names[joint.name] for joint in self.joints if joint.name in mimic_children_names
+    def __create_mimic_joints__(self):
+        # These are defined within the robotiq_gripper urdf. See
+        # http://wiki.ros.org/urdf/XML/joint for more info.
+        joint_to_mimic_name = b"robotiq_2f_85_right_driver_joint"
+        mimic_joints_and_multipliers = {
+            b"robotiq_2f_85_right_follower_joint": 1,
+            b"robotiq_2f_85_right_spring_link_joint": 1,
+            b"robotiq_2f_85_left_driver_joint": 1,
+            b"robotiq_2f_85_left_follower_joint": -1,
+            b"robotiq_2f_85_left_spring_link_joint": 1,
         }
 
-        for joint_id, multiplier in self.mimic_child_multiplier.items():
-            c = p.createConstraint(self.id, self.mimic_parent_id,
-                                   self.id, joint_id,
-                                   jointType=p.JOINT_GEAR,
-                                   jointAxis=[0, 1, 0],
-                                   parentFramePosition=[0, 0, 0],
-                                   childFramePosition=[0, 0, 0])
-            p.changeConstraint(c, gearRatio=-multiplier, maxForce=100, erp=1)  # Note: the mysterious `erp` is of EXTREME importance
+        self.joint_to_mimic_id = [j[0] for j in self.joints if j[1] == joint_to_mimic_name][0]
+
+        for j_name, mult in mimic_joints_and_multipliers.items():
+            self.__create_mimic_constraint__(joint_to_mimic_name, j_name, mult)
+
+    def __create_mimic_constraint__(
+            self,
+            joint_to_mimic_name,
+            joint_name,
+            multiplier
+    ):
+        joint_id = [j[0] for j in self.joints if j[1] == joint_name][0]
+
+        c = p.createConstraint(self.id, joint_id,
+                               self.id, self.joint_to_mimic_id,
+                               jointType=p.JOINT_GEAR,
+                               jointAxis=[0, 1, 0],
+                               parentFramePosition=[0, 0, 0],
+                               childFramePosition=[0, 0, 0])
+        p.changeConstraint(c, gearRatio=multiplier, maxForce=10000, erp=1)
+
+    def move_gripper(self, open_length):
+        # open_length = np.clip(open_length, *self.gripper_range)
+        open_angle = 0.715 - math.asin((open_length - 0.010) / 0.1143)  # angle calculation
+        # Control the mimic gripper joint(s)
+        joint_to_mimic_info = self.joints[self.joint_to_mimic_id]
+        joint_max_force = joint_to_mimic_info[10]
+        joint_max_velocity = joint_to_mimic_info[11]
+        print(joint_max_force)
+        print(joint_max_velocity)
+
+        p.setJointMotorControl2(self.id, self.joint_to_mimic_id, p.POSITION_CONTROL, targetPosition=open_angle,
+                                force=joint_max_force,
+                                maxVelocity=joint_max_velocity)
 
     def step(self):
         """This function can be used to create gripper-specific behaviors."""
