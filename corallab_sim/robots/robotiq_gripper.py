@@ -62,12 +62,14 @@ class RobotiqGripper(Gripper):
         # These are defined within the robotiq_gripper urdf. See
         # http://wiki.ros.org/urdf/XML/joint for more info.
         joint_to_mimic_name = b"robotiq_2f_85_right_driver_joint"
+        # negated from urdf because relationship is inverted (to_mimic ->
+        # mimicking_joint)
         mimic_joints_and_multipliers = {
-            b"robotiq_2f_85_right_follower_joint": 1,
-            b"robotiq_2f_85_right_spring_link_joint": 1,
-            b"robotiq_2f_85_left_driver_joint": 1,
-            b"robotiq_2f_85_left_follower_joint": -1,
-            b"robotiq_2f_85_left_spring_link_joint": 1,
+            b"robotiq_2f_85_right_follower_joint":     1,
+            b"robotiq_2f_85_right_spring_link_joint": -1,
+            b"robotiq_2f_85_left_driver_joint":       -1,
+            b"robotiq_2f_85_left_follower_joint":      1,
+            b"robotiq_2f_85_left_spring_link_joint":  -1,
         }
 
         self.joint_to_mimic_id = [j[0] for j in self.joints if j[1] == joint_to_mimic_name][0]
@@ -98,9 +100,6 @@ class RobotiqGripper(Gripper):
         joint_to_mimic_info = self.joints[self.joint_to_mimic_id]
         joint_max_force = joint_to_mimic_info[10]
         joint_max_velocity = joint_to_mimic_info[11]
-        print(joint_max_force)
-        print(joint_max_velocity)
-
         p.setJointMotorControl2(self.id, self.joint_to_mimic_id, p.POSITION_CONTROL, targetPosition=open_angle,
                                 force=joint_max_force,
                                 maxVelocity=joint_max_velocity)
