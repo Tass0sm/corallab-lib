@@ -53,8 +53,6 @@ class RobotiqGripper(Gripper):
         self.__create_mimic_joints__()
 
         # self.activated = False
-        # self.eef_id = 7
-        # self.arm_num_dofs = 6
         # self.arm_rest_poses = [-1.5690622952052096, -1.5446774605904932, 1.343946009733127, -1.3708613585093699,
         #                        -1.5707970583733368, 0.0009377758247187636]
 
