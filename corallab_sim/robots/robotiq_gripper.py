@@ -140,6 +140,20 @@ class RobotiqGripper(Gripper):
 
                 self.activated = True
 
+    def detect_contact(self):
+        """Detects a contact with a rigid object."""
+        left_pad_link_id = [j[0] for j in self.joints if j[1] == b'robotiq_2f_85_left_pad_joint'][0]
+        right_pad_link_id = [j[0] for j in self.joints if j[1] == b'robotiq_2f_85_right_pad_joint'][0]
+
+        left_contact_points = p.getContactPoints(bodyA=self.id, linkIndexA=left_pad_link_id)
+        right_contact_points = p.getContactPoints(bodyA=self.id, linkIndexA=right_pad_link_id)
+        points = [p for p in left_contact_points
+                  if p[2] != self.id] + \
+                 [p for p in right_contact_points
+                  if p[2] != self.id]
+
+        return len(points) > 0
+
     def release(self):
         return
 
@@ -278,7 +292,6 @@ class RealRobotiqGripper:
             self._set_var(self.ACT, 0)
             self._set_var(self.ATR, 0)
         time.sleep(0.5)
-
 
     def activate(self, auto_calibrate: bool = True):
         """Resets the activation flag in the gripper, and sets it back to one, clearing previous fault flags.
