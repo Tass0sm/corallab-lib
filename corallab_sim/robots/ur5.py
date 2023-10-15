@@ -44,7 +44,7 @@ class UR5(ABC):
 
 
 class SimulatedUR5(UR5):
-    def __init__(self, base_pos, orn=(0, 0, 0), move_timestep=0, GripperClass=Suction):
+    def __init__(self, base_pos, orn=(0, 0, 0), move_timestep=0, flipping=True, GripperClass=Suction):
         """
         base_pos - position of robot base in world frame
         """
@@ -65,6 +65,7 @@ class SimulatedUR5(UR5):
 
         self.ee.release()
         self.move_timestep = move_timestep
+        self.flipping = flipping
 
     def set_q(self, q):
         for ji, qi in zip(self.joints, q):
@@ -73,18 +74,19 @@ class SimulatedUR5(UR5):
     def ik(self, pos, orn):
         """ Written with help of TransporterNet code: https://arxiv.org/pdf/2010.14406.pdf"""
 
-        # flip this orientation to match the conventions of the real robot
-        rot = R.from_quat(orn)
-        rot_x_180 = R.from_euler("xyz", [180, 0, 0], degrees=True)
-        new_rot = rot * rot_x_180
-        new_orn = new_rot.as_quat()
+        if self.flipping:
+            # flip this orientation to match the conventions of the real robot
+            rot = R.from_quat(orn)
+            rot_x_180 = R.from_euler("xyz", [180, 0, 0], degrees=True)
+            rot = rot * rot_x_180
+            orn = new_rot.as_quat()
 
 
         joints = p.calculateInverseKinematics(
             bodyUniqueId=self.id,
             endEffectorLinkIndex=self.ee_id,
             targetPosition=pos,
-            targetOrientation=new_orn,
+            targetOrientation=orn,
             lowerLimits=[-3*np.pi/2, -2.3562, -17, -17, -17, -17],
             upperLimits=[-np.pi/2, 0, 17, 17, 17, 17],
             jointRanges=[np.pi, 2.3562, 34, 34, 34, 34],  # * 6,
@@ -152,18 +154,8 @@ class SimulatedUR5(UR5):
         target_pos = np.add(ee_pos, offt)
         self.move_ee(target_pos, ee_orn)
 
-    def suction(self, on, colmask=True):
-        # collision masks for simplifying testing
-        obj = self.ee.check_grasp()
-
-        if on:
-            self.ee.activate()
-            if colmask and obj is not None:
-                p.setCollisionFilterGroupMask(obj, -1, 0, 0)
-        else:
-            if colmask and obj is not None:
-                p.setCollisionFilterGroupMask(obj, -1, 1, 1)
-            self.ee.release()
+    def grasp(self, on, colmask=True):
+        self.ee.grasp(on, colmask)
 
     def set_joints(self, q):
         for ji, qi in zip(self.joints, q):
@@ -265,7 +257,7 @@ class RealUR5(UR5):
 
         return pos, q
 
-    def move_ee(self, pos, orn):
+    def move_ee(self, pos, orn, flip=True):
         """Move end effector to position POS (meters given in the world frame)
         with orientation ORN (a quaternion).
 
@@ -273,15 +265,18 @@ class RealUR5(UR5):
         defined with Z pointing into the robot. That way, you can give an
         object's orientation and the robot will assume an orientation that can
         interface that object from the top. On the robot, this frame is
-        apparently flipped upside down. So we flip the input orientation by 180
-        degrees about its x-axis to get something that matches this convention.
+        apparently flipped upside down. So, by default, we flip the input
+        orientation by 180 degrees about its x-axis to get something that
+        matches this convention.
+
         """
 
-        rot = R.from_quat(orn)
-        rot_x_180 = R.from_euler("xyz", [180, 0, 0], degrees=True)
-        new_rot = rot * rot_x_180
+        if flip:
+            rot = R.from_quat(orn)
+            rot_x_180 = R.from_euler("xyz", [180, 0, 0], degrees=True)
+            rot = rot * rot_x_180
 
-        pose_base = self.convert_pose_to_base_frame(pos, new_rot)
+        pose_base = self.convert_pose_to_base_frame(pos, rot)
         self.con.moveL(pose_base)
 
     def move_ee_down(self, pos, orn=(1, 0, 0, 0), **kwargs):

@@ -194,3 +194,18 @@ class Suction(Gripper):
         if self.contact_constraint is not None:
             suctioned_object = p.getConstraintInfo(self.contact_constraint)[2]
         return suctioned_object
+
+    def grasp(self, on, colmask):
+        # collision masks for simplifying testing
+        obj = self.check_grasp()
+
+        if on:
+            self.activate()
+            if colmask and obj is not None:
+                # set objs base link to not collide with anything?
+                p.setCollisionFilterGroupMask(obj, -1, 0, 0)
+        else:
+            if colmask and obj is not None:
+                # set objs base link to collide with everything?
+                p.setCollisionFilterGroupMask(obj, -1, 1, 1)
+            self.ee.release()

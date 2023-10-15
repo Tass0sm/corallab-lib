@@ -108,37 +108,38 @@ class RobotiqGripper(Gripper):
 
     def activate(self):
         """Simulate suction using a rigid fixed constraint to contacted object."""
+        pass
         # TODO(andyzeng): check deformables logic.
         # del def_ids
 
-        if not self.activated:
-            points = p.getContactPoints(bodyA=self.body, linkIndexA=0)
-            # print(points)
-            if points:
+        # if not self.activated:
+        #     points = p.getContactPoints(bodyA=self.id, linkIndexA=0)
+        #     # print(points)
+        #     if points:
 
-                # Handle contact between suction with a rigid object.
-                for point in points:
-                    obj_id, contact_link = point[2], point[4]
-                # if obj_id in self.obj_ids['rigid']:
-                body_pose = p.getLinkState(self.body, 0)
-                obj_pose = p.getBasePositionAndOrientation(obj_id)
-                world_to_body = p.invertTransform(body_pose[0], body_pose[1])
-                obj_to_body = p.multiplyTransforms(world_to_body[0],
-                                                   world_to_body[1],
-                                                   obj_pose[0], obj_pose[1])
-                self.contact_constraint = p.createConstraint(
-                    parentBodyUniqueId=self.body,
-                    parentLinkIndex=0,
-                    childBodyUniqueId=obj_id,
-                    childLinkIndex=contact_link,
-                    jointType=p.JOINT_FIXED,
-                    jointAxis=(0, 0, 0),
-                    parentFramePosition=obj_to_body[0],
-                    parentFrameOrientation=obj_to_body[1],
-                    childFramePosition=(0, 0, 0),
-                    childFrameOrientation=(0, 0, 0))
+        #         # Handle contact between suction with a rigid object.
+        #         for point in points:
+        #             obj_id, contact_link = point[2], point[4]
+        #         # if obj_id in self.obj_ids['rigid']:
+        #         body_pose = p.getLinkState(self.id, 0)
+        #         obj_pose = p.getBasePositionAndOrientation(obj_id)
+        #         world_to_body = p.invertTransform(body_pose[0], body_pose[1])
+        #         obj_to_body = p.multiplyTransforms(world_to_body[0],
+        #                                            world_to_body[1],
+        #                                            obj_pose[0], obj_pose[1])
+        #         self.contact_constraint = p.createConstraint(
+        #             parentBodyUniqueId=self.id,
+        #             parentLinkIndex=0,
+        #             childBodyUniqueId=obj_id,
+        #             childLinkIndex=contact_link,
+        #             jointType=p.JOINT_FIXED,
+        #             jointAxis=(0, 0, 0),
+        #             parentFramePosition=obj_to_body[0],
+        #             parentFrameOrientation=obj_to_body[1],
+        #             childFramePosition=(0, 0, 0),
+        #             childFrameOrientation=(0, 0, 0))
 
-                self.activated = True
+        #         self.activated = True
 
     def detect_contact(self):
         """Detects a contact with a rigid object."""
@@ -153,6 +154,20 @@ class RobotiqGripper(Gripper):
                   if p[2] != self.id]
 
         return len(points) > 0
+
+    def check_grasp(self):
+        return True
+
+    def grasp(self, on, colmask):
+        # collision masks for simplifying testing
+        # obj = self.check_grasp()
+
+        if on:
+            closed_position = self.gripper_range[0]
+            self.move_gripper(closed_position)
+        else:
+            open_position = self.gripper_range[1]
+            self.move_gripper(open_position)
 
     def release(self):
         return
