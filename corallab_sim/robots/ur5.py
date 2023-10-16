@@ -79,8 +79,7 @@ class SimulatedUR5(UR5):
             rot = R.from_quat(orn)
             rot_x_180 = R.from_euler("xyz", [180, 0, 0], degrees=True)
             rot = rot * rot_x_180
-            orn = new_rot.as_quat()
-
+            orn = rot.as_quat()
 
         joints = p.calculateInverseKinematics(
             bodyUniqueId=self.id,
