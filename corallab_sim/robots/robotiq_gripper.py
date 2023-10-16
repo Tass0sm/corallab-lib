@@ -7,9 +7,9 @@ import math
 import numpy as np
 import pybullet as p
 from enum import Enum
-from typing import Union, Tuple, OrderedDict
+from typing import Union, Tuple, OrderedDict, Iterable
 from corallab_sim.robots.gripper import Gripper
-from corallab_sim.utilities.bullet import load_urdf
+from corallab_sim.utilities.bullet import load_urdf, draw_text
 from importlib.resources import files
 
 
@@ -35,7 +35,7 @@ class RobotiqGripper(Gripper):
         # TODO: investigate useFixedBase=True, flags=p.URDF_ENABLE_CACHED_GRAPHICS_SHAPES
 
         c = p.createConstraint(
-            parentBodyUniqueId=robot,
+            parentBodyUniqueId=robot.id,
             parentLinkIndex=ee,
             childBodyUniqueId=self.id,
             childLinkIndex=-1,
@@ -45,12 +45,12 @@ class RobotiqGripper(Gripper):
             childFramePosition=(0, 0, 0.01))
         p.changeConstraint(c, maxForce=10000)
 
-
         self.gripper_range = [0, 0.085]
 
         n_joints = p.getNumJoints(self.id)
         self.joints = [p.getJointInfo(self.id, i) for i in range(n_joints)]
         self.__create_mimic_joints__()
+        self.move_timestep = robot.move_timestep
 
         # self.activated = False
         # self.arm_rest_poses = [-1.5690622952052096, -1.5446774605904932, 1.343946009733127, -1.3708613585093699,
@@ -102,10 +102,6 @@ class RobotiqGripper(Gripper):
                                 force=joint_max_force,
                                 maxVelocity=joint_max_velocity)
 
-    def step(self):
-        """This function can be used to create gripper-specific behaviors."""
-        return
-
     def activate(self):
         """Simulate suction using a rigid fixed constraint to contacted object."""
         pass
@@ -141,7 +137,7 @@ class RobotiqGripper(Gripper):
 
         #         self.activated = True
 
-    def detect_contact(self):
+    def get_contact_points(self):
         """Detects a contact with a rigid object."""
         left_pad_link_id = [j[0] for j in self.joints if j[1] == b'robotiq_2f_85_left_pad_joint'][0]
         right_pad_link_id = [j[0] for j in self.joints if j[1] == b'robotiq_2f_85_right_pad_joint'][0]
@@ -153,21 +149,77 @@ class RobotiqGripper(Gripper):
                  [p for p in right_contact_points
                   if p[2] != self.id]
 
-        return len(points) > 0
+        return points
+
+    def detect_contact(self):
+        contact_points = self.get_contact_points()
+        return len(contact_points) > 0
 
     def check_grasp(self):
         return True
+
+    def get_q(self):
+        """q is expressed in length"""
+        open_angle = p.getJointState(self.id, self.joint_to_mimic_id)[0]
+        open_length = (math.sin(0.715 - open_angle) * 0.1143) + 0.010
+        return open_length
+
+    @classmethod
+    def _norm(cls, it: Iterable) -> float:
+        return np.linalg.norm(it)
+
+    @classmethod
+    def _unit_vec(cls, lst: np.ndarray) -> np.ndarray:
+        mag = cls._norm(lst)
+        return (lst / mag) if mag > 0 else 0
+
+    def pose(self):
+        return p.getLinkState(self.id, 0)[:2]
+
+    def move_q(self, tar_q, error_thresh=1e-4, speed=0.01, break_cond=lambda: False, max_iter=600, **kwargs):
+        """ Written with help of TransporterNet code: https://arxiv.org/pdf/2010.14406.pdf"""
+        i = 0
+        assert i < max_iter
+        while i < max_iter:
+            cur_q = self.get_q()
+            err_q = tar_q - cur_q
+
+            draw_text(self.pose()[0], "max force: {}", self.grasp_force(), lifeTime=0.1)
+
+            if break_cond() or (np.abs(err_q) < error_thresh).all():
+                # p.removeBody(marker)
+                return True, tar_q, cur_q
+
+            u = self._unit_vec(err_q)
+            step_q = cur_q + u * speed
+            self.move_gripper(step_q)
+
+            p.stepSimulation()
+            i += 1
+            time.sleep(self.move_timestep)
+
+        # p.removeBody(marker)
+        return False, tar_q, cur_q
+
+    def grasp_force(self):
+        contact_points = self.get_contact_points()
+        normalForcePos = 9
+
+        return max([p[normalForcePos] for p in contact_points], default=0)
 
     def grasp(self, on, colmask):
         # collision masks for simplifying testing
         # obj = self.check_grasp()
 
+        def bc():
+            return self.grasp_force() > 15
+
         if on:
             closed_position = self.gripper_range[0]
-            self.move_gripper(closed_position)
+            self.move_q(closed_position, break_cond=bc)
         else:
             open_position = self.gripper_range[1]
-            self.move_gripper(open_position)
+            self.move_q(open_position)
 
     def release(self):
         return

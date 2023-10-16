@@ -45,3 +45,7 @@ def draw_frame(position, quaternion=[0, 0, 0, 1]):
 def draw_poses(poses):
     for position, quat, _ in poses:
         draw_frame(position, quat)
+
+
+def draw_text(position, text, *args, **kwargs):
+    p.addUserDebugText(text.format(*args), position, **kwargs)

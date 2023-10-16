@@ -52,10 +52,6 @@ class SimulatedUR5(UR5):
         ur5_urdf_path = files("corallab_sim.robots").joinpath("assets/ur5/ur5.urdf")
         self.id = p.loadURDF(str(ur5_urdf_path), base_pos, p.getQuaternionFromEuler(orn))
 
-        ddict = {'fixed': [], 'rigid': [], 'deformable': []}
-        self.ee_id = 10
-        self.ee = GripperClass(self.id, self.ee_id-1, ddict)
-
         self.n_joints = p.getNumJoints(self.id)
         joints = [p.getJointInfo(self.id, i) for i in range(self.n_joints)]
         self.joints = [j[0] for j in joints if j[2] == p.JOINT_REVOLUTE]
@@ -63,9 +59,13 @@ class SimulatedUR5(UR5):
         self.home_q = np.array([-1, -0.5, 0.5, -0.5, -0.5, 0]) * np.pi
         self.set_q(self.home_q)
 
-        self.ee.release()
         self.move_timestep = move_timestep
         self.flipping = flipping
+
+        ddict = {'fixed': [], 'rigid': [], 'deformable': []}
+        self.ee_id = 10
+        self.ee = GripperClass(self, self.ee_id-1, ddict)
+        self.ee.release()
 
     def set_q(self, q):
         for ji, qi in zip(self.joints, q):

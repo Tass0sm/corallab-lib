@@ -45,7 +45,7 @@
     <parent link="robotiq_2f_85_base"/>
     <child link="robotiq_2f_85_right_driver"/>
     <axis xyz="1 0 0"/>
-    <limit effort="60" lower="0.0" upper="0.834" velocity="1.91986177778"/>
+    <limit effort="20" lower="0.0" upper="0.834" velocity="1.91986177778"/>
   </joint>
   <link name="robotiq_2f_85_right_driver">
     <inertial>

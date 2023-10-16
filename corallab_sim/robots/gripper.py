@@ -4,10 +4,6 @@ class Gripper:
     def __init__(self):
         self.activated = False
 
-    def step(self):
-        """This function can be used to create gripper-specific behaviors."""
-        return
-
     def activate(self, objects):
         del objects
         return
