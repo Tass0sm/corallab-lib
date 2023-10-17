@@ -42,7 +42,7 @@ class Suction(Gripper):
         suction_base_urdf = files("corallab_sim.robots").joinpath("assets/ur5/suction/suction-base.urdf")
         base = load_urdf(p, str(suction_base_urdf), pose[0], pose[1])
         p.createConstraint(
-            parentBodyUniqueId=robot,
+            parentBodyUniqueId=robot.id,
             parentLinkIndex=ee,
             childBodyUniqueId=base,
             childLinkIndex=-1,
@@ -58,7 +58,7 @@ class Suction(Gripper):
         suction_head_urdf = files("corallab_sim.robots").joinpath("assets/ur5/suction/suction-head.urdf")
         self.body = load_urdf(p, str(suction_head_urdf), pose[0], pose[1])
         constraint_id = p.createConstraint(
-            parentBodyUniqueId=robot,
+            parentBodyUniqueId=robot.id,
             parentLinkIndex=ee,
             childBodyUniqueId=self.body,
             childLinkIndex=-1,
@@ -208,4 +208,4 @@ class Suction(Gripper):
             if colmask and obj is not None:
                 # set objs base link to collide with everything?
                 p.setCollisionFilterGroupMask(obj, -1, 1, 1)
-            self.ee.release()
+            self.release()
