@@ -52,7 +52,6 @@ class Suction(Gripper):
             childFramePosition=(0, 0, 0.01))
 
         # Load suction tip model (visual and collision) with compliance.
-        # urdf = 'assets/ur5/suction/suction-head.urdf'
         pose = ((0.487, 0.109, 0.347), p.getQuaternionFromEuler((np.pi, 0, 0)))
 
         suction_head_urdf = files("corallab_sim.robots").joinpath("assets/ur5/suction/suction-head.urdf")
