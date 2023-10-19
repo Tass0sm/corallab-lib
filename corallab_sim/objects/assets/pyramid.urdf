@@ -1,0 +1,28 @@
+<robot name="pyramid">
+  <link name="_name">
+    <contact>
+      <lateral_friction value="1.0"/>
+      <rolling_friction value="0.0"/>
+      <contact_cfm value="0.0"/>
+      <contact_erp value="1.0"/>
+    </contact>
+    <visual>
+      <origin xyz="-0.058 0.044 -0.01" rpy="0 0 0" />
+      <geometry>
+	<mesh filename="pyramid/tinker.obj" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="texture">
+	<color rgba="0.8728815094572616 0.11715588167789504 0.9012921785976408 1.0" />
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+	<mesh filename="pyramid/tinker_vhacd.obj" scale="0.001 0.001 0.001" />
+      </geometry>
+    <origin xyz="-0.058 0.044 -0.01" rpy="0 0 0" /></collision>
+    <inertial>
+      <mass value="1.0" />
+      <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0" />
+    </inertial>
+  </link>
+</robot>
