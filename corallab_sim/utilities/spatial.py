@@ -3,7 +3,7 @@ import numpy as np
 from scipy.spatial.transform import Rotation as R
 
 
-def get_rotation(rotq=None, euler=None, rotvec=None, t_matrix=None):
+def get_rotation(rotq=None, euler=None, rotvec=None, matrix=None, t_matrix=None):
     """ utility function to create transformation matrix from different input forms """
     if rotq is not None:
         m = R.from_quat(rotq)
@@ -11,6 +11,8 @@ def get_rotation(rotq=None, euler=None, rotvec=None, t_matrix=None):
         m = R.from_euler('xyz', euler)
     elif rotvec is not None:
         m = R.from_rotvec(rotvec)
+    elif matrix is not None:
+        m = R.from_matrix(matrix)
     elif t_matrix is not None:
         m = R.from_matrix(t_matrix[:-1, :-1])
 
@@ -33,6 +35,13 @@ def get_transform(rotq=None, euler=None, rotvec=None, matrix=None, pos=(0, 0, 0)
     trans[:-1, -1:] = np.array(pos).reshape(-1, 1)
 
     return trans
+
+
+def decompose_transform(T):
+    pos = T[:3, 3]
+    rot_matrix = T[:3, :3]
+    orn = get_rotation(matrix=rot_matrix).as_quat()
+    return pos, orn
 
 
 def invert_transform(transform):

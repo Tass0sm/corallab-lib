@@ -29,7 +29,6 @@ class RobotiqGripper(Gripper):
         # Load suction gripper base model (visual only).
         pose = ((0.487, 0.109, 0.438), p.getQuaternionFromEuler((np.pi, 0, 0)))
 
-        # corallab_sim.robots "assets/grippers/robotiq/robotiq_85.urdf
         robotiq_gripper_urdf = files("corallab_sim.robots").joinpath("assets/ur5/gripper/robotiq_2f_85.urdf")
         self.id = load_urdf(p, str(robotiq_gripper_urdf), pose[0], pose[1])
         # TODO: investigate useFixedBase=True, flags=p.URDF_ENABLE_CACHED_GRAPHICS_SHAPES
@@ -164,7 +163,6 @@ class RobotiqGripper(Gripper):
 
             p.stepSimulation()
             i += 1
-            time.sleep(self.move_timestep)
 
         # p.removeBody(marker)
         return False, tar_q, cur_q
@@ -180,7 +178,7 @@ class RobotiqGripper(Gripper):
         # obj = self.check_grasp()
 
         def bc():
-            return self.grasp_force() > 15
+            return self.grasp_force() > 25
 
         if on:
             closed_position = self.gripper_range[0]
