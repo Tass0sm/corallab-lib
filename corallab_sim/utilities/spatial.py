@@ -88,3 +88,28 @@ def change_basis():
 
 def change_basis():
     pass
+
+
+# TODO: All planes
+def random_translation(plane="xy", low=-0.1, high=0.1):
+    if plane == "xy":
+        random_xy = np.random.uniform(low=low, high=high, size=2)
+        return np.array([*random_xy, 0])
+    else:
+        return np.random.uniform(low=low, high=high, size=3)
+
+
+# TODO: All planes and general case
+def random_rotation(plane="xy"):
+    if plane == "xy":
+        theta = np.random.rand() * 2 * np.pi
+        return get_rotation(euler=[0, 0, theta])
+    else:
+        return get_rotation(euler=[0, 0, 0])
+
+
+def random_transform():
+    random_xy = np.random.rand(2) * 0.01
+    # random_xy_rot = np.random.rand() * 2 * np.pi
+    transform = get_transform(euler=[0, 0, 0], pos=(*random_xy, 0))
+    return transform

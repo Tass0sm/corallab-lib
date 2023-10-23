@@ -105,7 +105,7 @@ class SimulatedUR5(UR5):
         mag = cls._norm(lst)
         return (lst / mag) if mag > 0 else 0
 
-    def move_q(self, tar_q, error_thresh=1e-2, speed=0.01, break_cond=lambda: False, max_iter=300, **kwargs):
+    def move_q(self, tar_q, error_thresh=1e-2, speed=0.01, break_cond=lambda: False, max_iter=10000, **kwargs):
         """ Written with help of TransporterNet code: https://arxiv.org/pdf/2010.14406.pdf"""
         i = 0
         assert i < max_iter
@@ -131,10 +131,10 @@ class SimulatedUR5(UR5):
         # p.removeBody(marker)
         return False, tar_q, cur_q
 
-    def move_ee(self, pos, orn=None, error_thresh=1e-2, speed=0.01, break_cond=lambda: False, max_iter=300, **kwargs):
+    def move_ee(self, pos, orn=None, **kwargs):
         tar_q = self.ik(pos, orn)
         # marker = draw_sphere_marker(pos)
-        self.move_q(tar_q, error_thresh=error_thresh, speed=speed, break_cond=break_cond, max_iter=max_iter, **kwargs)
+        self.move_q(tar_q, **kwargs)
 
     def move_ee_down(self, pos, orn=(0, 0, 0, 1), **kwargs):
         """
@@ -171,6 +171,9 @@ class SimulatedUR5(UR5):
     @property
     def ee_frame(self):
         return p.getLinkState(self.id, self.ee_id)[4:6]
+
+    def go_home(self):
+        self.set_q(self.home_q)
 
 
 class RealUR5(UR5):

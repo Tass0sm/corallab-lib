@@ -143,7 +143,7 @@ class RobotiqGripper(Gripper):
     def pose(self):
         return p.getLinkState(self.id, 0)[:2]
 
-    def move_q(self, tar_q, error_thresh=1e-4, speed=0.01, break_cond=lambda: False, max_iter=600, **kwargs):
+    def move_q(self, tar_q, error_thresh=1e-4, speed=0.02, break_cond=lambda: False, max_iter=600, **kwargs):
         """ Written with help of TransporterNet code: https://arxiv.org/pdf/2010.14406.pdf"""
         i = 0
         assert i < max_iter
