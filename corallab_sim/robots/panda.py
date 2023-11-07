@@ -74,13 +74,11 @@ class SimulatedPanda(Panda):
                 p.resetJointState(self.id, j, self.home_q[index])
                 index += 1
 
-
-
     def set_q(self, q):
         for ji, qi in zip(self.joints, q):
             p.resetJointState(self.id, ji, qi)
 
-    def ik(self, pos, orn):
+    def ik(self, pos, orn, max_iters):
         """ Written with help of TransporterNet code: https://arxiv.org/pdf/2010.14406.pdf"""
 
         if self.flipping:
@@ -99,10 +97,10 @@ class SimulatedPanda(Panda):
             upperLimits=self.upper_limits,
             jointRanges=self.joint_ranges,
             restPoses=np.float32(self.home_q).tolist(),
-            maxNumIterations=20,
+            maxNumIterations=max_iters,
             residualThreshold=1e-5)
 
-        joints = np.float32(joints)
+        # joints = np.float32(joints)
         # joints[2:] = (joints[2:]+np.pi) % (2*np.pi) - np.pi
         return joints[:self.pandaNumDofs]
 
@@ -142,9 +140,40 @@ class SimulatedPanda(Panda):
 
         return False, tar_q, cur_q
 
-    def move_ee(self, pos, orn=None, **kwargs):
-        tar_q = self.ik(pos, orn)
+    def move_q2(self, pos, orn, error_thresh=1e-2, speed=0.01, break_cond=lambda: False, max_iter=10000, **kwargs):
+        """Written with help of TransporterNet code:
+        https://arxiv.org/pdf/2010.14406.pdf"""
+        i = 0
+        assert i < max_iter
+        while i < max_iter:
+            cur_q = np.array([p.getJointState(self.id, i)[0] for i in self.joints])
+            tar_q = self.ik(pos, orn, 10)
+            err_q = tar_q - cur_q
+
+            if break_cond() or (np.abs(err_q) < error_thresh).all():
+                print(err_q)
+                return True, tar_q, cur_q
+
+            u = self._unit_vec(err_q)
+            step_q = cur_q + u * speed
+            p.setJointMotorControlArray(
+                bodyIndex=self.id,
+                jointIndices=self.joints,
+                controlMode=p.POSITION_CONTROL,
+                targetPositions=step_q,
+                positionGains=np.ones(len(self.joints)))
+            p.stepSimulation()
+            i += 1
+            time.sleep(self.move_timestep)
+
+        return False, tar_q, cur_q
+
+    def move_ee_old(self, pos, orn=None, **kwargs):
+        tar_q = self.ik(pos, orn, 200)
         self.move_q(tar_q, **kwargs)
+
+    def move_ee(self, pos, orn=None, **kwargs):
+        self.move_q2(pos, orn, **kwargs)
 
     def move_ee_down(self, pos, orn=(0, 0, 0, 1), **kwargs):
         """
