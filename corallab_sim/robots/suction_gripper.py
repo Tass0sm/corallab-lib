@@ -39,7 +39,9 @@ class Suction(Gripper):
         # Load suction gripper base model (visual only).
         pose = ((0.487, 0.109, 0.438), p.getQuaternionFromEuler((np.pi, 0, 0)))
 
-        suction_base_urdf = files("corallab_sim.robots").joinpath("assets/ur5/suction/suction-base.urdf")
+        suction_base_urdf = files("corallab_sim.robots").joinpath(
+            "assets/ur5/suction/suction-base.urdf"
+        )
         base = load_urdf(p, str(suction_base_urdf), pose[0], pose[1])
         p.createConstraint(
             parentBodyUniqueId=robot.id,
@@ -49,12 +51,15 @@ class Suction(Gripper):
             jointType=p.JOINT_FIXED,
             jointAxis=(0, 0, 0),
             parentFramePosition=(0, 0, 0),
-            childFramePosition=(0, 0, 0.01))
+            childFramePosition=(0, 0, 0.01),
+        )
 
         # Load suction tip model (visual and collision) with compliance.
         pose = ((0.487, 0.109, 0.347), p.getQuaternionFromEuler((np.pi, 0, 0)))
 
-        suction_head_urdf = files("corallab_sim.robots").joinpath("assets/ur5/suction/suction-head.urdf")
+        suction_head_urdf = files("corallab_sim.robots").joinpath(
+            "assets/ur5/suction/suction-head.urdf"
+        )
         self.body = load_urdf(p, str(suction_head_urdf), pose[0], pose[1])
         constraint_id = p.createConstraint(
             parentBodyUniqueId=robot.id,
@@ -64,7 +69,8 @@ class Suction(Gripper):
             jointType=p.JOINT_FIXED,
             jointAxis=(0, 0, 0),
             parentFramePosition=(0, 0, 0),
-            childFramePosition=(0, 0, -0.08))
+            childFramePosition=(0, 0, -0.08),
+        )
         p.changeConstraint(constraint_id, maxForce=10000)
         # p.changeConstraint(constraint_id, maxForce=50)
 
@@ -104,7 +110,6 @@ class Suction(Gripper):
             points = p.getContactPoints(bodyA=self.body, linkIndexA=0)
             # print(points)
             if points:
-
                 # Handle contact between suction with a rigid object.
                 for point in points:
                     obj_id, contact_link = point[2], point[4]
@@ -112,9 +117,9 @@ class Suction(Gripper):
                 body_pose = p.getLinkState(self.body, 0)
                 obj_pose = p.getBasePositionAndOrientation(obj_id)
                 world_to_body = p.invertTransform(body_pose[0], body_pose[1])
-                obj_to_body = p.multiplyTransforms(world_to_body[0],
-                                                   world_to_body[1],
-                                                   obj_pose[0], obj_pose[1])
+                obj_to_body = p.multiplyTransforms(
+                    world_to_body[0], world_to_body[1], obj_pose[0], obj_pose[1]
+                )
                 self.contact_constraint = p.createConstraint(
                     parentBodyUniqueId=self.body,
                     parentLinkIndex=0,
@@ -125,7 +130,8 @@ class Suction(Gripper):
                     parentFramePosition=obj_to_body[0],
                     parentFrameOrientation=obj_to_body[1],
                     childFramePosition=(0, 0, 0),
-                    childFrameOrientation=(0, 0, 0))
+                    childFrameOrientation=(0, 0, 0),
+                )
 
                 self.activated = True
 

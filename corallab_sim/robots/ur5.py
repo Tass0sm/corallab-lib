@@ -12,18 +12,26 @@ import time
 # import rtde.rtde as rtde
 from rtde_control import RTDEControlInterface
 from rtde_receive import RTDEReceiveInterface
+
 # from corallab_sim.robots.robotiq_gripper import RobotiqGripper
 
 from corallab_sim.robots.suction_gripper import Suction
-from corallab_sim.utilities.spatial import get_transform, get_rotation, transform_point, invert_transform
+from corallab_sim.utilities.spatial import (
+    get_transform,
+    get_rotation,
+    transform_point,
+    invert_transform,
+)
 from abc import ABC, abstractmethod
 from importlib.resources import files
 
 
 def log_info(gripper):
-    print(f"Pos: {str(gripper.get_current_position()): >3}  "
-          f"Open: {gripper.is_open(): <2}  "
-          f"Closed: {gripper.is_closed(): <2}  ")
+    print(
+        f"Pos: {str(gripper.get_current_position()): >3}  "
+        f"Open: {gripper.is_open(): <2}  "
+        f"Closed: {gripper.is_closed(): <2}  "
+    )
 
 
 class UR5(ABC):
@@ -44,13 +52,22 @@ class UR5(ABC):
 
 
 class SimulatedUR5(UR5):
-    def __init__(self, base_pos, orn=(0, 0, 0), move_timestep=0, flipping=True, GripperClass=Suction):
+    def __init__(
+        self,
+        base_pos,
+        orn=(0, 0, 0),
+        move_timestep=0,
+        flipping=True,
+        GripperClass=Suction,
+    ):
         """
         base_pos - position of robot base in world frame
         """
 
         ur5_urdf_path = files("corallab_sim.robots").joinpath("assets/ur5/ur5.urdf")
-        self.id = p.loadURDF(str(ur5_urdf_path), base_pos, p.getQuaternionFromEuler(orn))
+        self.id = p.loadURDF(
+            str(ur5_urdf_path), base_pos, p.getQuaternionFromEuler(orn)
+        )
 
         self.n_joints = p.getNumJoints(self.id)
         joints = [p.getJointInfo(self.id, i) for i in range(self.n_joints)]
@@ -62,9 +79,9 @@ class SimulatedUR5(UR5):
         self.move_timestep = move_timestep
         self.flipping = flipping
 
-        ddict = {'fixed': [], 'rigid': [], 'deformable': []}
+        ddict = {"fixed": [], "rigid": [], "deformable": []}
         self.ee_id = 10
-        self.ee = GripperClass(self, self.ee_id-1, ddict)
+        self.ee = GripperClass(self, self.ee_id - 1, ddict)
         self.ee.release()
 
     def set_q(self, q):
@@ -72,7 +89,7 @@ class SimulatedUR5(UR5):
             p.resetJointState(self.id, ji, qi)
 
     def ik(self, pos, orn):
-        """ Written with help of TransporterNet code: https://arxiv.org/pdf/2010.14406.pdf"""
+        """Written with help of TransporterNet code: https://arxiv.org/pdf/2010.14406.pdf"""
 
         if self.flipping:
             # flip this orientation to match the conventions of the real robot
@@ -86,12 +103,13 @@ class SimulatedUR5(UR5):
             endEffectorLinkIndex=self.ee_id,
             targetPosition=pos,
             targetOrientation=orn,
-            lowerLimits=[-3*np.pi/2, -2.3562, -17, -17, -17, -17],
-            upperLimits=[-np.pi/2, 0, 17, 17, 17, 17],
+            lowerLimits=[-3 * np.pi / 2, -2.3562, -17, -17, -17, -17],
+            upperLimits=[-np.pi / 2, 0, 17, 17, 17, 17],
             jointRanges=[np.pi, 2.3562, 34, 34, 34, 34],  # * 6,
             restPoses=np.float32(self.home_q).tolist(),
             maxNumIterations=200,
-            residualThreshold=1e-5)
+            residualThreshold=1e-5,
+        )
         joints = np.float32(joints)
         # joints[2:] = (joints[2:]+np.pi) % (2*np.pi) - np.pi
         return joints
@@ -105,8 +123,16 @@ class SimulatedUR5(UR5):
         mag = cls._norm(lst)
         return (lst / mag) if mag > 0 else 0
 
-    def move_q(self, tar_q, error_thresh=1e-2, speed=0.01, break_cond=lambda: False, max_iter=10000, **kwargs):
-        """ Written with help of TransporterNet code: https://arxiv.org/pdf/2010.14406.pdf"""
+    def move_q(
+        self,
+        tar_q,
+        error_thresh=1e-2,
+        speed=0.01,
+        break_cond=lambda: False,
+        max_iter=10000,
+        **kwargs,
+    ):
+        """Written with help of TransporterNet code: https://arxiv.org/pdf/2010.14406.pdf"""
         i = 0
         assert i < max_iter
         while i < max_iter:
@@ -123,7 +149,8 @@ class SimulatedUR5(UR5):
                 jointIndices=self.joints,
                 controlMode=p.POSITION_CONTROL,
                 targetPositions=step_q,
-                positionGains=np.ones(len(self.joints)))
+                positionGains=np.ones(len(self.joints)),
+            )
             p.stepSimulation()
             i += 1
             time.sleep(self.move_timestep)
@@ -177,7 +204,14 @@ class SimulatedUR5(UR5):
 
 
 class RealUR5(UR5):
-    def __init__(self, ip_address, base_pos=(0, 0, 0), base_orn=(0, 0, 0, 1), gripper=None, move_timestep=0):
+    def __init__(
+        self,
+        ip_address,
+        base_pos=(0, 0, 0),
+        base_orn=(0, 0, 0, 1),
+        gripper=None,
+        move_timestep=0,
+    ):
         """
         base_pos - position of robot base in world frame
         base_orn - orientation of robot base in world frame
@@ -196,14 +230,14 @@ class RealUR5(UR5):
         self.move_timestep = move_timestep
 
     def test(self):
-        actual_q = self.rec.getActualQ();
+        actual_q = self.rec.getActualQ()
 
-        position1 = [-0.343, -0.435, 0.50, -0.001, 3.12, 0.04];
-        position2 = [-0.243, -0.335, 0.20, -0.001, 3.12, 0.04];
-        
-        self.con.moveL(position1);
-        self.con.moveL(position2);
-        self.con.stopL(10.0, False);
+        position1 = [-0.343, -0.435, 0.50, -0.001, 3.12, 0.04]
+        position2 = [-0.243, -0.335, 0.20, -0.001, 3.12, 0.04]
+
+        self.con.moveL(position1)
+        self.con.moveL(position2)
+        self.con.stopL(10.0, False)
 
         if self.gripper is not None:
             print("Testing gripper...")
@@ -251,7 +285,9 @@ class RealUR5(UR5):
         return self.rec.getActualQ()
 
     def ee_pose(self):
-        fk = self.con.getForwardKinematics(self.rec.getActualQ(), self.con.getTCPOffset())
+        fk = self.con.getForwardKinematics(
+            self.rec.getActualQ(), self.con.getTCPOffset()
+        )
 
         pos = fk[0:3]
         rot = R.from_rotvec(fk[3:6], degrees=False)
@@ -322,23 +358,35 @@ def teach_and_record_trajectory(robot):
     print("- Quit the loop with 'q' + RET")
 
     i = 0
+    gripper_action = 1
     while True:
         command = input("> ")
 
         try:
             if command == "r":
                 pose = robot.ee_pose()
-                gripper_state = robot.get_gripper_state()
-                poses.append((*pose, gripper_state))
-                print(f"Recorded position {i}: {pose}, {gripper_state}")
+                poses.append((*pose, gripper_action))
+                print(f"Recorded position {i}: {pose}, {gripper_action}")
 
                 config = robot.get_joint_positions()
                 configurations.append(config)
                 print(f"Recorded configuration {i}")
+                gripper_action = 1
 
                 i += 1
             elif command == "t":
                 new_state = robot.toggle_gripper()
+
+                if new_state == 0:
+                    # open
+                    gripper_action = 0
+                elif new_state == 1:
+                    # close
+                    gripper_action = 2
+                else:
+                    # no change
+                    gripper_action = 1
+
                 print(f"Gripper is now in state {new_state}")
             elif command == "q":
                 break
@@ -347,9 +395,8 @@ def teach_and_record_trajectory(robot):
 
         except KeyboardInterrupt:
             break
-        except rtde.RTDEException:
+        except:
             print("Error: quitting")
-            del robot
             sys.exit()
 
     print(f"Recorded {i} poses")
@@ -357,3 +404,6 @@ def teach_and_record_trajectory(robot):
     robot.exit_teach_mode()
 
     return poses, configurations
+
+
+# two model one free space trajectory and then second for solving environment issues

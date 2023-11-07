@@ -4,11 +4,11 @@ from scipy.spatial.transform import Rotation as R
 
 
 def get_rotation(rotq=None, euler=None, rotvec=None, matrix=None, t_matrix=None):
-    """ utility function to create transformation matrix from different input forms """
+    """utility function to create transformation matrix from different input forms"""
     if rotq is not None:
         m = R.from_quat(rotq)
     elif euler is not None:
-        m = R.from_euler('xyz', euler)
+        m = R.from_euler("xyz", euler)
     elif rotvec is not None:
         m = R.from_rotvec(rotvec)
     elif matrix is not None:
@@ -20,13 +20,13 @@ def get_rotation(rotq=None, euler=None, rotvec=None, matrix=None, t_matrix=None)
 
 
 def get_transform(rotq=None, euler=None, rotvec=None, matrix=None, pos=(0, 0, 0)):
-    """ utility function to create transformation matrix from different input forms """
+    """utility function to create transformation matrix from different input forms"""
     trans = np.eye(4)
 
     if rotq is not None:
         trans[:-1, :-1] = R.from_quat(rotq).as_matrix()
     elif euler is not None:
-        trans[:-1, :-1] = R.from_euler('xyz', euler).as_matrix()
+        trans[:-1, :-1] = R.from_euler("xyz", euler).as_matrix()
     elif rotvec is not None:
         trans[:-1, :-1] = R.from_rotvec(rotvec).as_matrix()
     elif matrix is not None:

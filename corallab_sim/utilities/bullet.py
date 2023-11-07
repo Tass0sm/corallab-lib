@@ -15,7 +15,7 @@ def setup_basic(pc=p, add_plane=True, plane_height=0, headless=False):
     pc.resetDebugVisualizerCamera(dist, yaw, pitch, target)
 
     if add_plane:
-        plane_id = pc.loadURDF('plane.urdf', basePosition=[0, 0, plane_height])
+        plane_id = pc.loadURDF("plane.urdf", basePosition=[0, 0, plane_height])
     else:
         plane_id = None
 
@@ -34,9 +34,7 @@ def load_urdf(pybullet_client, file_path, *args, **kwargs):
 def draw_frame(position, quaternion=[0, 0, 0, 1]):
     m = R.from_quat(quaternion).as_matrix()
     x_vec = m[:, 0]
-    colors = [[1, 0, 0],
-              [0, 1, 0],
-              [0, 0, 1]]
+    colors = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
 
     for color, column in zip(colors, range(3)):
         vec = m[:, column]

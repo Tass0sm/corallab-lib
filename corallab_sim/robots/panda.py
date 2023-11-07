@@ -30,7 +30,13 @@ class SimulatedPanda(Panda):
         """
 
         flags = p.URDF_ENABLE_CACHED_GRAPHICS_SHAPES
-        self.id = p.loadURDF("franka_panda/panda.urdf", base_pos, p.getQuaternionFromEuler(orn), useFixedBase=True, flags=flags)
+        self.id = p.loadURDF(
+            "franka_panda/panda.urdf",
+            base_pos,
+            p.getQuaternionFromEuler(orn),
+            useFixedBase=True,
+            flags=flags,
+        )
 
         self.n_joints = p.getNumJoints(self.id)
         joints = [p.getJointInfo(self.id, i) for i in range(self.n_joints)]
@@ -43,21 +49,25 @@ class SimulatedPanda(Panda):
         self.lower_limits = [-7] * pandaNumDofs
         self.upper_limits = [7] * pandaNumDofs
         self.joint_ranges = [7] * pandaNumDofs
-        self.home_q = np.array([0.98, 0.458, 0.31, -2.24, -0.30, 2.66, 2.32, 0.02, 0.02])
+        self.home_q = np.array(
+            [0.98, 0.458, 0.31, -2.24, -0.30, 2.66, 2.32, 0.02, 0.02]
+        )
         self.set_q(self.home_q)
 
         self.move_timestep = move_timestep
         self.flipping = flipping
 
         # create a constraint to keep the fingers centered
-        c = p.createConstraint(self.id,
-                               9,                        # finger
-                               self.id,
-                               10,                       # finger
-                               jointType=p.JOINT_GEAR,
-                               jointAxis=[1, 0, 0],
-                               parentFramePosition=[0, 0, 0],
-                               childFramePosition=[0, 0, 0])
+        c = p.createConstraint(
+            self.id,
+            9,  # finger
+            self.id,
+            10,  # finger
+            jointType=p.JOINT_GEAR,
+            jointAxis=[1, 0, 0],
+            parentFramePosition=[0, 0, 0],
+            childFramePosition=[0, 0, 0],
+        )
         p.changeConstraint(c, gearRatio=-1, erp=0.1, maxForce=50)
 
         index = 0
@@ -66,11 +76,11 @@ class SimulatedPanda(Panda):
             info = p.getJointInfo(self.id, j)
             jointName = info[1]
             jointType = info[2]
-            if (jointType == p.JOINT_PRISMATIC):
+            if jointType == p.JOINT_PRISMATIC:
                 p.resetJointState(self.id, j, self.home_q[index])
                 index += 1
 
-            if (jointType == p.JOINT_REVOLUTE):
+            if jointType == p.JOINT_REVOLUTE:
                 p.resetJointState(self.id, j, self.home_q[index])
                 index += 1
 
@@ -79,7 +89,7 @@ class SimulatedPanda(Panda):
             p.resetJointState(self.id, ji, qi)
 
     def ik(self, pos, orn, max_iters):
-        """ Written with help of TransporterNet code: https://arxiv.org/pdf/2010.14406.pdf"""
+        """Written with help of TransporterNet code: https://arxiv.org/pdf/2010.14406.pdf"""
 
         if self.flipping:
             # flip this orientation to match the conventions of the real robot
@@ -98,11 +108,12 @@ class SimulatedPanda(Panda):
             jointRanges=self.joint_ranges,
             restPoses=np.float32(self.home_q).tolist(),
             maxNumIterations=max_iters,
-            residualThreshold=1e-5)
+            residualThreshold=1e-5,
+        )
 
         # joints = np.float32(joints)
         # joints[2:] = (joints[2:]+np.pi) % (2*np.pi) - np.pi
-        return joints[:self.pandaNumDofs]
+        return joints[: self.pandaNumDofs]
 
     @classmethod
     def _norm(cls, it: Iterable) -> float:
@@ -113,7 +124,15 @@ class SimulatedPanda(Panda):
         mag = cls._norm(lst)
         return (lst / mag) if mag > 0 else 0
 
-    def move_q(self, tar_q, error_thresh=1e-2, speed=0.01, break_cond=lambda: False, max_iter=10000, **kwargs):
+    def move_q(
+        self,
+        tar_q,
+        error_thresh=1e-2,
+        speed=0.01,
+        break_cond=lambda: False,
+        max_iter=10000,
+        **kwargs
+    ):
         """Written with help of TransporterNet code:
         https://arxiv.org/pdf/2010.14406.pdf"""
         i = 0
@@ -133,14 +152,24 @@ class SimulatedPanda(Panda):
                 jointIndices=self.joints,
                 controlMode=p.POSITION_CONTROL,
                 targetPositions=step_q,
-                positionGains=np.ones(len(self.joints)))
+                positionGains=np.ones(len(self.joints)),
+            )
             p.stepSimulation()
             i += 1
             time.sleep(self.move_timestep)
 
         return False, tar_q, cur_q
 
-    def move_q2(self, pos, orn, error_thresh=1e-2, speed=0.01, break_cond=lambda: False, max_iter=10000, **kwargs):
+    def move_q2(
+        self,
+        pos,
+        orn,
+        error_thresh=1e-2,
+        speed=0.01,
+        break_cond=lambda: False,
+        max_iter=10000,
+        **kwargs
+    ):
         """Written with help of TransporterNet code:
         https://arxiv.org/pdf/2010.14406.pdf"""
         i = 0
@@ -161,7 +190,8 @@ class SimulatedPanda(Panda):
                 jointIndices=self.joints,
                 controlMode=p.POSITION_CONTROL,
                 targetPositions=step_q,
-                positionGains=np.ones(len(self.joints)))
+                positionGains=np.ones(len(self.joints)),
+            )
             p.stepSimulation()
             i += 1
             time.sleep(self.move_timestep)
@@ -200,11 +230,9 @@ class SimulatedPanda(Panda):
 
         for iteration in range(100):
             for i in [9, 10]:
-                p.setJointMotorControl2(self.id,
-                                        i,
-                                        p.POSITION_CONTROL,
-                                        finger_target,
-                                        force=20)
+                p.setJointMotorControl2(
+                    self.id, i, p.POSITION_CONTROL, finger_target, force=20
+                )
             p.stepSimulation()
             time.sleep(self.move_timestep)
 
