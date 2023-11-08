@@ -7,10 +7,10 @@ from ompl import base as ob
 from ompl import geometric as og
 
 import pybullet as p
-import utils
 import time
-from itertools import product
 import copy
+from itertools import product
+from . import utils
 
 INTERPOLATE_NUM = 500
 DEFAULT_PLANNING_TIME = 5.0
