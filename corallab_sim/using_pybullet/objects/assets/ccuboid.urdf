@@ -1,0 +1,28 @@
+<robot name="ccuboid">
+  <link name="_name">
+    <contact>
+      <lateral_friction value="1.0"/>
+      <rolling_friction value="0.0"/>
+      <contact_cfm value="0.0"/>
+      <contact_erp value="1.0"/>
+    </contact>
+    <visual>
+      <origin xyz="0.040512391581083565 0.03900000000000001 -0.029999983326286478" rpy="0 0 0" />
+      <geometry>
+	<mesh filename="ccuboid/tinker.obj" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="texture">
+	<color rgba="0.5285494304846649 0.8052616853729326 0.47328724440755865 1.0" />
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+	<mesh filename="ccuboid/tinker_vhacd.obj" scale="0.001 0.001 0.001" />
+      </geometry>
+    <origin xyz="0.040512391581083565 0.03900000000000001 -0.029999983326286478" rpy="0 0 0" /></collision>
+    <inertial>
+      <mass value="1.0" />
+      <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0" />
+    </inertial>
+  </link>
+</robot>

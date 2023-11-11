@@ -1,2 +1,6 @@
 Utilities for controlling a robot in a pybullet environment, and smoothly
 transferring that setup to a UR robot simulator, and finally to reality.
+
+* Goals
+1. Support multiple simulators with a similar API
+2. Opt-in features and dependencies

@@ -1,0 +1,28 @@
+<robot name="cylinder">
+  <link name="_name">
+    <contact>
+      <lateral_friction value="1.0"/>
+      <rolling_friction value="0.0"/>
+      <contact_cfm value="0.0"/>
+      <contact_erp value="1.0"/>
+    </contact>
+    <visual>
+      <origin xyz="-2.0347968337764762e-19 0.024000000000000004 -0.03000000000000001" rpy="0 0 0" />
+      <geometry>
+	<mesh filename="cylinder/tinker.obj" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="texture">
+	<color rgba="0.45815538934366873 0.5622777225161942 0.12222557471515583 1.0" />
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+	<mesh filename="cylinder/tinker_vhacd.obj" scale="0.001 0.001 0.001" />
+      </geometry>
+    <origin xyz="-2.0347968337764762e-19 0.024000000000000004 -0.03000000000000001" rpy="0 0 0" /></collision>
+    <inertial>
+      <mass value="1.0" />
+      <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0" />
+    </inertial>
+  </link>
+</robot>
