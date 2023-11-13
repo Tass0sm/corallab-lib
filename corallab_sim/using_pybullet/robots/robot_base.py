@@ -1,7 +1,14 @@
 """Credit to: https://github.com/ElectronicElephant/pybullet_ur5_robotiq"""
 
 import pybullet as p
+import numpy as np
+from scipy.spatial.transform import Rotation as R
 from collections import namedtuple
+
+
+def unit_vec(lst: np.ndarray) -> np.ndarray:
+    mag = np.linalg.norm(lst)
+    return (lst / mag) if mag > 0 else 0
 
 
 class RobotBase(object):
@@ -9,11 +16,12 @@ class RobotBase(object):
     The base class for robots
     """
 
-    def __init__(self, pos, ori):
+    def __init__(self, pos, ori, flipping=True):
         """
         Arguments:
             pos: [x y z]
             ori: [r p y]
+            flipping: whether to flip target positions
 
         Attributes:
             id: Int, the ID of the robot
@@ -36,6 +44,7 @@ class RobotBase(object):
         """
         self.base_pos = pos
         self.base_ori = p.getQuaternionFromEuler(ori)
+        self.flipping = flipping
 
     def load(self):
         self.__init_robot__()
@@ -108,6 +117,10 @@ class RobotBase(object):
     def close_gripper(self):
         self.move_gripper(self.gripper_range[0])
 
+    @property
+    def ee_pose(self):
+        return p.getLinkState(self.id, self.eef_id)[:2]
+
     def move_ee(self, action, control_method):
         assert control_method in ('joint', 'end')
         if control_method == 'end':
@@ -137,3 +150,87 @@ class RobotBase(object):
             velocities.append(vel)
         ee_pos = p.getLinkState(self.id, self.eef_id)[0]
         return dict(positions=positions, velocities=velocities, ee_pos=ee_pos)
+
+    ########################
+    #     GET / SET q      #
+    ########################
+
+    def set_q(self, q):
+        for ji, qi in zip(self.joints, q):
+            p.resetJointState(self.id, ji, qi)
+
+    def get_q(self):
+        cur_q = np.array([p.getJointState(self.id, i)[0] for i in self.arm_controllable_joints])
+        return cur_q
+
+    ########################
+    # SYNCHRONOUS MOVEMENT #
+    ########################
+
+    def ik(self, pos, orn):
+        """Written with help of TransporterNet code: https://arxiv.org/pdf/2010.14406.pdf"""
+
+        if self.flipping:
+            # flip this orientation to match the conventions of the real robot
+            rot = R.from_quat(orn)
+            rot_x_180 = R.from_euler("xyz", [180, 0, 0], degrees=True)
+            rot = rot * rot_x_180
+            orn = rot.as_quat()
+
+        joints = p.calculateInverseKinematics(
+            bodyUniqueId=self.id,
+            endEffectorLinkIndex=self.eef_id,
+            targetPosition=pos,
+            targetOrientation=orn,
+            lowerLimits=self.arm_lower_limits,
+            upperLimits=self.arm_upper_limits,
+            jointRanges=self.arm_joint_ranges,
+            restPoses=self.arm_rest_poses,
+            maxNumIterations=200,
+            residualThreshold=1e-5,
+        )
+        joints = np.float32(joints)
+        return joints[:self.arm_num_dofs]
+
+    def move_q_synchronous(
+            self,
+            tar_q,
+            error_thresh=1e-2,
+            speed=0.01,
+            break_cond=lambda: False,
+            max_iter=10000,
+            **kwargs,
+    ):
+        """Written with help of TransporterNet code: https://arxiv.org/pdf/2010.14406.pdf"""
+        i = 0
+        assert i < max_iter
+        while i < max_iter:
+            cur_q = np.array([p.getJointState(self.id, i)[0] for i in self.arm_controllable_joints])
+            err_q = tar_q - cur_q
+            if break_cond() or (np.abs(err_q) < error_thresh).all():
+                # p.removeBody(marker)
+                return True, tar_q, cur_q
+
+            u = unit_vec(err_q)
+            step_q = cur_q + u * speed
+
+            p.setJointMotorControlArray(
+                bodyIndex=self.id,
+                jointIndices=self.arm_controllable_joints,
+                controlMode=p.POSITION_CONTROL,
+                targetPositions=step_q,
+                positionGains=np.ones(len(self.arm_controllable_joints)),
+            )
+
+            self.step_simulation()
+            i += 1
+
+        return False, tar_q, cur_q
+
+    def move_ee_synchronous(self, pos, orn=None, **kwargs):
+        tar_q = self.ik(pos, orn)
+        self.move_q_synchronous(tar_q, **kwargs)
+
+    def move_ee_above_synchronous(self, pos, orn=(1, 0, 0, 0), above_offt=(0, 0, 0.2)):
+        a_pos = np.add(pos, above_offt)
+        self.move_ee_synchronous(a_pos, orn)
