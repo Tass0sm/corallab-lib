@@ -155,19 +155,22 @@ class RobotBase(object):
     #     GET / SET q      #
     ########################
 
-    def set_q(self, q):
-        for ji, qi in zip(self.joints, q):
-            p.resetJointState(self.id, ji, qi)
-
     def get_q(self):
         cur_q = np.array([p.getJointState(self.id, i)[0] for i in self.arm_controllable_joints])
         return cur_q
+
+    def set_q(self, q):
+        for ji, qi in zip(self.joints, q):
+            p.resetJointState(self.id, ji.id, qi)
+
+    def go_home(self):
+        self.set_q(self.arm_rest_poses)
 
     ########################
     # SYNCHRONOUS MOVEMENT #
     ########################
 
-    def ik(self, pos, orn):
+    def ik(self, pos, orn, max_niter=200):
         """Written with help of TransporterNet code: https://arxiv.org/pdf/2010.14406.pdf"""
 
         if self.flipping:
@@ -186,7 +189,7 @@ class RobotBase(object):
             upperLimits=self.arm_upper_limits,
             jointRanges=self.arm_joint_ranges,
             restPoses=self.arm_rest_poses,
-            maxNumIterations=200,
+            maxNumIterations=max_niter,
             residualThreshold=1e-5,
         )
         joints = np.float32(joints)
