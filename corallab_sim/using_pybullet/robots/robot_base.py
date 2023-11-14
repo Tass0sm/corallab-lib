@@ -16,12 +16,12 @@ class RobotBase(object):
     The base class for robots
     """
 
-    def __init__(self, pos, ori, flipping=True):
+    def __init__(self, pos, ori, target_rot=[0, 0, 0]):
         """
         Arguments:
             pos: [x y z]
             ori: [r p y]
-            flipping: whether to flip target positions
+            target_rot: [rx, ry, rz]
 
         Attributes:
             id: Int, the ID of the robot
@@ -44,7 +44,7 @@ class RobotBase(object):
         """
         self.base_pos = pos
         self.base_ori = p.getQuaternionFromEuler(ori)
-        self.flipping = flipping
+        self.target_rot = target_rot
 
     def load(self):
         self.__init_robot__()
@@ -112,9 +112,11 @@ class RobotBase(object):
         self.open_gripper()
 
     def open_gripper(self):
+        self.gripper_target = self.gripper_range[1]
         self.move_gripper(self.gripper_range[1])
 
     def close_gripper(self):
+        self.gripper_target = self.gripper_range[0]
         self.move_gripper(self.gripper_range[0])
 
     @property
@@ -160,25 +162,18 @@ class RobotBase(object):
         return cur_q
 
     def set_q(self, q):
-        for ji, qi in zip(self.joints, q):
-            p.resetJointState(self.id, ji.id, qi)
+        for ji, qi in zip(self.arm_controllable_joints, q):
+            p.resetJointState(self.id, ji, qi)
 
     def go_home(self):
         self.set_q(self.arm_rest_poses)
 
-    ########################
-    # SYNCHRONOUS MOVEMENT #
-    ########################
+    ############################
+    # SYNCHRONOUS ARM MOVEMENT #
+    ############################
 
     def ik(self, pos, orn, max_niter=200):
         """Written with help of TransporterNet code: https://arxiv.org/pdf/2010.14406.pdf"""
-
-        if self.flipping:
-            # flip this orientation to match the conventions of the real robot
-            rot = R.from_quat(orn)
-            rot_x_180 = R.from_euler("xyz", [180, 0, 0], degrees=True)
-            rot = rot * rot_x_180
-            orn = rot.as_quat()
 
         joints = p.calculateInverseKinematics(
             bodyUniqueId=self.id,
@@ -193,7 +188,7 @@ class RobotBase(object):
             residualThreshold=1e-5,
         )
         joints = np.float32(joints)
-        return joints[:self.arm_num_dofs]
+        return joints
 
     def move_q_synchronous(
             self,
@@ -201,17 +196,16 @@ class RobotBase(object):
             error_thresh=1e-2,
             speed=0.01,
             break_cond=lambda: False,
-            max_iter=10000,
+            max_iter=5000,
             **kwargs,
     ):
         """Written with help of TransporterNet code: https://arxiv.org/pdf/2010.14406.pdf"""
         i = 0
         assert i < max_iter
         while i < max_iter:
-            cur_q = np.array([p.getJointState(self.id, i)[0] for i in self.arm_controllable_joints])
+            cur_q = self.get_q()
             err_q = tar_q - cur_q
             if break_cond() or (np.abs(err_q) < error_thresh).all():
-                # p.removeBody(marker)
                 return True, tar_q, cur_q
 
             u = unit_vec(err_q)
@@ -225,6 +219,8 @@ class RobotBase(object):
                 positionGains=np.ones(len(self.arm_controllable_joints)),
             )
 
+            self.move_gripper(self.gripper_target)
+
             self.step_simulation()
             i += 1
 
@@ -232,8 +228,30 @@ class RobotBase(object):
 
     def move_ee_synchronous(self, pos, orn=None, **kwargs):
         tar_q = self.ik(pos, orn)
+        tar_q = tar_q[:self.arm_num_dofs]
         self.move_q_synchronous(tar_q, **kwargs)
 
     def move_ee_above_synchronous(self, pos, orn=(1, 0, 0, 0), above_offt=(0, 0, 0.2)):
         a_pos = np.add(pos, above_offt)
         self.move_ee_synchronous(a_pos, orn)
+
+    def dont_move(self, niters=200):
+        cur_q = self.get_q()
+        for i in range(niters):
+            # print(i)
+            # self.move_ee(cur_q, "joint")
+            self.set_q(cur_q)
+            self.move_gripper(self.gripper_target)
+            self.step_simulation()
+
+    ####
+    # Util
+    ####
+
+    def convert_target_pose(self, pos, orn):
+        rot = R.from_quat(orn)
+        rot_x_180 = R.from_euler("xyz", self.target_rot, degrees=True)
+        rot = rot * rot_x_180
+        orn = rot.as_quat()
+
+        return pos, orn
