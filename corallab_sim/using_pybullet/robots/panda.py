@@ -1,8 +1,12 @@
 """Credit to: https://github.com/ElectronicElephant/pybullet_ur5_robotiq"""
 
 import pybullet as p
+from importlib.resources import files
 
 from .robot_base import RobotBase
+
+
+PANDA_URDF_PATH = str(files("corallab_sim").joinpath("assets/panda/panda.urdf"))
 
 
 class Panda(RobotBase):
@@ -12,7 +16,7 @@ class Panda(RobotBase):
         self.eef_id = 11
         self.arm_num_dofs = 7
         self.arm_rest_poses = [0.98, 0.458, 0.31, -2.24, -0.30, 2.66, 2.32]
-        self.id = p.loadURDF('./urdf/panda.urdf', self.base_pos, self.base_ori,
+        self.id = p.loadURDF(PANDA_URDF_PATH, self.base_pos, self.base_ori,
                              useFixedBase=True, flags=p.URDF_ENABLE_CACHED_GRAPHICS_SHAPES)
         self.gripper_range = [0, 0.04]
         # create a constraint to keep the fingers centered
