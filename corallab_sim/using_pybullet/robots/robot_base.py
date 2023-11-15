@@ -1,5 +1,6 @@
 """Credit to: https://github.com/ElectronicElephant/pybullet_ur5_robotiq"""
 
+import copy
 import pybullet as p
 import numpy as np
 from scipy.spatial.transform import Rotation as R
@@ -163,7 +164,7 @@ class RobotBase(object):
 
     def set_q(self, q):
         for ji, qi in zip(self.arm_controllable_joints, q):
-            p.resetJointState(self.id, ji, qi)
+            p.resetJointState(self.id, ji, qi, targetVelocity=0)
 
     def go_home(self):
         self.set_q(self.arm_rest_poses)
@@ -187,7 +188,7 @@ class RobotBase(object):
             maxNumIterations=max_niter,
             residualThreshold=1e-5,
         )
-        joints = np.float32(joints)
+        joints = np.float64(joints)
         return joints
 
     def move_q_synchronous(
@@ -255,3 +256,21 @@ class RobotBase(object):
         orn = rot.as_quat()
 
         return pos, orn
+
+
+    ####
+    # For PB_OMPL
+    ####
+
+    def set_state(self, state):
+        '''
+        Set robot state.
+        To faciliate collision checking
+        Args:
+            state: list[Float], joint values of robot
+        '''
+        self.set_q(state)
+        self.state = state
+
+    def get_cur_state(self):
+        return copy.deepcopy(self.state)

@@ -16,75 +16,6 @@ INTERPOLATE_NUM = 500
 DEFAULT_PLANNING_TIME = 5.0
 
 
-class PbOMPLRobot():
-    '''To use with Pb_OMPL. You need to construct a instance of this class and pass to PbOMPL.
-
-    Note: This parent class by default assumes that all joints are actuated and
-    should be planned. If this is not your desired behavior, please write your
-    own inherited class that overrides respective functionalities.
-    '''
-
-    def __init__(self, id) -> None:
-        # Public attributes
-        self.id = id
-
-        # prune fixed joints
-        all_joint_num = p.getNumJoints(id)
-        all_joint_idx = list(range(all_joint_num))
-        joint_idx = [j for j in all_joint_idx if self._is_not_fixed(j)]
-        self.num_dim = len(joint_idx)
-        self.joint_idx = joint_idx
-        print(self.joint_idx)
-        self.joint_bounds = []
-
-        self.reset()
-
-    def _is_not_fixed(self, joint_idx):
-        joint_info = p.getJointInfo(self.id, joint_idx)
-        return joint_info[2] != p.JOINT_FIXED
-
-    def get_joint_bounds(self):
-        '''
-        Get joint bounds.
-        By default, read from pybullet
-        '''
-        for i, joint_id in enumerate(self.joint_idx):
-            joint_info = p.getJointInfo(self.id, joint_id)
-            low = joint_info[8] # low bounds
-            high = joint_info[9] # high bounds
-            if low < high:
-                self.joint_bounds.append([low, high])
-        print("Joint bounds: {}".format(self.joint_bounds))
-        return self.joint_bounds
-
-    def get_cur_state(self):
-        return copy.deepcopy(self.state)
-
-    def set_state(self, state):
-        '''
-        Set robot state.
-        To faciliate collision checking
-        Args:
-            state: list[Float], joint values of robot
-        '''
-        self._set_joint_positions(self.joint_idx, state)
-        self.state = state
-
-    def reset(self):
-        '''
-        Reset robot state
-        Args:
-            state: list[Float], joint values of robot
-        '''
-        state = [0] * self.num_dim
-        self._set_joint_positions(self.joint_idx, state)
-        self.state = state
-
-    def _set_joint_positions(self, joints, positions):
-        for joint, value in zip(joints, positions):
-            p.resetJointState(self.id, joint, value, targetVelocity=0)
-
-
 class PbStateSpace(ob.RealVectorStateSpace):
     def __init__(self, num_dim) -> None:
         super().__init__(num_dim)
@@ -113,7 +44,7 @@ class PbOMPL():
     def __init__(self, robot, obstacles = []) -> None:
         '''
         Args
-            robot: A PbOMPLRobot instance.
+            robot: A RobotBase instance.
             obstacles: list of obstacle ids. Optional.
         '''
         self.robot = robot
@@ -121,13 +52,13 @@ class PbOMPL():
         self.obstacles = obstacles
         print(self.obstacles)
 
-        self.space = PbStateSpace(robot.num_dim)
+        self.space = PbStateSpace(robot.arm_num_dofs)
 
-        bounds = ob.RealVectorBounds(robot.num_dim)
-        joint_bounds = self.robot.get_joint_bounds()
-        for i, bound in enumerate(joint_bounds):
-            bounds.setLow(i, bound[0])
-            bounds.setHigh(i, bound[1])
+        bounds = ob.RealVectorBounds(robot.arm_num_dofs)
+        joint_bounds = zip(self.robot.arm_lower_limits, self.robot.arm_upper_limits)
+        for i, (lower_limit, upper_limit) in enumerate(joint_bounds):
+            bounds.setLow(i, lower_limit)
+            bounds.setHigh(i, upper_limit)
         self.space.setBounds(bounds)
 
         self.ss = og.SimpleSetup(self.space)
@@ -156,12 +87,13 @@ class PbOMPL():
         # satisfy bounds TODO
         # Should be unecessary if joint bounds is properly set
 
-        # check self-collision
         self.robot.set_state(self.state_to_list(state))
-        for link1, link2 in self.check_link_pairs:
-            if utils.pairwise_link_collision(self.robot_id, link1, self.robot_id, link2):
-                # print(get_body_name(body), get_link_name(body, link1), get_link_name(body, link2))
-                return False
+
+        # check self-collision
+        # for link1, link2 in self.check_link_pairs:
+        #     if utils.pairwise_link_collision(self.robot_id, link1, self.robot_id, link2):
+        #         # print(get_body_name(body), get_link_name(body, link1), get_link_name(body, link2))
+        #         return False
 
         # check collision against environment
         for body1, body2 in self.check_body_pairs:
@@ -169,12 +101,13 @@ class PbOMPL():
                 # print('body collision', body1, body2)
                 # print(get_body_name(body1), get_body_name(body2))
                 return False
+
         return True
 
     def setup_collision_detection(self, robot, obstacles, self_collisions = True, allow_collision_links = []):
-        self.check_link_pairs = utils.get_self_link_pairs(robot.id, robot.joint_idx) if self_collisions else []
+        self.check_link_pairs = utils.get_self_link_pairs(robot.id, robot.arm_controllable_joints) if self_collisions else []
         moving_links = frozenset(
-            [item for item in utils.get_moving_links(robot.id, robot.joint_idx) if not item in allow_collision_links])
+            [item for item in utils.get_moving_links(robot.id, robot.arm_controllable_joints) if not item in allow_collision_links])
         moving_bodies = [(robot.id, moving_links)]
         self.check_body_pairs = list(product(moving_bodies, obstacles))
 
@@ -204,9 +137,9 @@ class PbOMPL():
 
     def plan_start_goal(self, start, goal, allowed_time = DEFAULT_PLANNING_TIME):
         '''
-        plan a path to gaol from the given robot start state
+        plan a path to goal from the given robot start state
         '''
-        print("start_planning")
+        print(f"start_planning between {start} and {goal}")
         print(self.planner.params())
 
         orig_robot_state = self.robot.get_cur_state()
@@ -261,8 +194,7 @@ class PbOMPL():
         '''
         for q in path:
             if dynamics:
-                for i in range(self.robot.num_dim):
-                    p.setJointMotorControl2(self.robot.id, i, p.POSITION_CONTROL, q[i],force=5 * 240.)
+                self.robot.move_ee(q, "joint")
             else:
                 self.robot.set_state(q)
             p.stepSimulation()
@@ -280,4 +212,4 @@ class PbOMPL():
     # ------------
 
     def state_to_list(self, state):
-        return [state[i] for i in range(self.robot.num_dim)]
+        return [state[i] for i in range(self.robot.arm_num_dofs)]
