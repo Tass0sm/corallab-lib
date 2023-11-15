@@ -17,7 +17,7 @@ class RobotBase(object):
     The base class for robots
     """
 
-    def __init__(self, pos, ori, target_rot=[0, 0, 0]):
+    def __init__(self, pos, ori, target_trans=[0, 0, 0], target_rot=[0, 0, 0]):
         """
         Arguments:
             pos: [x y z]
@@ -46,6 +46,7 @@ class RobotBase(object):
         self.base_pos = pos
         self.base_ori = p.getQuaternionFromEuler(ori)
         self.target_rot = target_rot
+        self.target_trans = target_trans
 
     def load(self):
         self.__init_robot__()
@@ -250,6 +251,8 @@ class RobotBase(object):
     ####
 
     def convert_target_pose(self, pos, orn):
+        pos = np.array(pos) + self.target_trans
+
         rot = R.from_quat(orn)
         rot_x_180 = R.from_euler("xyz", self.target_rot, degrees=True)
         rot = rot * rot_x_180

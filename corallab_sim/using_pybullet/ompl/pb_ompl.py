@@ -213,3 +213,10 @@ class PbOMPL():
 
     def state_to_list(self, state):
         return [state[i] for i in range(self.robot.arm_num_dofs)]
+
+    # -------
+    # Reset
+    # -------
+
+    def reset(self):
+        self.ss.clear()
