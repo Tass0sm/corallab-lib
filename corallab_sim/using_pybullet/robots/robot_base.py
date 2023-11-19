@@ -1,10 +1,10 @@
 """Credit to: https://github.com/ElectronicElephant/pybullet_ur5_robotiq"""
 
-import copy
 import pybullet as p
 import numpy as np
 from scipy.spatial.transform import Rotation as R
 from collections import namedtuple
+from corallab_sim.using_pybullet.ompl.ompl_robot_mixin import OMPLRobotMixin
 
 
 def unit_vec(lst: np.ndarray) -> np.ndarray:
@@ -12,7 +12,7 @@ def unit_vec(lst: np.ndarray) -> np.ndarray:
     return (lst / mag) if mag > 0 else 0
 
 
-class RobotBase(object):
+class RobotBase(OMPLRobotMixin):
     """
     The base class for robots
     """
@@ -265,15 +265,32 @@ class RobotBase(object):
     # For PB_OMPL
     ####
 
-    def set_state(self, state):
-        '''
-        Set robot state.
-        To faciliate collision checking
-        Args:
-            state: list[Float], joint values of robot
-        '''
-        self.set_q(state)
-        self.state = state
+    ####
+    # Fake Grip
+    ####
 
-    def get_cur_state(self):
-        return copy.deepcopy(self.state)
+    def fake_open_gripper(self):
+        p.removeConstraint(self.fake_grip_constraint)
+
+    def fake_close_gripper(self, other_oid):
+        body_pose = p.getLinkState(self.id, self.eef_id)
+        other_pos, other_orn = p.getBasePositionAndOrientation(other_oid)
+        world_to_body = p.invertTransform(body_pose[0], body_pose[1])
+        obj_to_body = p.multiplyTransforms(world_to_body[0],
+                                           world_to_body[1],
+                                           other_pos, other_orn)
+
+        cid = p.createConstraint(
+            parentBodyUniqueId=self.id,
+            parentLinkIndex=self.eef_id,
+            childBodyUniqueId=other_oid,
+            childLinkIndex=-1,
+            jointType=p.JOINT_FIXED,
+            jointAxis=(0, 0, 0),
+            parentFramePosition=obj_to_body[0],
+            parentFrameOrientation=obj_to_body[1],
+            childFramePosition=(0, 0, 0),
+            childFrameOrientation=(0, 0, 0)
+        )
+
+        self.fake_grip_constraint = cid
