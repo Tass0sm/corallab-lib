@@ -341,6 +341,10 @@ class RobotiqGripper:
         min_p = self.get_min_position()
         return self.move_and_wait_for_pos(min_p, 255, 255)
 
+    def slightly_open(self):
+        new_p = self.get_current_position() - 15
+        return self.move_and_wait_for_pos(new_p, 255, 255)
+
     def close(self):
         max_p = self.get_max_position()
         return self.move_and_wait_for_pos(max_p, 255, 255)
