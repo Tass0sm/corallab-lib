@@ -140,7 +140,7 @@ class PbOMPL():
         plan a path to goal from the given robot start state
         '''
         print(f"start_planning between {start} and {goal}")
-        print(self.planner.params())
+        # print(self.planner.params())
 
         orig_robot_state = self.robot.get_cur_state()
 
@@ -198,7 +198,7 @@ class PbOMPL():
             else:
                 self.robot.set_state(q)
             p.stepSimulation()
-            time.sleep(0.01)
+            # time.sleep(0.0)
 
     # -------------
     # Configurations

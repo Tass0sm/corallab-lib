@@ -18,7 +18,7 @@ class UR5:
         base_orn - orientation of robot base in world frame
         """
         self.con = RTDEControlInterface(ip_address)
-        self.rec = RTDEReceiveInterface(ip_address)
+        # self.rec = RTDEReceiveInterface(ip_address)
         self.con.setTcp([0, 0, 0.145, 0, 0, 0])
 
         self.base_pos = base_pos
