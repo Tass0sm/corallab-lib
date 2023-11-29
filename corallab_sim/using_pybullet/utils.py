@@ -31,6 +31,12 @@ def load_urdf(pybullet_client, file_path, *args, **kwargs):
         pass
 
 
+def draw_vec(position, vec, color=[0, 1, 0], length=0.1):
+    from_p = position
+    to_p = position + (vec * length)
+    p.addUserDebugLine(from_p, to_p, color, lineWidth=3, lifeTime=0)
+
+
 def draw_frame(position, quaternion=[0, 0, 0, 1]):
     m = R.from_quat(quaternion).as_matrix()
     x_vec = m[:, 0]

@@ -14,8 +14,10 @@ def find_opposite_faces(mesh):
             face_a_normal = mesh.face_normals[i]
             face_b_normal = mesh.face_normals[j]
 
-            d = np.dot(face_a_normal, face_b_normal)
-            if np.isclose(d, -1):
+            up_vec = np.array([0, 0, 1])
+            d1 = np.dot(face_a_normal, up_vec)
+            d2 = np.dot(face_a_normal, face_b_normal)
+            if np.isclose(d1, 0) and np.isclose(d2, -1):
                 of = OppositeFaces(i, face_a, j, face_b)
                 opposite_faces.append(of)
 
@@ -73,3 +75,30 @@ def antipodal_point_generator(mesh):
         if op_point_face_idx == of.face_b_idx:
             yield OppositePoints(of.face_a_idx, point,
                                  of.face_b_idx, op_point)
+
+def are_flat(point_a, point_b):
+    up_vec = np.array([0, 0, 1])
+    return np.dot(point_a - point_b, up_vec) == 0
+
+def mesh_center(mesh, obj_vertcs):
+    vert_count = len(mesh.vertices)
+    center = None
+    assert vert_count in obj_vertcs
+
+    # hack to identify mesh type by number of vertices
+    irg_vertc_map = {
+        40: "cylinder",
+        74: "ccuboid",
+        66: "roof",
+        6: "pyramid",
+        8: "[regular]",
+    }
+
+    if irg_vertc_map.get(vert_count) == "ccuboid":
+        # cm to nearest
+        cm = mesh.center_mass
+        (center,), *_ = trimesh.proximity.closest_point(mesh, [cm])
+    else:
+        center = mesh.center_mass
+
+    return np.array(center)

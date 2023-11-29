@@ -1,31 +1,34 @@
 import numpy as np
 from scipy.spatial.transform import Rotation as R
 from corallab_sim.using_pybullet.grasping.analytic.utils import antipodal_point_generator
-from corallab_sim.using_pybullet.utils import draw_frame
+from corallab_sim.using_pybullet.utils import draw_frame, draw_vec
 
 
-def generate_collision_free_grasp(mesh):
+def generate_downward_grasp(mesh):
     mesh_center = mesh.centroid
     generator = antipodal_point_generator(mesh)
-    found = False
 
-    while not found:
-        point_pair = next(generator)
+    point_pair = next(generator)
 
-        center_point = (point_pair.point_a + point_pair.point_b) / 2
+    center_point = (point_pair.point_a + point_pair.point_b) / 2
 
-        # get orientation of gripper
-        y_vec = point_pair - center_point
-        y_vec /= np.linalg.norm(y_vec)
+    # draw_frame(point_pair.point_a)
+    # draw_frame(center_point)
+    # draw_frame(point_pair.point_b)
 
-        x_vec = np.random.randn(3)         # take a random vector
-        x_vec -= x_vec.dot(y_vec) * y_vec  # make it orthogonal to k
-        x_vec /= np.linalg.norm(x_vec)     # normalize it
+    # get orientation of gripper
+    y_vec = point_pair.point_a - center_point
+    y_vec /= np.linalg.norm(y_vec)
 
-        z_vec = np.cross(y_vec, x_vec)
+    # x_vec = np.random.randn(3)         # take a random vector
+    # x_vec -= x_vec.dot(y_vec) * y_vec  # make it orthogonal to k
+    # x_vec /= np.linalg.norm(x_vec)     # normalize it
+    x_vec = np.array([0, 0, -1])
 
-        rotation_matrix = np.hstack([x_vec, y_vec, z_vec])
-        rotation_quat = R.from_matrix(rotation_matrix).as_quat()
+    z_vec = np.cross(x_vec, y_vec)
 
-        draw_frame(mesh_center, rotation_quat)
-        break
+    rotation_matrix = np.stack([x_vec, y_vec, z_vec], axis=-1)
+    rotation = R.from_matrix(rotation_matrix)
+    rotation_quat = rotation.as_quat()
+
+    return center_point, rotation_quat

@@ -250,6 +250,19 @@ class RobotBase(OMPLRobotMixin):
     # Util
     ####
 
+    def convert_target_rot(self, orn):
+        rot = R.from_quat(orn)
+        rot_x_180 = R.from_euler("xyz", self.target_rot, degrees=True)
+        rot = rot * rot_x_180
+        orn = rot.as_quat()
+
+        return orn
+
+    def convert_target_pos(self, pos):
+        pos = np.array(pos) + self.target_trans
+
+        return pos
+
     def convert_target_pose(self, pos, orn):
         pos = np.array(pos) + self.target_trans
 
