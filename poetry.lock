@@ -488,35 +488,12 @@ version = "1.5.7"
 description = "A Python interface for controlling and receiving data from a UR robot using the Real-Time Data Exchange (RTDE) interface of the robot."
 optional = false
 python-versions = "*"
-files = [
-    {file = "ur_rtde-1.5.7-cp310-cp310-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:1f8bd263dc6d1bb4946bfa32fdea53e69feef82229a5c39c3be40af905c8a150"},
-    {file = "ur_rtde-1.5.7-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:fcebf1142c86e0679dbf4406dfa6450eccb1b0cb0e8a4bc07bba180a0f87b703"},
-    {file = "ur_rtde-1.5.7-cp310-cp310-win_amd64.whl", hash = "sha256:1e2354ad29e699bb112c1107944db2eebf248b0d9acd88b3822bc9b5e9227fd7"},
-    {file = "ur_rtde-1.5.7-cp311-cp311-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:7529902ce392243dd991324be54351435810155c39678d8146abcc0be5fec470"},
-    {file = "ur_rtde-1.5.7-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:695eab23bed3e97d47a5a078020cb72038b0a16ab3479dec4ded53391d5b7495"},
-    {file = "ur_rtde-1.5.7-cp36-cp36m-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:da76dfbf5c2d68b65b178ab8bd1bb45d82cf223e06f6206a445eb34014d98db7"},
-    {file = "ur_rtde-1.5.7-cp36-cp36m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:8cc6f94f319df07e8b7e21a771e82fca6a3e551bf9bce9dd08028233bd84ccee"},
-    {file = "ur_rtde-1.5.7-cp36-cp36m-win_amd64.whl", hash = "sha256:64a2394bf26a3ea4ee6e531c092af7130a95350c6b0f85549bb2e4fa7077b5c4"},
-    {file = "ur_rtde-1.5.7-cp37-cp37m-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:45722dd81438b404d6a9c8e367a1b969060d577ab198b066b3f1ade7220c58d9"},
-    {file = "ur_rtde-1.5.7-cp37-cp37m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:ef8886e4ea6693c6b91aca9169b77400007c0aa08423ae35a0de62c1933ac661"},
-    {file = "ur_rtde-1.5.7-cp37-cp37m-win_amd64.whl", hash = "sha256:387d00c553b704a7ef8caf3a5f79e79c23183f51661295b27b6e7650532f28c0"},
-    {file = "ur_rtde-1.5.7-cp38-cp38-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:35fbf59a5cfbfbef742dfe0481e3c2669de43161bc8651eeb3b7aeeb27ac10bd"},
-    {file = "ur_rtde-1.5.7-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:7eaccddcf8a3a42e40f0f3c7d734d2608450ea6a3a34e3e1b27bc14e4c8c0122"},
-    {file = "ur_rtde-1.5.7-cp38-cp38-win_amd64.whl", hash = "sha256:308db46125b21af5ad6f3e24c87853433951e4e1dba340afdc869c724a94bc0f"},
-    {file = "ur_rtde-1.5.7-cp39-cp39-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:f6f447bb45981ae197cf41988bab2e7470a8b2a21c67513caaf837f173d3fdd9"},
-    {file = "ur_rtde-1.5.7-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:ed8cc298a456a8161e64481e2d9166b5bee5e0f46d158b18c8ba100e3f0f9c09"},
-    {file = "ur_rtde-1.5.7-cp39-cp39-win_amd64.whl", hash = "sha256:077fef757d2bf7e094d3977dbb8e63e335753938979124f5e058ddb9f9aeaff3"},
-    {file = "ur_rtde-1.5.7-pp37-pypy37_pp73-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:c004cc6e0d41d17e791ce7ed2628a943480df422f37e6cbcf4be15bbf92278c3"},
-    {file = "ur_rtde-1.5.7-pp37-pypy37_pp73-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:cae85fcc7a78521497eec84b7f14ad0bf6e73c3011147e425c76aea5d159a849"},
-    {file = "ur_rtde-1.5.7-pp37-pypy37_pp73-win_amd64.whl", hash = "sha256:fa56a58cfba23f42102e56730e946f310da65e3b5ea4e038380bfed33d57a324"},
-    {file = "ur_rtde-1.5.7-pp38-pypy38_pp73-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:c4fc005e56c49a1c78cde25637e010f7233cc9846a5fb8c0bdfc69ff02ad0770"},
-    {file = "ur_rtde-1.5.7-pp38-pypy38_pp73-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:6d66af4c8ad0da199469fb3970a64d1fa7cfc979ce56138f0356ec250cf395c0"},
-    {file = "ur_rtde-1.5.7-pp38-pypy38_pp73-win_amd64.whl", hash = "sha256:2d230c022ec7ded404ba1e41208327787e81ffcd880fcfc76fff58860add0ca1"},
-    {file = "ur_rtde-1.5.7-pp39-pypy39_pp73-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:38d0ef1c20e04135d6c13f4e59e457dd578464507e9b3a6b728ed830aef2ac09"},
-    {file = "ur_rtde-1.5.7-pp39-pypy39_pp73-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:5f668e0690e419697ba5558f33e620313e6e64347415fc0115439043db4f5463"},
-    {file = "ur_rtde-1.5.7-pp39-pypy39_pp73-win_amd64.whl", hash = "sha256:e351ba9e92b6516c561831b32de277e47fb12e584594d872c01abe1d00cc9604"},
-    {file = "ur_rtde-1.5.7.tar.gz", hash = "sha256:a305aa3576d65109ba39e42a5de4e82876d7a1b2af22a7434967717250203ef8"},
-]
+files = []
+develop = false
+
+[package.source]
+type = "directory"
+url = "../ur_rtde"
 
 [[package]]
 name = "zipp"
@@ -536,4 +513,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "1ebdde10ab0312f0005329a14ca2098daeed5aeac04df0db31fcf38f71a703b5"
+content-hash = "a1bddac98bc03bbbf85fb8bdac158f0477f8d13a7ee487e92a962a25753a2c03"

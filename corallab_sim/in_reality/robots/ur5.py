@@ -12,21 +12,31 @@ class UR5:
         base_orn=(0, 0, 0, 1),
         gripper=None,
         move_timestep=0,
+        disabled=False
     ):
         """
         base_pos - position of robot base in world frame
         base_orn - orientation of robot base in world frame
         """
+        self.disabled = disabled
+
+        if self.disabled:
+            return
+
         self.con = RTDEControlInterface(ip_address)
-        # self.rec = RTDEReceiveInterface(ip_address)
+        self.rec = RTDEReceiveInterface(ip_address)
         self.con.setTcp([0, 0, 0.145, 0, 0, 0])
 
+        self.gripper = None
         self.base_pos = base_pos
         self.base_orn = base_orn
         self.base_transform = get_transform(rotq=base_orn, pos=base_pos)
         self.move_timestep = move_timestep
 
     def move_q(self, configuration):
+        if self.disabled:
+            return
+
         self.con.moveJ(configuration)
 
     def test(self):
@@ -42,9 +52,9 @@ class UR5:
         if self.gripper is not None:
             print("Testing gripper...")
             self.gripper.move_and_wait_for_pos(255, 255, 255)
-            log_info(self.gripper)
+            # log_info(self.gripper)
             self.gripper.move_and_wait_for_pos(0, 255, 255)
-            log_info(self.gripper)
+            # log_info(self.gripper)
 
     def go_home(self):
         pass

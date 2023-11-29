@@ -52,8 +52,14 @@ class RobotiqGripper:
         STOPPED_INNER_OBJECT = 2
         AT_DEST = 3
 
-    def __init__(self):
+    def __init__(self, disabled=False):
         """Constructor."""
+        self.disabled = disabled
+
+        if self.disabled:
+            return
+
+
         self.socket = None
         self.command_lock = threading.Lock()
         self._min_position = 0
@@ -69,6 +75,9 @@ class RobotiqGripper:
         :param port: Port.
         :param socket_timeout: Timeout for blocking socket operations.
         """
+        if self.disabled:
+            return
+
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.connect((hostname, port))
         self.socket.settimeout(socket_timeout)
@@ -184,6 +193,9 @@ class RobotiqGripper:
             end
         end
         """
+        if self.disabled:
+            return
+
         if not self.is_active():
             self._reset()
             while not self._get_var(self.ACT) == 0 or not self._get_var(self.STA) == 0:
@@ -338,14 +350,23 @@ class RobotiqGripper:
         return final_pos, RobotiqGripper.ObjectStatus(final_obj)
 
     def open(self):
+        if self.disabled:
+            return
+
         min_p = self.get_min_position()
         return self.move_and_wait_for_pos(min_p, 255, 255)
 
     def slightly_open(self):
+        if self.disabled:
+            return
+
         new_p = self.get_current_position() - 15
         return self.move_and_wait_for_pos(new_p, 255, 255)
 
     def close(self):
+        if self.disabled:
+            return
+
         max_p = self.get_max_position()
         return self.move_and_wait_for_pos(max_p, 255, 255)
 
