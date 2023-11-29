@@ -3,6 +3,29 @@ import numpy as np
 from collections import namedtuple
 
 
+def opposite_vertical_face_generator(mesh):
+    opposite_faces = []
+    OppositeFaces = namedtuple('OppositeFaces',
+                               ['face_a_idx', 'face_a',
+                                'face_b_idx', 'face_b'])
+
+    for i, face_a in enumerate(mesh.faces):
+        for j, face_b in enumerate(mesh.faces):
+            face_a_normal = mesh.face_normals[i]
+            face_b_normal = mesh.face_normals[j]
+
+            up_vec = np.array([0, 0, 1])
+            d1 = np.dot(face_a_normal, up_vec)
+            d2 = np.dot(face_a_normal, face_b_normal)
+
+            # if np.isclose(d2, -1):
+            #     print("OPPOSITE", face_a_normal, up_vec, d1)
+
+            if np.isclose(d1, 0, atol=1e-4) and np.isclose(d2, -1):
+                of = OppositeFaces(i, face_a, j, face_b)
+                yield of
+
+
 def find_opposite_faces(mesh):
     opposite_faces = []
     OppositeFaces = namedtuple('OppositeFaces',

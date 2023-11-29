@@ -250,6 +250,9 @@ class RobotBase(OMPLRobotMixin):
     # Util
     ####
 
+    def is_outside_limits(self, state):
+        return any([s < ll or s > ul for s, ll, ul in zip(state, self.arm_lower_limits, self.arm_upper_limits)])
+
     def convert_target_rot(self, orn):
         rot = R.from_quat(orn)
         rot_x_180 = R.from_euler("xyz", self.target_rot, degrees=True)
