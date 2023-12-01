@@ -43,6 +43,18 @@ class UR5Robotiq85(RobotBase):
                                    childFramePosition=[0, 0, 0])
             p.changeConstraint(c, gearRatio=-multiplier, maxForce=100, erp=1)  # Note: the mysterious `erp` is of EXTREME importance
 
+    def disable_collisions(self, objects):
+        enableCollision = 0
+        gripper_link_ids = [joint.id for joint in self.joints if ("pad" in joint.name or
+                                                                  "finger" in joint.name or
+                                                                  "knuckle" in joint.name)]
+        print(objects)
+        print(gripper_link_ids)
+
+        for oid in objects:
+            for l in gripper_link_ids:
+                p.setCollisionFilterPair(self.id, int(oid), l, -1, enableCollision)
+
     def move_gripper(self, open_length):
         # open_length = np.clip(open_length, *self.gripper_range)
         open_angle = 0.715 - math.asin((open_length - 0.010) / 0.1143)  # angle calculation
