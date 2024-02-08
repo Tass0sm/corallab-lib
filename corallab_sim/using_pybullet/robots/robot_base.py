@@ -48,11 +48,10 @@ class RobotBase(OMPLRobotMixin):
         self.target_rot = target_rot
         self.target_trans = target_trans
 
-    def load(self):
-        self.__init_robot__()
+    def load(self, urdf_override=None):
+        self.__init_robot__(urdf_override=urdf_override)
         self.__parse_joint_info__()
         self.__post_load__()
-        print(self.joints)
 
     def step_simulation(self):
         raise RuntimeError('`step_simulation` method of RobotBase Class should be hooked by the environment.')
@@ -88,6 +87,7 @@ class RobotBase(OMPLRobotMixin):
         self.arm_lower_limits = [info.lowerLimit for info in self.joints if info.controllable][:self.arm_num_dofs]
         self.arm_upper_limits = [info.upperLimit for info in self.joints if info.controllable][:self.arm_num_dofs]
         self.arm_joint_ranges = [info.upperLimit - info.lowerLimit for info in self.joints if info.controllable][:self.arm_num_dofs]
+        self.damping_factors = [info.damping for info in self.joints if info.controllable]
 
     def __init_robot__(self):
         raise NotImplementedError
@@ -169,6 +169,9 @@ class RobotBase(OMPLRobotMixin):
 
     def go_home(self):
         self.set_q(self.arm_rest_poses)
+        for rest_pose, joint_id in zip(self.arm_rest_poses, self.arm_controllable_joints):
+            p.setJointMotorControl2(self.id, joint_id, p.POSITION_CONTROL, rest_pose,
+                                    force=self.joints[joint_id].maxForce, maxVelocity=self.joints[joint_id].maxVelocity)
 
     ############################
     # SYNCHRONOUS ARM MOVEMENT #
@@ -176,6 +179,8 @@ class RobotBase(OMPLRobotMixin):
 
     def ik(self, pos, orn, max_niter=200):
         """Written with help of TransporterNet code: https://arxiv.org/pdf/2010.14406.pdf"""
+
+        breakpoint()
 
         joints = p.calculateInverseKinematics(
             bodyUniqueId=self.id,
@@ -186,10 +191,12 @@ class RobotBase(OMPLRobotMixin):
             upperLimits=self.arm_upper_limits,
             jointRanges=self.arm_joint_ranges,
             restPoses=self.arm_rest_poses,
+            jointDamping=self.damping_factors,
             maxNumIterations=max_niter,
             residualThreshold=1e-5,
         )
         joints = np.float64(joints)
+
         return joints
 
     def move_q_synchronous(
@@ -240,8 +247,6 @@ class RobotBase(OMPLRobotMixin):
     def dont_move(self, niters=200):
         cur_q = self.get_q()
         for i in range(niters):
-            # print(i)
-            # self.move_ee(cur_q, "joint")
             self.set_q(cur_q)
             self.move_gripper(self.gripper_target)
             self.step_simulation()

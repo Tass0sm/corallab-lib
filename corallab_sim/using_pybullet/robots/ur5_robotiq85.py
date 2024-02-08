@@ -19,6 +19,7 @@ class UR5Robotiq85(RobotBase):
         self.id = p.loadURDF(UR5_ROBOTIQ85_URDF_PATH, self.base_pos, self.base_ori,
                              useFixedBase=True, flags=p.URDF_ENABLE_CACHED_GRAPHICS_SHAPES)
         self.gripper_range = [0, 0.085]
+        self.gripper_target = self.gripper_range[1]
 
     def __post_load__(self):
         # To control the gripper
