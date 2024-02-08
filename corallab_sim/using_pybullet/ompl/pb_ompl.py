@@ -50,7 +50,6 @@ class PbOMPL():
         self.robot = robot
         self.robot_id = robot.id
         self.obstacles = obstacles
-        print(self.obstacles)
 
         self.space = PbStateSpace(robot.arm_num_dofs)
 
@@ -139,7 +138,7 @@ class PbOMPL():
         '''
         plan a path to goal from the given robot start state
         '''
-        print(f"start_planning between {start} and {goal}")
+        # print(f"start_planning between {start} and {goal}")
         # print(self.planner.params())
 
         orig_robot_state = self.robot.get_cur_state()

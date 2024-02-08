@@ -1,11 +1,18 @@
 import copy
-from corallab_sim.using_pybullet.ompl import pb_ompl
+
+try:
+    from corallab_sim.using_pybullet.ompl.pb_ompl import PbOMPL
+except:
+    PbOMPL = None
 
 
 class OMPLRobotMixin():
 
     def setup_ompl_interface(self, obstacles):
-        self.pb_ompl_interface = pb_ompl.PbOMPL(self, obstacles)
+        if PbOMPL is not None:
+            self.pb_ompl_interface = PbOMPL(self, obstacles)
+        else:
+            raise Exception('No OMPL')
 
     def set_state(self, state):
         '''

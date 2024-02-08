@@ -60,7 +60,9 @@ def get_self_link_pairs(body, joints, disabled_collisions=set(), only_moving=Tru
         filter(lambda pair: not are_links_adjacent(body, *pair), check_link_pairs))
     check_link_pairs = list(filter(lambda pair: (pair not in disabled_collisions) and
                                                 (pair[::-1] not in disabled_collisions), check_link_pairs))
-    return check_link_pairs
+
+    full_check_link_pairs = [(Link(body, x), Link(body, y)) for (x,y) in check_link_pairs]
+    return full_check_link_pairs
 
 def get_moving_links(body, joints):
     moving_links = set()
@@ -85,6 +87,10 @@ def get_moving_pairs(body, moving_joints):
 
 
 #####################################
+
+
+Link = namedtuple('Link', ['body_id', 'link_id'])
+
 
 JointInfo = namedtuple('JointInfo', ['jointIndex', 'jointName', 'jointType',
                                      'qIndex', 'uIndex', 'flags',
