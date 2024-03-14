@@ -6,10 +6,12 @@ class TorchRoboticsRobot:
     def __init__(
             self,
             id: str,
-            tensor_args: dict = DEFAULT_TENSOR_ARGS
+            tensor_args: dict = DEFAULT_TENSOR_ARGS,
+            **kwargs
     ):
         RobotClass = getattr(robots, id)
         self.robot_impl = RobotClass(
+            **kwargs,
             tensor_args=tensor_args
         )
 

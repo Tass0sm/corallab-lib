@@ -6,9 +6,11 @@ class TorchRoboticsEnv:
     def __init__(
             self,
             id: str,
-            tensor_args: dict = DEFAULT_TENSOR_ARGS
+            tensor_args: dict = DEFAULT_TENSOR_ARGS,
+            **kwargs
     ):
         EnvClass = getattr(environments, id)
         self.env_impl = EnvClass(
+            **kwargs,
             tensor_args=tensor_args
         )
