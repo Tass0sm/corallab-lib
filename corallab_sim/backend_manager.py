@@ -1,5 +1,5 @@
-# import importlib
-from .backends import backends_dict
+from .backends import backend_list
+import importlib
 
 
 class BackendManager:
@@ -14,12 +14,12 @@ class BackendManager:
         self.backend = None
 
     def set_backend(self, backend: str):
-        assert backend in backends_dict
+        assert backend in backend_list
         self.backend = backend
 
     def get_backend(self):
         try:
-            return backends_dict[self.backend]
+            return importlib.import_module("." + self.backend, package="corallab_sim.backends")
         except KeyError:
             raise Exception("Need to select a backend!")
 
