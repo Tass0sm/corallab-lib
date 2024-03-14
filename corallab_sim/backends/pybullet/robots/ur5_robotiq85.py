@@ -2,12 +2,12 @@
 
 import pybullet as p
 import math
-from importlib.resources import files
+import corallab_assets
 
 from .robot_base import RobotBase
 
 
-UR5_ROBOTIQ85_URDF_PATH = str(files("corallab_sim").joinpath("assets/ur5/ur5_robotiq_85/ur5_robotiq_85.urdf"))
+UR5_ROBOTIQ85_URDF_PATH = corallab_assets.get_resource_path("ur5/ur5_robotiq_85.urdf")
 
 
 class UR5Robotiq85(RobotBase):
