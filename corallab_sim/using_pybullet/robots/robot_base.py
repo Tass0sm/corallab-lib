@@ -173,6 +173,9 @@ class RobotBase(OMPLRobotMixin):
             p.setJointMotorControl2(self.id, joint_id, p.POSITION_CONTROL, rest_pose,
                                     force=self.joints[joint_id].maxForce, maxVelocity=self.joints[joint_id].maxVelocity)
 
+    def destroy(self):
+        return p.removeBody(self.id)
+
     ############################
     # SYNCHRONOUS ARM MOVEMENT #
     ############################
