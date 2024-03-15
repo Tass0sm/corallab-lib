@@ -1,6 +1,33 @@
-Utilities for controlling a robot in a pybullet environment, and smoothly
-transferring that setup to a UR robot simulator, and finally to reality.
+#+title: Coral Lab Simulator
 
-* Goals
-1. Support multiple simulators and other robotics libraries with a similar API
-2. Opt-in features and dependencies
+Provide a common API to many useful robotics libraries for simulation, motion
+planning, and more.
+
+Need a separate library for control.
+
+
+* Robots
+
+Robots have the following features:
+
+- They can be added to any simulator
+- They can be added to any motion planning environment
+- They can be used to fill parameters for a motion planner
+
+* Simulators
+
+A simulator can be instantiated
+
+1. pybullet
+2. mujoco
+
+* Motion Planning Env
+
+A motion planning env mainly just provides a collision checker
+function.
+
+1. torch_robotics envs
+
+* Motion Planners
+
+1. mp_baselines
