@@ -1,7 +1,6 @@
 import mujoco
 from mujoco import MjModel, MjData
 from mujoco.viewer import launch_passive
-from corallab_sim.simulator import AbstractSimulator
 
 DEFAULT_MODEL_XML_STRING="""
 <mujoco>
@@ -16,7 +15,7 @@ DEFAULT_MODEL_XML_STRING="""
 </mujoco>
 """
 
-class MujocoSimulator(AbstractSimulator):
+class MujocoSimulator:
     def __init__(self):
         self.m = MjModel.from_xml_string(DEFAULT_MODEL_XML_STRING)
         self.d = MjData(self.m)

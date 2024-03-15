@@ -1,9 +1,8 @@
 import pybullet as p
 from pybullet_utils.bullet_client import BulletClient
-from corallab_sim.simulator import AbstractSimulator
 
 
-class BulletSimulator(AbstractSimulator):
+class BulletSimulator:
     def __init__(self, connection_mode=p.GUI, **kwargs):
         self.client = BulletClient(connection_mode=connection_mode,
                                    **kwargs)
