@@ -11,33 +11,18 @@ numpy = "<1.24"
 scikit-learn = "^1.3.2"
 corallab-assets = {git = "https://github.com/corallab-base/assets.git", rev = "0.2.0"}
 
-[tool.poetry.group.reality]
-optional = true
-
-[tool.poetry.group.reality.dependencies]
-ur-rtde = {path = "../ur_rtde"}
-
-[tool.poetry.group.pybullet]
-optional = true
-
-[tool.poetry.group.pybullet.dependencies]
-pybullet = "^3.2.5"
-
-[tool.poetry.group.mujoco]
-optional = true
-
-[tool.poetry.group.mujoco.dependencies]
-mujoco = "^3.0.1"
-
-[tool.poetry.group.torch_robotics]
-optional = true
-
-[tool.poetry.group.torch_robotics.dependencies]
-torch-robotics = {path = "../torch_robotics", develop = true}
-
+ur-rtde = { path = "../ur_rtde", optional = true }
+pybullet = { version = "^3.2.5", optional = true }
+mujoco = { version = "^3.0.1", optional = true }
+torch-robotics = {path = "../torch_robotics", optional = true, develop = true}
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.11.0"
+
+
+[tool.poetry.extras]
+pybullet = ["pybullet"]
+
 
 [build-system]
 requires = ["poetry-core"]
