@@ -265,16 +265,18 @@ test-no-images = ["pytest", "pytest-cov", "wurlitzer"]
 
 [[package]]
 name = "corallab-assets"
-version = "0.1.0"
+version = "0.2.0"
 description = ""
 optional = false
 python-versions = ">=3.6"
 files = []
-develop = true
+develop = false
 
 [package.source]
-type = "directory"
-url = "../corallab-assets"
+type = "git"
+url = "https://github.com/corallab-base/assets.git"
+reference = "0.2.0"
+resolved_reference = "7cc5914ceab5644a59d15db81662f3c72ca1da0a"
 
 [[package]]
 name = "cycler"
@@ -1774,7 +1776,6 @@ files = []
 develop = true
 
 [package.dependencies]
-corallab-assets = {path = "../corallab-assets"}
 corallab-sim = {path = "../corallab-sim"}
 einops = "^0.7.0"
 imageio = "^2.33.0"
@@ -1970,4 +1971,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<3.9"
-content-hash = "4d25bf8ce759786b00205a1a7ce44c7f90b41266980bcc52086885a7236a41e8"
+content-hash = "3f506436eb6627d065ccd287efa58e6e1574201495bfa500e5ce246857ae8005"
