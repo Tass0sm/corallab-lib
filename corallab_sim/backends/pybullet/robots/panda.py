@@ -7,8 +7,7 @@ import corallab_assets
 from .robot_base import RobotBase
 
 
-# PANDA_URDF_PATH = str(files("corallab_sim").joinpath("assets/panda/panda.urdf"))
-PANDA_URDF_PATH = importlib.resources.path(corallab_assets, "").__enter__() / "panda" / "panda.urdf"
+PANDA_URDF_PATH = str(corallab_assets.get_resource_path("panda/panda.urdf"))
 
 
 class Panda(RobotBase):
