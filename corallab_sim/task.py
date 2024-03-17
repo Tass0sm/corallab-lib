@@ -10,14 +10,14 @@ class Task:
 
     def __init__(
             self,
-            id: str,
-            env,
-            robot,
+            *args,
+            env=None,
+            robot=None,
             **kwargs
     ):
         TaskImpl = backend_manager.get_backend_attr("TaskImpl")
         self.task_impl = TaskImpl(
-            id,
+            *args,
             env.env_impl,
             robot.robot_impl,
             **kwargs

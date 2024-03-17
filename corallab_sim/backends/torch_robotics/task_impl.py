@@ -8,8 +8,8 @@ class TorchRoboticsTask:
     def __init__(
             self,
             id: str,
-            env,
-            robot,
+            env=None,
+            robot=None,
             tensor_args: dict = DEFAULT_TENSOR_ARGS,
             **kwargs
     ):
