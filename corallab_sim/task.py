@@ -13,13 +13,17 @@ class Task:
             *args,
             env=None,
             robot=None,
+            backend=None,
             **kwargs
     ):
-        TaskImpl = backend_manager.get_backend_attr("TaskImpl")
+        TaskImpl = backend_manager.get_backend_attr(
+            "TaskImpl",
+            backend=backend
+        )
         self.task_impl = TaskImpl(
             *args,
-            env.env_impl,
-            robot.robot_impl,
+            env=env.env_impl,
+            robot=robot.robot_impl,
             **kwargs
         )
 

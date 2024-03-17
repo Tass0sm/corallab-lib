@@ -1,8 +1,16 @@
 from .backend_manager import backend_manager
 
 class Robot:
-    def __init__(self, id: str, **kwargs):
-        RobotImpl = backend_manager.get_backend_attr("RobotImpl")
+    def __init__(
+            self,
+            id: str,
+            backend=None,
+            **kwargs
+    ):
+        RobotImpl = backend_manager.get_backend_attr(
+            "RobotImpl",
+            backend=backend
+        )
         self.robot_impl = RobotImpl(id, **kwargs)
 
     def __getattr__(self, name):

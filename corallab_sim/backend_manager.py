@@ -17,14 +17,17 @@ class BackendManager:
         assert backend in backend_list
         self.backend = backend
 
-    def get_backend(self):
+    def get_backend(self, backend=None):
         try:
-            return importlib.import_module("." + self.backend, package="corallab_sim.backends")
+            return importlib.import_module(
+                "." + (backend or self.backend),
+                package="corallab_sim.backends"
+            )
         except KeyError:
             raise Exception("Need to select a backend!")
 
-    def get_backend_attr(self, attr):
-        backend_module = self.get_backend()
+    def get_backend_attr(self, attr, backend=None):
+        backend_module = self.get_backend(backend=backend)
         return getattr(backend_module, attr)
 
 
