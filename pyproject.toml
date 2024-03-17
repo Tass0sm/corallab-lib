@@ -9,7 +9,7 @@ readme = "README.org"
 python = ">=3.8,<3.9"
 numpy = "<1.24"
 scikit-learn = "^1.3.2"
-corallab-assets = {git = "https://github.com/corallab-base/assets.git", rev = "0.2.1"}
+corallab-assets = {git = "https://github.com/corallab-base/assets.git", rev = "0.2.2"}
 
 ur-rtde = { path = "../ur_rtde", optional = true }
 pybullet = { version = "^3.2.5", optional = true }
@@ -22,6 +22,7 @@ black = "^23.11.0"
 
 [tool.poetry.extras]
 pybullet = ["pybullet"]
+torch-robotics = ["torch-robotics"]
 
 
 [build-system]

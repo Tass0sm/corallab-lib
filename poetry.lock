@@ -304,8 +304,8 @@ develop = false
 [package.source]
 type = "git"
 url = "https://github.com/corallab-base/assets.git"
-reference = "0.2.0"
-resolved_reference = "7cc5914ceab5644a59d15db81662f3c72ca1da0a"
+reference = "0.2.2"
+resolved_reference = "9e093532809c99f625ca89dd575728d47289a214"
 
 [[package]]
 name = "cycler"
@@ -1933,8 +1933,9 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 
 [extras]
 pybullet = ["pybullet"]
+torch-robotics = ["torch-robotics"]
 
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<3.9"
-content-hash = "1fdb700797040a295c06bae31c34741c3d475b89bab16cf0992e1b49e7477710"
+content-hash = "91f37793406e84397f8f74409dd1c8f453ed4f139acd686755e814288d75a924"
