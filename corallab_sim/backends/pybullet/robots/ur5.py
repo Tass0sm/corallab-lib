@@ -7,7 +7,7 @@ import corallab_assets
 from .robot_base import RobotBase
 
 
-UR5_URDF_PATH = str(corallab_assets.get_resource_path("ur5/ur5_robotiq_85.urdf"))
+UR5_URDF_PATH = str(corallab_assets.get_resource_path("ur5/ur5.urdf"))
 
 
 class UR5(RobotBase):
