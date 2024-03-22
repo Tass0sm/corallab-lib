@@ -142,6 +142,19 @@ class RobotBase(OMPLRobotMixin):
             p.setJointMotorControl2(self.id, joint_id, p.POSITION_CONTROL, joint_poses[i],
                                     force=self.joints[joint_id].maxForce, maxVelocity=self.joints[joint_id].maxVelocity)
 
+    def apply_torque(self, action):
+        assert len(action) == self.arm_num_dofs
+        joint_torques = action
+
+        # arm
+        for i, joint_id in enumerate(self.arm_controllable_joints):
+            p.setJointMotorControl2(
+                self.id,
+                joint_id,
+                p.TORQUE_CONTROL,
+                force=joint_torques[i]
+            )
+
     def move_gripper(self, open_length):
         raise NotImplementedError
 
@@ -163,6 +176,10 @@ class RobotBase(OMPLRobotMixin):
         cur_q = np.array([p.getJointState(self.id, i)[0] for i in self.arm_controllable_joints])
         return cur_q
 
+    def get_qd(self):
+        cur_q = np.array([p.getJointState(self.id, i)[1] for i in self.arm_controllable_joints])
+        return cur_q
+
     def set_q(self, q):
         for ji, qi in zip(self.arm_controllable_joints, q):
             p.resetJointState(self.id, ji, qi, targetVelocity=0)
@@ -182,8 +199,6 @@ class RobotBase(OMPLRobotMixin):
 
     def ik(self, pos, orn, max_niter=200):
         """Written with help of TransporterNet code: https://arxiv.org/pdf/2010.14406.pdf"""
-
-        breakpoint()
 
         joints = p.calculateInverseKinematics(
             bodyUniqueId=self.id,
