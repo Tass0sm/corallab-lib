@@ -13,6 +13,7 @@ class Task:
             *args,
             env=None,
             robot=None,
+            from_impl=None,
             backend=None,
             **kwargs
     ):
@@ -20,12 +21,20 @@ class Task:
             "TaskImpl",
             backend=backend
         )
-        self.task_impl = TaskImpl(
-            *args,
-            env=env.env_impl,
-            robot=robot.robot_impl,
-            **kwargs
-        )
+
+        if from_impl:
+            self.task_impl = TaskImpl.from_impl(
+                from_impl,
+                *args,
+                **kwargs
+            )
+        else:
+            self.task_impl = TaskImpl(
+                *args,
+                env=env.env_impl,
+                robot=robot.robot_impl,
+                **kwargs
+            )
 
     def __getattr__(self, name):
         if hasattr(self.task_impl, name):
