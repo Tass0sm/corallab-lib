@@ -14,15 +14,19 @@ class TorchRoboticsEnv:
     def __init__(
             self,
             id: str,
+            impl = None,
             ws_limits = None,
             tensor_args: dict = DEFAULT_TENSOR_ARGS,
             **kwargs
     ):
-        EnvClass = getattr(environments, id)
-        self.env_impl = EnvClass(
-            **kwargs,
-            tensor_args=tensor_args
-        )
+        if impl:
+            self.env_impl = impl
+        else:
+            EnvClass = getattr(environments, id)
+            self.env_impl = EnvClass(
+                **kwargs,
+                tensor_args=tensor_args
+            )
 
         self.ws_limits = ws_limits or self.env_impl.limits
         self.ws_min = self.ws_limits[0]
@@ -63,6 +67,11 @@ class TorchRoboticsEnv:
             ws_bounds_max=self.ws_max,
             tensor_args=self.env_impl.tensor_args
         )
+
+    @classmethod
+    def from_impl(cls, impl, **kwargs):
+        # id is None
+        return cls(None, impl=impl, **kwargs)
 
     def get_ws_dim(self):
         return self.env_impl.dim
