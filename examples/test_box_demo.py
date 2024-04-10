@@ -4,29 +4,24 @@ import os.path as osp
 import pybullet as p
 import math
 import sys
-sys.path.append("/usr/lib/python3/dist-packages")
 
-import pybullet_data
-from corallab_sim.using_pybullet.ompl import pb_ompl
-from corallab_sim.using_pybullet.robots.panda import Panda
-from corallab_sim.using_pybullet.robots.ur5_robotiq85 import UR5Robotiq85
+import corallab_sim
+from corallab_sim import Robot, Env, Task
+from corallab_sim.backends.pybullet import draw_frame
+from corallab_sim.backends.pybullet.ompl import pb_ompl
+
+corallab_sim.backend_manager.set_backend("pybullet")
 
 
 class BoxDemo():
     def __init__(self):
+        robot = Robot("UR5")
+        env = Env(add_plane=True)
+        self.task = Task(robot=robot, env=env)
+
+        self.pc = env.env_impl.client
+        self.robot = robot.robot_impl.robot_impl
         self.obstacles = []
-
-        p.connect(p.GUI)
-        p.setGravity(0, 0, -9.8)
-        p.setTimeStep(1./240.)
-
-        p.setAdditionalSearchPath(pybullet_data.getDataPath())
-        p.loadURDF("plane.urdf")
-
-        # load robot
-        # self.robot = Panda([0, 0, 0], [0, 0, 0])
-        self.robot = UR5Robotiq85([0, 0, 0], [0, 0, 0])
-        self.robot.load()
 
         # setup pb_ompl
         self.pb_ompl_interface = pb_ompl.PbOMPL(self.robot, self.obstacles)
@@ -37,7 +32,7 @@ class BoxDemo():
 
     def clear_obstacles(self):
         for obstacle in self.obstacles:
-            p.removeBody(obstacle)
+            self.pc.removeBody(obstacle)
 
     def add_obstacles(self):
         # add box
@@ -47,8 +42,8 @@ class BoxDemo():
         self.pb_ompl_interface.set_obstacles(self.obstacles)
 
     def add_box(self, box_pos, half_box_size):
-        colBoxId = p.createCollisionShape(p.GEOM_BOX, halfExtents=half_box_size)
-        box_id = p.createMultiBody(baseMass=0, baseCollisionShapeIndex=colBoxId, basePosition=box_pos)
+        colBoxId = self.pc.createCollisionShape(self.pc.GEOM_BOX, halfExtents=half_box_size)
+        box_id = self.pc.createMultiBody(baseMass=0, baseCollisionShapeIndex=colBoxId, basePosition=box_pos)
 
         self.obstacles.append(box_id)
         return box_id
