@@ -18,5 +18,6 @@ class PybulletRobot(RobotInterface):
             **kwargs
         )
 
-    def random_q(self, n_samples=10):
-        return self.robot_impl.random_q(n_samples=n_samples)
+    def random_q(self, gen):
+        return self.robot_impl.random_q(gen)
+
