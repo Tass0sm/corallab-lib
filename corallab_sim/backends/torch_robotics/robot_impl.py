@@ -1,8 +1,10 @@
 from torch_robotics import robots
 from torch_robotics.torch_utils.torch_utils import DEFAULT_TENSOR_ARGS
 
+from ..robot_interface import RobotInterface
 
-class TorchRoboticsRobot:
+
+class TorchRoboticsRobot(RobotInterface):
     def __init__(
             self,
             id: str,

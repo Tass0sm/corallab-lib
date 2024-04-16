@@ -1,9 +1,10 @@
 import numpy as np
 
 from . import robots
+from ..robot_interface import RobotInterface
 
 
-class PybulletRobot:
+class PybulletRobot(RobotInterface):
     def __init__(
             self,
             id: str,

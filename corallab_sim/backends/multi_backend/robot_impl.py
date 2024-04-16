@@ -1,9 +1,10 @@
 import numpy as np
 
 from corallab_sim.backend_manager import backend_manager
+from ..robot_interface import RobotInterface
 
 
-class MultiBackendRobot:
+class MultiBackendRobot(RobotInterface):
     def __init__(
             self,
             subrobot_args: list = [],
