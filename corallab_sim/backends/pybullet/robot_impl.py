@@ -21,3 +21,14 @@ class PybulletRobot(RobotInterface):
     def random_q(self, gen):
         return self.robot_impl.random_q(gen)
 
+    def ik(self, pos, orn, max_niter=200):
+        return self.robot_impl.ik(pos, orn, max_niter=200)
+
+    def set_q(self, q):
+        return self.robot_impl.set_q(q)
+
+    def get_q(self):
+        return self.robot_impl.get_q()
+
+    def get_qd(self):
+        return self.robot_impl.get_qd()
