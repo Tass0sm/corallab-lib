@@ -13,6 +13,10 @@ class PybulletEnv:
             add_plane=True,
             **kwargs
     ):
+        if isinstance(connection_mode, str):
+            assert hasattr(p, connection_mode), "If connection mode is a string, it must be 'DIRECT' or 'GUI'"
+            connection_mode = getattr(p, connection_mode)
+
         self.client = BulletClient(
             connection_mode=connection_mode,
             **kwargs
@@ -25,9 +29,12 @@ class PybulletEnv:
         self.ws_min = self.ws_limits[0]
         self.ws_max = self.ws_limits[1]
 
+        self.pb_objs = []
+
         if add_plane:
             plane_height = self.ws_min[2]
             self.plane_id = self.client.loadURDF("plane.urdf", basePosition=(0, 0, plane_height))
+            self.pb_objs.append(self.plane_id)
         else:
             self.plane_id = None        
 
