@@ -48,8 +48,8 @@ class RobotBase(OMPLRobotMixin):
         self.target_rot = target_rot
         self.target_trans = target_trans
 
-    def load(self, urdf_override=None):
-        self.__init_robot__(urdf_override=urdf_override)
+    def load(self, p=p, urdf_override=None):
+        self.__init_robot__(p=p, urdf_override=urdf_override)
         self.__parse_joint_info__()
         self.__post_load__()
 
@@ -57,13 +57,13 @@ class RobotBase(OMPLRobotMixin):
         raise RuntimeError('`step_simulation` method of RobotBase Class should be hooked by the environment.')
 
     def __parse_joint_info__(self):
-        numJoints = p.getNumJoints(self.id)
+        numJoints = self._p.getNumJoints(self.id)
         jointInfo = namedtuple('jointInfo',
             ['id','name','type','damping','friction','lowerLimit','upperLimit','maxForce','maxVelocity','controllable'])
         self.joints = []
         self.controllable_joints = []
         for i in range(numJoints):
-            info = p.getJointInfo(self.id, i)
+            info = self._p.getJointInfo(self.id, i)
             jointID = info[0]
             jointName = info[1].decode("utf-8")
             jointType = info[2]  # JOINT_REVOLUTE, JOINT_PRISMATIC, JOINT_SPHERICAL, JOINT_PLANAR, JOINT_FIXED
@@ -76,7 +76,7 @@ class RobotBase(OMPLRobotMixin):
             controllable = (jointType != p.JOINT_FIXED)
             if controllable:
                 self.controllable_joints.append(jointID)
-                p.setJointMotorControl2(self.id, jointID, p.VELOCITY_CONTROL, targetVelocity=0, force=0)
+                self._p.setJointMotorControl2(self.id, jointID, p.VELOCITY_CONTROL, targetVelocity=0, force=0)
             info = jointInfo(jointID,jointName,jointType,jointDamping,jointFriction,jointLowerLimit,
                             jointUpperLimit,jointMaxForce,jointMaxVelocity,controllable)
             self.joints.append(info)
@@ -104,11 +104,11 @@ class RobotBase(OMPLRobotMixin):
         reset to rest poses
         """
         for rest_pose, joint_id in zip(self.arm_rest_poses, self.arm_controllable_joints):
-            p.resetJointState(self.id, joint_id, rest_pose)
+            self._p.resetJointState(self.id, joint_id, rest_pose)
 
-        # Wait for a few steps
-        for _ in range(10):
-            self.step_simulation()
+        # # Wait for a few steps
+        # for _ in range(10):
+        #     self.step_simulation()
 
     def reset_gripper(self):
         self.open_gripper()
@@ -123,15 +123,15 @@ class RobotBase(OMPLRobotMixin):
 
     @property
     def ee_pose(self):
-        return p.getLinkState(self.id, self.eef_id)[:2]
+        return self._p.getLinkState(self.id, self.eef_id)[:2]
 
     def move_ee(self, action, control_method):
         assert control_method in ('joint', 'end')
         if control_method == 'end':
             x, y, z, roll, pitch, yaw = action
             pos = (x, y, z)
-            orn = p.getQuaternionFromEuler((roll, pitch, yaw))
-            joint_poses = p.calculateInverseKinematics(self.id, self.eef_id, pos, orn,
+            orn = self._p.getQuaternionFromEuler((roll, pitch, yaw))
+            joint_poses = self._p.calculateInverseKinematics(self.id, self.eef_id, pos, orn,
                                                        self.arm_lower_limits, self.arm_upper_limits, self.arm_joint_ranges, self.arm_rest_poses,
                                                        maxNumIterations=20)
         elif control_method == 'joint':
@@ -139,8 +139,8 @@ class RobotBase(OMPLRobotMixin):
             joint_poses = action
         # arm
         for i, joint_id in enumerate(self.arm_controllable_joints):
-            p.setJointMotorControl2(self.id, joint_id, p.POSITION_CONTROL, joint_poses[i],
-                                    force=self.joints[joint_id].maxForce, maxVelocity=self.joints[joint_id].maxVelocity)
+            self._p.setJointMotorControl2(self.id, joint_id, p.POSITION_CONTROL, joint_poses[i],
+                                          force=self.joints[joint_id].maxForce, maxVelocity=self.joints[joint_id].maxVelocity)
 
     def apply_torque(self, action):
         assert len(action) == self.arm_num_dofs
@@ -148,11 +148,37 @@ class RobotBase(OMPLRobotMixin):
 
         # arm
         for i, joint_id in enumerate(self.arm_controllable_joints):
-            p.setJointMotorControl2(
+            self._p.setJointMotorControl2(
                 self.id,
                 joint_id,
                 p.TORQUE_CONTROL,
                 force=joint_torques[i]
+            )
+
+    def velocity_control(self, action):
+        assert len(action) == self.arm_num_dofs
+        joint_velocities = action
+
+        # arm
+        for i, joint_id in enumerate(self.arm_controllable_joints):
+            self._p.setJointMotorControl2(
+                self.id,
+                joint_id,
+                p.VELOCITY_CONTROL,
+                targetVelocity=joint_velocities[i]
+            )
+
+    def position_control(self, action):
+        assert len(action) == self.arm_num_dofs
+        joint_positions = action
+
+        # arm
+        for i, joint_id in enumerate(self.arm_controllable_joints):
+            self._p.setJointMotorControl2(
+                self.id,
+                joint_id,
+                p.POSITION_CONTROL,
+                targetPosition=joint_positions[i]
             )
 
     def move_gripper(self, open_length):
@@ -162,10 +188,10 @@ class RobotBase(OMPLRobotMixin):
         positions = []
         velocities = []
         for joint_id in self.controllable_joints:
-            pos, vel, _, _ = p.getJointState(self.id, joint_id)
+            pos, vel, _, _ = self._p.getJointState(self.id, joint_id)
             positions.append(pos)
             velocities.append(vel)
-        ee_pos = p.getLinkState(self.id, self.eef_id)[0]
+        ee_pos = self._p.getLinkState(self.id, self.eef_id)[0]
         return dict(positions=positions, velocities=velocities, ee_pos=ee_pos)
 
     ########################
@@ -176,25 +202,25 @@ class RobotBase(OMPLRobotMixin):
         return gen.uniform(low=self.arm_lower_limits, high=self.arm_upper_limits)
 
     def get_q(self):
-        cur_q = np.array([p.getJointState(self.id, i)[0] for i in self.arm_controllable_joints])
+        cur_q = np.array([self._p.getJointState(self.id, i)[0] for i in self.arm_controllable_joints])
         return cur_q
 
     def get_qd(self):
-        cur_q = np.array([p.getJointState(self.id, i)[1] for i in self.arm_controllable_joints])
+        cur_q = np.array([self._p.getJointState(self.id, i)[1] for i in self.arm_controllable_joints])
         return cur_q
 
     def set_q(self, q):
         for ji, qi in zip(self.arm_controllable_joints, q):
-            p.resetJointState(self.id, ji, qi, targetVelocity=0)
+            self._p.resetJointState(self.id, ji, qi, targetVelocity=0)
 
     def go_home(self):
         self.set_q(self.arm_rest_poses)
         for rest_pose, joint_id in zip(self.arm_rest_poses, self.arm_controllable_joints):
-            p.setJointMotorControl2(self.id, joint_id, p.POSITION_CONTROL, rest_pose,
+            self._p.setJointMotorControl2(self.id, joint_id, p.POSITION_CONTROL, rest_pose,
                                     force=self.joints[joint_id].maxForce, maxVelocity=self.joints[joint_id].maxVelocity)
 
     def destroy(self):
-        return p.removeBody(self.id)
+        return self._p.removeBody(self.id)
 
     ############################
     # SYNCHRONOUS ARM MOVEMENT #
@@ -203,7 +229,7 @@ class RobotBase(OMPLRobotMixin):
     def ik(self, pos, orn, max_niter=200):
         """Written with help of TransporterNet code: https://arxiv.org/pdf/2010.14406.pdf"""
 
-        joints = p.calculateInverseKinematics(
+        joints = self._p.calculateInverseKinematics(
             bodyUniqueId=self.id,
             endEffectorLinkIndex=self.eef_id,
             targetPosition=pos,
@@ -241,7 +267,7 @@ class RobotBase(OMPLRobotMixin):
             u = unit_vec(err_q)
             step_q = cur_q + u * speed
 
-            p.setJointMotorControlArray(
+            self._p.setJointMotorControlArray(
                 bodyIndex=self.id,
                 jointIndices=self.arm_controllable_joints,
                 controlMode=p.POSITION_CONTROL,
@@ -312,17 +338,17 @@ class RobotBase(OMPLRobotMixin):
     ####
 
     def fake_open_gripper(self):
-        p.removeConstraint(self.fake_grip_constraint)
+        self._p.removeConstraint(self.fake_grip_constraint)
 
     def fake_close_gripper(self, other_oid):
-        body_pose = p.getLinkState(self.id, self.eef_id)
-        other_pos, other_orn = p.getBasePositionAndOrientation(other_oid)
-        world_to_body = p.invertTransform(body_pose[0], body_pose[1])
-        obj_to_body = p.multiplyTransforms(world_to_body[0],
+        body_pose = self._p.getLinkState(self.id, self.eef_id)
+        other_pos, other_orn = self._p.getBasePositionAndOrientation(other_oid)
+        world_to_body = self._p.invertTransform(body_pose[0], body_pose[1])
+        obj_to_body = self._p.multiplyTransforms(world_to_body[0],
                                            world_to_body[1],
                                            other_pos, other_orn)
 
-        cid = p.createConstraint(
+        cid = self._p.createConstraint(
             parentBodyUniqueId=self.id,
             parentLinkIndex=self.eef_id,
             childBodyUniqueId=other_oid,
