@@ -10,19 +10,28 @@ class TorchRoboticsTask:
             id: str,
             env=None,
             robot=None,
+            impl=None,
             tensor_args: dict = DEFAULT_TENSOR_ARGS,
             **kwargs
     ):
-        assert isinstance(env, TorchRoboticsEnv)
-        assert isinstance(robot, TorchRoboticsRobot)
+        assert isinstance(env, TorchRoboticsEnv) or env is None
+        assert isinstance(robot, TorchRoboticsRobot) or robot is None
 
-        TaskClass = getattr(tasks, id)
-        self.task_impl = TaskClass(
-            env=env.env_impl,
-            robot=robot.robot_impl,
-            tensor_args=tensor_args,
-            **kwargs
-        )
+        if impl:
+            self.task_impl = impl
+        else:
+            TaskClass = getattr(tasks, id)
+            self.task_impl = TaskClass(
+                env=env.env_impl,
+                robot=robot.robot_impl,
+                tensor_args=tensor_args,
+                **kwargs
+            )
+
+    @classmethod
+    def from_impl(cls, impl, **kwargs):
+        # id is None
+        return cls(None, impl=impl, **kwargs)
 
     def get_q_dim(self):
         return self.task_impl.robot.q_dim
@@ -36,5 +45,5 @@ class TorchRoboticsTask:
     def random_coll_free_q(self, *args, **kwargs):
         return self.task_impl.random_coll_free_q(*args, **kwargs)
 
-    def compute_collision(self, q):
-        return self.task_impl.compute_collision(q)
+    def compute_collision(self, q, **kwargs):
+        return self.task_impl.compute_collision(q, **kwargs)

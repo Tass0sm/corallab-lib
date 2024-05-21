@@ -90,6 +90,21 @@ class TorchRoboticsEnv:
         env_points = env_uniform_dist.sample((n_points,))
         return env_points
 
+    def compute_sdf(self, x):
+        # Object collision
+        if self.df_collision_objects is not None:
+            objects_sdf = self.df_collision_objects.compute_cost(x, x, field_type='sdf')
+        else:
+            objects_sdf = 0
+
+        # Workspace boundaries
+        if self.df_collision_ws_boundaries is not None:
+            border_sdf = self.df_collision_ws_boundaries.compute_cost(x, x, field_type="sdf")
+        else:
+            border_sdf = 0
+
+        return objects_sdf # torch.min(objects_sdf, border_sdf)
+
     def compute_collision(self, x):
         # Object collision
         if self.df_collision_objects is not None:
