@@ -1,4 +1,4 @@
-#+title: Coral Lab Simulator
+#+title: Coral Lab Robotics Library
 
 Provide a common API to many useful robotics libraries.
 
