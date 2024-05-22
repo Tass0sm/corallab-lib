@@ -1,6 +1,6 @@
 import numpy as np
 
-from corallab_sim.backend_manager import backend_manager
+from corallab_lib.backend_manager import backend_manager
 
 
 class MultiBackendEnv:

@@ -18,7 +18,7 @@ class BackendManager:
         try:
             return importlib.import_module(
                 "." + (backend or self.backend),
-                package="corallab_sim.backends"
+                package="corallab_lib.backends"
             )
         except KeyError:
             raise Exception("Backend not found!")

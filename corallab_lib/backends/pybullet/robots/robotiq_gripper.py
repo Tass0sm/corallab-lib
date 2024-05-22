@@ -8,8 +8,8 @@ import numpy as np
 import pybullet as p
 from enum import Enum
 from typing import Union, Tuple, OrderedDict, Iterable
-from corallab_sim.using_pybullet.robots.gripper import Gripper
-from corallab_sim.using_pybullet.utils import load_urdf, draw_text
+from corallab_lib.using_pybullet.robots.gripper import Gripper
+from corallab_lib.using_pybullet.utils import load_urdf, draw_text
 from importlib.resources import files
 
 
@@ -29,7 +29,7 @@ class RobotiqGripper(Gripper):
         # Load suction gripper base model (visual only).
         pose = ((0.487, 0.109, 0.438), p.getQuaternionFromEuler((np.pi, 0, 0)))
 
-        robotiq_gripper_urdf = files("corallab_sim.robots").joinpath(
+        robotiq_gripper_urdf = files("corallab_lib.robots").joinpath(
             "assets/ur5/gripper/robotiq_2f_85.urdf"
         )
         self.id = load_urdf(p, str(robotiq_gripper_urdf), pose[0], pose[1])

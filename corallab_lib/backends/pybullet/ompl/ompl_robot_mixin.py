@@ -1,7 +1,7 @@
 import copy
 
 try:
-    from corallab_sim.using_pybullet.ompl.pb_ompl import PbOMPL
+    from corallab_lib.using_pybullet.ompl.pb_ompl import PbOMPL
 except:
     PbOMPL = None
 

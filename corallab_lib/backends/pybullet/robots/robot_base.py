@@ -4,7 +4,7 @@ import pybullet as p
 import numpy as np
 from scipy.spatial.transform import Rotation as R
 from collections import namedtuple
-from corallab_sim.backends.pybullet.ompl.ompl_robot_mixin import OMPLRobotMixin
+from corallab_lib.backends.pybullet.ompl.ompl_robot_mixin import OMPLRobotMixin
 
 
 def unit_vec(lst: np.ndarray) -> np.ndarray:

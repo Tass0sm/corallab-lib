@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.spatial.transform import Rotation as R
-from corallab_sim.using_pybullet.grasping.analytic.utils import opposite_vertical_face_generator
-from corallab_sim.using_pybullet.utils import draw_frame, draw_vec
+from corallab_lib.using_pybullet.grasping.analytic.utils import opposite_vertical_face_generator
+from corallab_lib.using_pybullet.utils import draw_frame, draw_vec
 
 
 def generate_downward_grasp(mesh):

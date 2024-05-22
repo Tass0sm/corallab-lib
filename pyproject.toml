@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "corallab-sim"
+name = "corallab-lib"
 version = "0.1.0"
 description = ""
 authors = ["Tassos Manganaris <tassos.manganaris@gmail.com>"]

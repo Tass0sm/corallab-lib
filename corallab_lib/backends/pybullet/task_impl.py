@@ -1,5 +1,5 @@
 import numpy as np
-import corallab_sim.backends.pybullet.ompl.utils as pb_utils
+import corallab_lib.backends.pybullet.ompl.utils as pb_utils
 
 from itertools import product
 

@@ -3,8 +3,8 @@
 import numpy as np
 import pybullet as p
 from importlib.resources import files
-from corallab_sim.using_pybullet.utils import load_urdf
-from corallab_sim.using_pybullet.robots.gripper import Gripper
+from corallab_lib.using_pybullet.utils import load_urdf
+from corallab_lib.using_pybullet.robots.gripper import Gripper
 
 
 class Suction(Gripper):
@@ -39,7 +39,7 @@ class Suction(Gripper):
         # Load suction gripper base model (visual only).
         pose = ((0.487, 0.109, 0.438), p.getQuaternionFromEuler((np.pi, 0, 0)))
 
-        suction_base_urdf = files("corallab_sim.robots").joinpath(
+        suction_base_urdf = files("corallab_lib.robots").joinpath(
             "assets/ur5/suction/suction-base.urdf"
         )
         base = load_urdf(p, str(suction_base_urdf), pose[0], pose[1])
@@ -57,7 +57,7 @@ class Suction(Gripper):
         # Load suction tip model (visual and collision) with compliance.
         pose = ((0.487, 0.109, 0.347), p.getQuaternionFromEuler((np.pi, 0, 0)))
 
-        suction_head_urdf = files("corallab_sim.robots").joinpath(
+        suction_head_urdf = files("corallab_lib.robots").joinpath(
             "assets/ur5/suction/suction-head.urdf"
         )
         self.body = load_urdf(p, str(suction_head_urdf), pose[0], pose[1])

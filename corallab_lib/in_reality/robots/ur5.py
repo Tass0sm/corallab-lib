@@ -1,7 +1,7 @@
 from rtde_control import RTDEControlInterface
 from rtde_receive import RTDEReceiveInterface
 
-from corallab_sim.utilities.spatial import get_transform
+from corallab_lib.utilities.spatial import get_transform
 
 
 class UR5:
