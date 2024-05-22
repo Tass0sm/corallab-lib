@@ -15,7 +15,8 @@ pybullet = { version = "^3.2.5", optional = true }
 pybullet-envs-gymnasium = {git = "https://github.com/araffin/pybullet_envs_gymnasium", optional = true }
 
 mujoco = { version = "^3.0.1", optional = true }
-torch-robotics = {path = "../torch_robotics", optional = true, develop = true}
+torch-robotics = {path = "../torch_robotics", optional = true }
+pygame = "^2.5.2"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.11.0"
@@ -25,6 +26,11 @@ black = "^23.11.0"
 pybullet = ["pybullet", "pybullet-envs-gymnasium"]
 torch-robotics = ["torch-robotics"]
 
+
+[[tool.poetry.source]]
+name = "torch"
+url = "https://download.pytorch.org/whl/cpu"
+priority = "explicit"
 
 [build-system]
 requires = ["poetry-core"]
