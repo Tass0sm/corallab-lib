@@ -1,33 +1,24 @@
 #+title: Coral Lab Simulator
 
-Provide a common API to many useful robotics libraries for simulation, motion
-planning, and more.
+Provide a common API to many useful robotics libraries.
 
-Need a separate library for control.
+* Install
 
+** Local
+poetry install
+poetry install --extras pybullet
+poetry install --extras torch-robotics
 
-* Robots
+* Entities
+** Robots
 
-Robots have the following features:
+** Tasks
+Tasks bundle a robot, an environment, and provide functions which
+require both of them. These functions are useful for solving a motion
+planning problem or something.
 
-- They can be added to any simulator
-- They can be added to any motion planning environment
-- They can be used to fill parameters for a motion planner
+** Envs
+Envs encode physical properties of a certain space.
 
-* Simulators
-
-A simulator can be instantiated
-
-1. pybullet
-2. mujoco
-
-* Motion Planning Env
-
-A motion planning env mainly just provides a collision checker
-function.
-
-1. torch_robotics envs
-
-* Motion Planners
-
-1. mp_baselines
+** Gyms
+Gyms encode dynamical systems or processes.
