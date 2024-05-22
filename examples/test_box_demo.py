@@ -5,12 +5,12 @@ import pybullet as p
 import math
 import sys
 
-import corallab_sim
-from corallab_sim import Robot, Env, Task
-from corallab_sim.backends.pybullet import draw_frame
-from corallab_sim.backends.pybullet.ompl import pb_ompl
+import corallab_lib
+from corallab_lib import Robot, Env, Task
+from corallab_lib.backends.pybullet import draw_frame
+from corallab_lib.backends.pybullet.ompl import pb_ompl
 
-corallab_sim.backend_manager.set_backend("pybullet")
+corallab_lib.backend_manager.set_backend("pybullet")
 
 
 class BoxDemo():

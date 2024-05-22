@@ -1,6 +1,6 @@
 import time
-from corallab_sim.in_reality.robots.ur5 import UR5
-from corallab_sim.in_reality.robots.robotiq import RobotiqGripper
+from corallab_lib.in_reality.robots.ur5 import UR5
+from corallab_lib.in_reality.robots.robotiq import RobotiqGripper
 
 
 ip_address = "192.168.1.123"

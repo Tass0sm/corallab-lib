@@ -1,7 +1,7 @@
-import corallab_sim
-from corallab_sim import Robot
+import corallab_lib
+from corallab_lib import Robot
 
-corallab_sim.backend_manager.set_backend("multi_backend", backends=["pybullet", "torch_robotics"])
+corallab_lib.backend_manager.set_backend("multi_backend", backends=["pybullet", "torch_robotics"])
 
 robot = Robot(
     pybullet=(["UR5"], {}),

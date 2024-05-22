@@ -5,10 +5,10 @@ import pybullet as p
 import math
 import sys
 
-import corallab_sim
-from corallab_sim import Gym
+import corallab_lib
+from corallab_lib import Gym
 
-corallab_sim.backend_manager.set_backend("pybullet")
+corallab_lib.backend_manager.set_backend("pybullet")
 
 
 if __name__ == '__main__':
