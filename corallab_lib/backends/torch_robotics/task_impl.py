@@ -1,5 +1,5 @@
 from torch_robotics.tasks import tasks
-from torch_robotics.torch_utils.torch_utils import DEFAULT_TENSOR_ARGS
+from torch_robotics.torch_utils.torch_utils import DEFAULT_TENSOR_ARGS, to_torch, to_numpy
 from .env_impl import TorchRoboticsEnv
 from .robot_impl import TorchRoboticsRobot
 
@@ -16,6 +16,8 @@ class TorchRoboticsTask:
     ):
         assert isinstance(env, TorchRoboticsEnv) or env is None
         assert isinstance(robot, TorchRoboticsRobot) or robot is None
+
+        self.tensor_args = tensor_args
 
         if impl:
             self.task_impl = impl
@@ -46,4 +48,5 @@ class TorchRoboticsTask:
         return self.task_impl.random_coll_free_q(*args, **kwargs)
 
     def compute_collision(self, q, **kwargs):
+        q = to_torch(q, **self.tensor_args)
         return self.task_impl.compute_collision(q, **kwargs)
