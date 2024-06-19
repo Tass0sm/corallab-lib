@@ -34,12 +34,17 @@ pytorch-cuda = {version = "12.1.*", channel="pytorch"}
 [project.optional-dependencies]
 pybullet = ["pybullet", "pybullet-envs-gymnasium"]
 torch-robotics = ["torch-robotics"]
+curobo = ["nvidia_curobo"]
 
 [tool.pixi.pypi-dependencies]
 corallab-lib = { path = ".", editable = true }
 torch-robotics = { path = "/home/tassos/phd/qureshi/first-project/torch_robotics", editable = true }
 
+# TODO: Use NO-BUILD-ISOLATION when its available!
+nvidia_curobo = { path = "/home/tassos/phd/qureshi/curobo" }
+
 # Environments
 
 [tool.pixi.environments]
 default = {features = ["pybullet", "torch-robotics"], solve-group = "default"}
+curobo = {features = ["pybullet", "torch-robotics", "curobo"], solve-group = "default"}
