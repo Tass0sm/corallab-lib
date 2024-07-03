@@ -17,6 +17,8 @@ class TorchRoboticsTask:
         assert isinstance(env, TorchRoboticsEnv) or env is None
         assert isinstance(robot, TorchRoboticsRobot) or robot is None
 
+        self.env = env
+        self.robot = robot
         self.tensor_args = tensor_args
 
         if impl:
@@ -44,9 +46,24 @@ class TorchRoboticsTask:
     def get_q_max(self):
         return self.task_impl.robot.q_max.cpu()
 
+    def random_q(self, **kwargs):
+        return self.task_impl.sample_q(**kwargs)
+
     def random_coll_free_q(self, *args, **kwargs):
         return self.task_impl.random_coll_free_q(*args, **kwargs)
 
     def compute_collision(self, q, **kwargs):
         q = to_torch(q, **self.tensor_args)
         return self.task_impl.compute_collision(q, **kwargs)
+
+    def get_trajs_collision_and_free(self, trajs, **kwargs):
+        return self.task_impl.get_trajs_collision_and_free(trajs, **kwargs)
+
+    def compute_fraction_free_trajs(self, trajs, **kwargs):
+        return self.task_impl.compute_fraction_free_trajs(trajs, **kwargs)
+
+    def compute_collision_intensity_trajs(self, trajs, **kwargs):
+        return self.task_impl.compute_collision_intensity_trajs(trajs, **kwargs)
+
+    def compute_success_free_trajs(self, trajs, **kwargs):
+        return self.task_impl.compute_success_free_trajs(trajs, **kwargs)

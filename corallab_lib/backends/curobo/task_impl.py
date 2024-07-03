@@ -28,14 +28,6 @@ class CuroboTask:
         )
         self.curobo_fn = RobotWorld(config)
 
-        # TaskClass = getattr(tasks, id)
-        # self.task_impl = TaskClass(
-        #     env=env.env_impl,
-        #     robot=robot.robot_impl,
-        #     tensor_args=tensor_args,
-        #     **kwargs
-        # )
-
     def get_q_dim(self):
         return self.robot.get_n_dof()
 
@@ -45,9 +37,26 @@ class CuroboTask:
     def get_q_max(self):
         return self.robot.get_q_max()
 
-    def random_coll_free_q(self, n_samples=1):
-        qs = self.curobo_fn.sample(n_samples, mask_valid=True)
-        return qs, None
+    def random_coll_free_q(self, n_samples=1, max_samples=1000, max_tries=1000):
+        # Random position in configuration space not in collision
+        reject = True
+        samples = torch.zeros((n_samples, self.robot.get_n_dof()), **self.curobo_fn.tensor_args.as_torch_dict())
+        idx_begin = 0
+
+        for i in range(max_tries):
+            free_qs = self.curobo_fn.sample(n_samples, mask_valid=True)
+            idx_end = min(idx_begin + free_qs.shape[0], samples.shape[0])
+            samples[idx_begin:idx_end] = free_qs[:idx_end - idx_begin]
+            idx_begin = idx_end
+
+            if idx_end >= n_samples:
+                reject = False
+                break
+
+        if reject:
+            sys.exit("Could not find a collision free configuration")
+
+        return samples.squeeze(), None
 
     def compute_collision(self, qs, margin=0.0):
         if isinstance(qs, np.ndarray):
@@ -57,6 +66,9 @@ class CuroboTask:
             qs = qs.unsqueeze(0)
 
         return self.curobo_fn.validate(qs).logical_not()
+
+    def compute_collision_cost(self, trajs):
+        pass
 
     def get_trajs_collision_and_free(self, trajs, return_indices=False, num_interpolation=5):
         assert trajs.ndim == 3 or trajs.ndim == 4
