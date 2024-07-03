@@ -19,8 +19,10 @@ class PybulletTask:
 
         self.env = env
         self.robot = robot
-        self.robot.robot_impl.load()
 
+        self.robot.robot_impl.load(
+            urdf_override=self.robot.urdf_override
+        )
 
         self._setup_collision_detection(self.robot, self.env)
 

@@ -1,7 +1,11 @@
 from .ur5_robotiq140 import *
 from .ur5_robotiq85 import *
 from .ur5 import *
+from .ur10 import *
 from .panda import *
+
+from .dual_ur10 import *
+
 
 # from .robot_ur5 import *
 # from .robot_point_mass import *

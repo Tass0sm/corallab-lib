@@ -10,8 +10,11 @@ class PybulletRobot(RobotInterface):
             id: str,
             pos=np.array([0, 0, 0]),
             ori=np.array([0, 0, 0]),
+            urdf_override=None,
             **kwargs
     ):
+        self.urdf_override = urdf_override
+
         RobotClass = getattr(robots, id)
         self.robot_impl = RobotClass(
             pos, ori,
