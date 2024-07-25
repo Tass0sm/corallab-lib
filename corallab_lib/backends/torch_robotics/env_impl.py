@@ -73,6 +73,10 @@ class TorchRoboticsEnv:
         # id is None
         return cls(None, impl=impl, **kwargs)
 
+    @property
+    def name(self):
+        return self.env_impl.name
+
     def get_ws_dim(self):
         return self.env_impl.dim
 

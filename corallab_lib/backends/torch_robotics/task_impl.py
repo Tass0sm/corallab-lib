@@ -46,11 +46,18 @@ class TorchRoboticsTask:
     def get_q_max(self):
         return self.task_impl.robot.q_max.cpu()
 
+    def distance_q(self, q1, q2):
+        return self.task_impl.distance_q(q1, q2)
+
     def random_q(self, **kwargs):
-        return self.task_impl.sample_q(**kwargs)
+        return self.task_impl.sample_q(without_collision=False, **kwargs)
 
     def random_coll_free_q(self, *args, **kwargs):
         return self.task_impl.random_coll_free_q(*args, **kwargs)
+
+    def compute_collision_info(self, q, **kwargs):
+        q = to_torch(q, **self.tensor_args)
+        return self.task_impl.compute_collision_info(q, **kwargs)
 
     def compute_collision(self, q, **kwargs):
         q = to_torch(q, **self.tensor_args)
