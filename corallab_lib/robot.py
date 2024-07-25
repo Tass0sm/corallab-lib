@@ -24,3 +24,6 @@ class Robot:
         else:
             # Default behaviour
             raise AttributeError
+
+    def __eq__(self, other):
+        return self.robot_impl.robot_id == other.robot_impl.robot_id

@@ -12,7 +12,9 @@ class Task:
             self,
             *args,
             env=None,
+            env_impl=None,
             robot=None,
+            robot_impl=None,
             from_impl=None,
             backend=None,
             **kwargs
@@ -26,13 +28,18 @@ class Task:
             self.task_impl = TaskImpl.from_impl(
                 from_impl,
                 *args,
+                env=env.env_impl,
+                robot=robot.robot_impl,
                 **kwargs
             )
         else:
+            env_impl = env_impl or env.env_impl
+            robot_impl = robot_impl or robot.robot_impl
+
             self.task_impl = TaskImpl(
                 *args,
-                env=env.env_impl,
-                robot=robot.robot_impl,
+                env=env_impl,
+                robot=robot_impl,
                 **kwargs
             )
 
