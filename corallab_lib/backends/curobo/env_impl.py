@@ -5,8 +5,11 @@ import torch
 from curobo.types.base import TensorDeviceType
 from curobo.wrap.model.robot_world import RobotWorld, RobotWorldConfig
 
+from . import envs
+from ..env_interface import EnvInterface
 
-class CuroboEnv:
+
+class CuroboEnv(EnvInterface):
     def __init__(
             self,
             id: str,
@@ -15,26 +18,12 @@ class CuroboEnv:
             # tensor_args: dict = DEFAULT_TENSOR_ARGS,
             **kwargs
     ):
+        self.id = id
 
-        tensor_args = TensorDeviceType()
+        EnvClass = getattr(envs, id)
+        self.env_impl = EnvClass(**kwargs)
 
-        self.config_file = None
-
-        # create a world from a dictionary of objects
-        # cuboid: {} # dictionary of objects that are cuboids
-        # mesh: {} # dictionary of objects that are meshes
-        self.config = {
-            "cuboid": {
-                "table": {"dims": [2, 2, 0.2], "pose": [0.4, 0.0, -0.1, 1, 0, 0, 0]},
-                "cube_1": {"dims": [0.1, 0.1, 0.2], "pose": [0.4, 0.0, 0.5, 1, 0, 0, 0]},
-            },
-            "mesh": {
-                "scene": {
-                    "pose": [1.5, 0.080, 1.6, 0.043, -0.471, 0.284, 0.834],
-                    "file_path": "scene/nvblox/srl_ur10_bins.obj",
-                }
-            },
-        }
+        self.config = self.env_impl.config
 
         # if impl:
         #     self.env_impl = impl
@@ -70,9 +59,9 @@ class CuroboEnv:
     #     # id is None
     #     return cls(None, impl=impl, **kwargs)
 
-    # @property
-    # def name(self):
-    #     return self.env_impl.name
+    @property
+    def name(self):
+        return self.id
 
     # def get_ws_dim(self):
     #     return self.env_impl.dim
