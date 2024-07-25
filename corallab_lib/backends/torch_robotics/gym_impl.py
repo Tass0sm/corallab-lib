@@ -42,6 +42,7 @@ class TorchRoboticsGym(GymInterface, gym.Env):
         assert render_mode is None or render_mode in self.metadata["render_modes"]
         self.render_mode = render_mode
 
+        self.ax = None
         self.agent_artist = None
         self.fig_manager = None
         self.clock = None
@@ -51,8 +52,7 @@ class TorchRoboticsGym(GymInterface, gym.Env):
         n_tries = 100
         start_state_pos, goal_state_pos = None, None
         for _ in range(n_tries):
-            q_free = self.task.random_coll_free_q(n_samples=2)
-
+            q_free, _ = self.task.random_coll_free_q(n_samples=2)
             start_state_pos = q_free[0]
             goal_state_pos = q_free[1]
 
@@ -91,11 +91,14 @@ class TorchRoboticsGym(GymInterface, gym.Env):
 
         return observation, info
 
-    def step(self, action, **kwargs):
-        assert action.numpy() in self.action_space
-
+    def _forward_dynamics(state, action):
         if not self.task.compute_collision(action):
-            self._current_state = action
+            return action
+
+    def step(self, action, **kwargs):
+        # assert action.cpu().numpy() in self.action_space
+
+        self._current_state = self._forward_dynamics(self._current_state, action)
 
         terminated = torch.allclose(self._current_state, self._goal_state)
         reward = 1 if terminated else 0
@@ -114,13 +117,15 @@ class TorchRoboticsGym(GymInterface, gym.Env):
     def _render_frame(self):
         if self.fig_manager is None and self.render_mode == "human":
             fig = plt.figure()
-            ax = fig.add_axes((0, 0, 1, 1))
-            self.task.task_impl.task_impl.env.render(ax=ax)
+            self.ax = fig.add_axes((0, 0, 1, 1))
+            self.task.task_impl.task_impl.env.render(ax=self.ax)
 
-            self.agent_artist = self.task.task_impl.task_impl.robot.render(ax, q=self._current_state)
+            self.agent_artist = self.task.task_impl.task_impl.robot.render(self.ax, q=self._current_state)
             self.fig_manager = BlitManager(fig.canvas, [self.agent_artist])
 
-            fig.show()
+            # make sure our window is on the screen and drawn
+            plt.show(block=False)
+            plt.pause(.1)
 
         if self.clock is None and self.render_mode == "human":
             self.clock = pygame.time.Clock()

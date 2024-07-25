@@ -11,5 +11,5 @@ gym = Gym(task, render_mode="human")
 
 obs, info = gym.reset(seed=1)
 
-action = torch.tensor(gym.action_space.sample())
+# action = torch.tensor(gym.action_space.sample())
 # gym.step(action)
