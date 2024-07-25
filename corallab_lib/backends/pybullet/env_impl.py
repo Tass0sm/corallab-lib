@@ -24,8 +24,8 @@ class PybulletEnv:
         self.client.setAdditionalSearchPath(pybullet_data.getDataPath())
         self.client.setGravity(0, 0, -9.81)
 
-        self.ws_limits = ws_limits or np.array([[-1, -1, 0],
-                                                [ 1,  1, 1]])
+        self.ws_limits = ws_limits if ws_limits is not None else np.array([[-1, -1, 0],
+                                                                           [ 1,  1, 1]])
         self.ws_min = self.ws_limits[0]
         self.ws_max = self.ws_limits[1]
 
