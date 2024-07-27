@@ -6,8 +6,8 @@ import corallab_assets
 
 from .robot_base import RobotBase
 
-
-DUAL_UR10_URDF_PATH = None # str(corallab_assets.get_resource_path("ur10/ur10.urdf"))
+DUAL_UR10_ASSET_PATH = str(corallab_assets.get_resource_path("dual_ur10"))
+DUAL_UR10_URDF_PATH = str(corallab_assets.get_resource_path("dual_ur10/dual_ur10.urdf"))
 
 
 class DualUR10(RobotBase):
@@ -20,7 +20,8 @@ class DualUR10(RobotBase):
         ]
 
         self._p = p
-        self.id = self._p.loadURDF(urdf_override or UR10_URDF_PATH, self.base_pos, self.base_ori,
+        self._p.setAdditionalSearchPath(DUAL_UR10_ASSET_PATH)
+        self.id = self._p.loadURDF(urdf_override or DUAL_UR10_URDF_PATH, self.base_pos, self.base_ori,
                                    useFixedBase=True, flags=p.URDF_ENABLE_CACHED_GRAPHICS_SHAPES)
 
     def __post_load__(self):

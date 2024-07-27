@@ -198,8 +198,8 @@ class RobotBase(OMPLRobotMixin):
     #     GET / SET q      #
     ########################
 
-    def random_q(self, gen):
-        return gen.uniform(low=self.arm_lower_limits, high=self.arm_upper_limits)
+    def random_q(self, gen, max_samples):
+        return gen.uniform(low=self.arm_lower_limits, high=self.arm_upper_limits, size=(max_samples, self.arm_num_dofs))
 
     def get_q(self):
         cur_q = np.array([self._p.getJointState(self.id, i)[0] for i in self.arm_controllable_joints])

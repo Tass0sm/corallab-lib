@@ -8,6 +8,7 @@ from pybullet_utils.bullet_client import BulletClient
 class PybulletEnv:
     def __init__(
             self,
+            id,
             connection_mode=p.GUI,
             ws_limits=None,
             add_plane=True,
@@ -19,7 +20,7 @@ class PybulletEnv:
 
         self.client = BulletClient(
             connection_mode=connection_mode,
-            **kwargs
+            # **kwargs
         )
         self.client.setAdditionalSearchPath(pybullet_data.getDataPath())
         self.client.setGravity(0, 0, -9.81)
