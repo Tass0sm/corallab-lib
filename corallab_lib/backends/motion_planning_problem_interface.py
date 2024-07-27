@@ -1,4 +1,4 @@
 from abc import ABC, abstractmethod
 
-class TaskInterface(ABC):
+class MotionPlanningProblemInterface(ABC):
     pass

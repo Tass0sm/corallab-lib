@@ -1,13 +1,12 @@
-from torch_robotics.tasks import tasks
+from torch_robotics.tasks.tasks import PlanningTask
 from torch_robotics.torch_utils.torch_utils import DEFAULT_TENSOR_ARGS, to_torch, to_numpy
 from .env_impl import TorchRoboticsEnv
 from .robot_impl import TorchRoboticsRobot
 
 
-class TorchRoboticsTask:
+class TorchRoboticsMotionPlanningProblem:
     def __init__(
             self,
-            id: str,
             env=None,
             robot=None,
             impl=None,
@@ -24,8 +23,7 @@ class TorchRoboticsTask:
         if impl:
             self.task_impl = impl
         else:
-            TaskClass = getattr(tasks, id)
-            self.task_impl = TaskClass(
+            self.task_impl = PlanningTask(
                 env=env.env_impl,
                 robot=robot.robot_impl,
                 tensor_args=tensor_args,

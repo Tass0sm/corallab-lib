@@ -8,7 +8,7 @@ from curobo.wrap.model.robot_world import RobotWorld, RobotWorldConfig, sum_mask
 from curobo.util.trajectory import *
 
 
-class CuroboTask:
+class CuroboMotionPlanningProblem:
     def __init__(
             self,
             id : str,

@@ -1,11 +1,10 @@
 import sys
-from .backend_manager import backend_manager
+from ..backend_manager import backend_manager
 
 
-class Task:
-    """A task bundles together an env and a robot from a particular
-    backend.
-
+class MotionPlanningProblem:
+    """
+    A motion planning problem.
     """
 
     def __init__(
@@ -19,13 +18,13 @@ class Task:
             backend=None,
             **kwargs
     ):
-        TaskImpl = backend_manager.get_backend_attr(
-            "TaskImpl",
+        MotionPlanningProblemImpl = backend_manager.get_backend_attr(
+            "MotionPlanningProblemImpl",
             backend=backend
         )
 
         if from_impl:
-            self.task_impl = TaskImpl.from_impl(
+            self.problem_impl = MotionPlanningProblemImpl.from_impl(
                 from_impl,
                 *args,
                 env=env.env_impl,
@@ -36,7 +35,7 @@ class Task:
             env_impl = env_impl or env.env_impl
             robot_impl = robot_impl or robot.robot_impl
 
-            self.task_impl = TaskImpl(
+            self.problem_impl = MotionPlanningProblemImpl(
                 *args,
                 env=env_impl,
                 robot=robot_impl,
@@ -44,8 +43,8 @@ class Task:
             )
 
     def __getattr__(self, name):
-        if hasattr(self.task_impl, name):
-            return getattr(self.task_impl, name)
+        if hasattr(self.problem_impl, name):
+            return getattr(self.problem_impl, name)
         else:
             # Default behaviour
             raise AttributeError
