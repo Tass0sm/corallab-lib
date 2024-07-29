@@ -1,10 +1,9 @@
-import sys
 from ..backend_manager import backend_manager
 
 
-class MotionPlanningProblem:
-    """A motion planning problem.
-
+class DynamicPebbleMotionProblem:
+    """
+    A motion planning problem.
     """
 
     def __init__(
@@ -18,13 +17,13 @@ class MotionPlanningProblem:
             backend=None,
             **kwargs
     ):
-        MotionPlanningProblemImpl = backend_manager.get_backend_attr(
-            "MotionPlanningProblemImpl",
+        DynamicPebbleMotionProblemImpl = backend_manager.get_backend_attr(
+            "DynamicPebbleMotionProblemImpl",
             backend=backend
         )
 
         if from_impl:
-            self.problem_impl = MotionPlanningProblemImpl.from_impl(
+            self.problem_impl = DynamicPebbleMotionProblemImpl.from_impl(
                 from_impl,
                 *args,
                 env=env.env_impl,
@@ -35,7 +34,7 @@ class MotionPlanningProblem:
             env_impl = env_impl or env.env_impl
             robot_impl = robot_impl or robot.robot_impl
 
-            self.problem_impl = MotionPlanningProblemImpl(
+            self.problem_impl = DynamicPebbleMotionProblemImpl(
                 *args,
                 env=env_impl,
                 robot=robot_impl,
