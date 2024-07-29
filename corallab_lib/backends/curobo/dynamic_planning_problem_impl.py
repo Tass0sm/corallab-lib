@@ -18,7 +18,7 @@ import scipy.interpolate
 from .env_impl import CuroboEnv
 from .robot_impl import CuroboRobot
 
-from .task_impl import CuroboTask
+from .motion_planning_problem_impl import CuroboMotionPlanningProblem
 
 from scipy.spatial.distance import cdist
 
@@ -80,7 +80,7 @@ class DynamicObstacle:
     #     return margins
 
 
-class CuroboDynamicPlanningProblem(CuroboTask):
+class CuroboDynamicPlanningProblem(CuroboMotionPlanningProblem):
     def __init__(
             self,
             **kwargs
