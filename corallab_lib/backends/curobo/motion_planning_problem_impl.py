@@ -1,6 +1,7 @@
 import numpy as np
 import torch
 
+from torch_robotics.torch_utils.torch_utils import to_torch, to_numpy
 from .env_impl import CuroboEnv
 from .robot_impl import CuroboRobot
 
@@ -11,12 +12,13 @@ from curobo.util.trajectory import *
 class CuroboMotionPlanningProblem:
     def __init__(
             self,
-            id : str,
             env = None,
             robot = None,
             self_collision_activation_distance: float = 0.05,
             val_self_collision_activation_distance: float = 0.0,
             val_world_collision_activation_distance: float = 0.0,
+            local_collision_step : float = 0.03,
+            local_collision_max_dist : float = 0.1,
             **kwargs
     ):
         assert isinstance(env, CuroboEnv) or env is None
@@ -24,6 +26,9 @@ class CuroboMotionPlanningProblem:
 
         self.env = env
         self.robot = robot
+
+        self.local_collision_step = local_collision_step
+        self.local_collision_max_dist = local_collision_max_dist
 
         config = RobotWorldConfig.load_from_config(
             robot.config,
@@ -74,6 +79,37 @@ class CuroboMotionPlanningProblem:
 
     def distance_q(self, q1, q2):
         return torch.linalg.norm(q1 - q2, dim=-1)
+
+    def local_motion(self, q1, q2, step=None, no_max_dist=False):
+        """
+        TODO: Make it depend on task
+        max_step=0.08, max_dist=0.1
+        """
+
+        step = step or self.local_collision_step
+        max_dist = None if no_max_dist else self.local_collision_max_dist
+
+        q1 = to_torch(q1, **self.tensor_args)
+        q2 = to_torch(q2, **self.tensor_args)
+
+        dist = self.distance_q(q1, q2)
+        # print(f"Local motion with dist: {dist}")
+        if max_dist is not None and dist > max_dist:
+            q2 = q1 + (q2 - q1) * (max_dist / dist)
+            dist = max_dist
+
+        alpha = torch.linspace(0, 1, int(dist / step) + 2, **self.tensor_args)
+        alpha = alpha.unsqueeze(1)
+
+        q1 = q1.unsqueeze(0)
+        q2 = q2.unsqueeze(0)
+        extension = q1 + (q2 - q1) * alpha
+        return extension.squeeze()
+
+    def check_local_motion(self, q1, q2, step=None, no_max_dist=False, **kwargs):
+        local_motion_states = self.local_motion(q1, q2, step=step, no_max_dist=no_max_dist)
+        any_collision = self.compute_collision(local_motion_states, **kwargs).any().item()
+        return not any_collision
 
     def compute_collision(self, qs, margin=0.0):
         """Reimplementing """
