@@ -110,8 +110,17 @@ class Visualizer:
             ax[0].set_ylabel(f'q_{i}')
             # Set limits
             if set_joint_limits:
-                q_min_np = self.robot.get_q_min().cpu().numpy()
-                q_max_np = self.robot.get_q_max().cpu().numpy()
+                q_min = self.robot.get_q_min()
+                if isinstance(q_min, torch.Tensor):
+                    q_min_np = q_min.cpu().numpy()
+                else:
+                    q_min_np = q_min
+
+                q_max = self.robot.get_q_max()
+                if isinstance(q_max, torch.Tensor):
+                    q_max_np = q_max.cpu().numpy()
+                else:
+                    q_max_np = q_max
 
                 ax[0].set_ylim(q_min_np[i], q_max_np[i])
                 # ax[1].set_ylim(self.robot.q_vel_min_np[i], self.robot.q_vel_max_np[i])
