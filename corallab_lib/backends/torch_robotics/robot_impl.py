@@ -44,6 +44,10 @@ class TorchRoboticsRobot(RobotInterface):
     def get_velocity(self, trajs):
         return self.robot_impl.get_velocity(trajs)
 
+    @property
+    def q_dim(self):
+        return self.robot_impl.q_dim
+
     def get_n_dof(self):
         return self.robot_impl.q_dim
 

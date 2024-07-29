@@ -1,4 +1,8 @@
 from abc import ABC, abstractmethod
 
 class RobotInterface(ABC):
-    pass
+
+    @property
+    @abstractmethod
+    def q_dim(self):
+        raise NotImplementedError
