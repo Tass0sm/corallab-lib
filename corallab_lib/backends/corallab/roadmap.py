@@ -1,4 +1,5 @@
 import torch
+import pickle
 import numpy as np
 
 try:
@@ -6,8 +7,14 @@ try:
 except ImportError:
     from collections.abc import Mapping
 
+from corallab_lib import MotionPlanningProblem
+
 import matplotlib.pyplot as plt
 from matplotlib import patches
+
+
+def to_tuple(q):
+    return tuple([x.item() for x in q])
 
 
 class Vertex:
@@ -21,18 +28,22 @@ class Vertex:
         self.successful_connection_attempts = 0
 
     def __lt__(self, other):
-        # return (self.q.norm() < other.q.norm()).item()
-        return (np.linalg.norm(self.q) < np.linalg.norm(other.q))
+        return (self.q.norm() < other.q.norm()).item()
+        # return (np.linalg.norm(self.q) < np.linalg.norm(other.q))
 
     def __le__(self, other):
-        # return (self.q.norm() <= other.q.norm()).item()
-        return (np.linalg.norm(self.q) <= np.linalg.norm(other.q))
+        return (self.q.norm() <= other.q.norm()).item()
+        # return (np.linalg.norm(self.q) <= np.linalg.norm(other.q))
 
     def __hash__(self):
-        return id(self)
+        key = to_tuple(self.q)
+        return hash((key, self.time))
 
     def __eq__(self, other):
         return (self.q == other.q).all() and (self.time == other.time)
+
+    def q_tuple(self):
+        return to_tuple(self.q)
 
     def clear(self):
         self._handle = None
@@ -109,13 +120,15 @@ class Edge:
     __repr__ = __str__
 
 
-def to_tuple(q):
-    return tuple([x.item() for x in q])
-
-
 class Roadmap(Mapping):
 
-    def __init__(self, samples=[]):
+    def __init__(
+            self,
+            problem : MotionPlanningProblem = None,
+            samples : list = [],
+    ):
+        self.problem = problem
+
         self.vertices = {}
         self.edges = []
         self.add(samples)
@@ -182,6 +195,19 @@ class Roadmap(Mapping):
             v.draw(ax)
         for e in self.edges:
             e.draw(ax)
+
+    def load_from_pkl(self, filename):
+        with open(filename, 'rb') as f:
+            roadmap_dict = pickle.load(f)
+            self.vertices = roadmap_dict["vertices"]
+            self.edges = roadmap_dict["edges"]
+
+    def save_to_pkl(self, filename):
+        with open(filename, 'wb') as f:
+            pickle.dump({
+                "vertices": self.vertices,
+                "edges": self.edges,
+            }, f)
 
     @staticmethod
     def merge(*roadmaps):

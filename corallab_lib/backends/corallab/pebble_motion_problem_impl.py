@@ -1,14 +1,43 @@
 import torch
 import numpy as np
 
-# from torch_robotics.tasks.tasks import PlanningTask
-# from torch_robotics.torch_utils.torch_utils import DEFAULT_TENSOR_ARGS, to_torch, to_numpy
+from corallab_lib import MotionPlanningProblem
+
+
+class PebbleMotionValidator:
+
+    def check_motion(self, transitions):
+        raise NotImplementedError
+
+
+class PebbleMotionDiscreteValidator(PebbleMotionValidator):
+
+    def check_motion(self, transitions):
+        raise NotImplementedError
+
+
+class PebbleMotionContinuousValidator(PebbleMotionValidator):
+
+    def __init__(self, problem : MotionPlanningProblem):
+        self.problem = problem
+
+    def check_motion(self, transitions, **kwargs):
+        q1 = torch.cat([t[0] for t in transitions])
+        q2 = torch.cat([t[1] for t in transitions])
+
+        local_motion_states = self.problem.local_motion(q1, q2, no_max_dist=True)
+        collisions, info = self.problem.compute_collision_info(local_motion_states, **kwargs)
+        no_collision = not collisions.any().item()
+
+        return no_collision, info
 
 
 class CorallabPebbleMotionProblem:
     def __init__(
             self,
             graph = None,
+            validator = None,
+            n_pebbles : int = 1,
             # robot=None,
             # impl=None,
             # tensor_args: dict = DEFAULT_TENSOR_ARGS,
@@ -18,6 +47,9 @@ class CorallabPebbleMotionProblem:
         # assert isinstance(robot, TorchRoboticsRobot) or robot is None
 
         self.graph = graph
+        self.validator = validator
+        self.n_pebbles = n_pebbles
+
         # self.robot = robot
         # self.tensor_args = tensor_args
 
@@ -54,8 +86,8 @@ class CorallabPebbleMotionProblem:
         extension = q1 + (q2 - q1) * alpha
         return extension.squeeze()
 
-    def check_local_motion(self, q1, q2, **kwargs):
-        return self.graph.check_local_motion(q1, q2, **kwargs)
+    def check_motion(self, transitions, **kwargs):
+        return self.validator.check_motion(transitions, **kwargs)
 
     # def random_q(self, **kwargs):
     #     return self.task_impl.sample_q(without_collision=False, **kwargs)
