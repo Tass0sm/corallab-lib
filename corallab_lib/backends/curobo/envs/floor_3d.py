@@ -17,6 +17,6 @@ class EnvFloor3D:
         # mesh: {} # dictionary of objects that are meshes
         self.config = {
             "cuboid": {
-                "table": {"dims": [4, 4, 0.2], "pose": [0.0, 0.0, -0.2, 1, 0, 0, 0]}
+                "floor": {"dims": [6, 6, 0.2], "pose": [0.0, 0.0, -0.2, 1, 0, 0, 0]}
             },
         }

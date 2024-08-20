@@ -50,6 +50,15 @@ class CuroboRobot(RobotInterface):
     def name(self):
         return self.id
 
+    @property
+    def q_dim(self):
+        return self.robot_impl.kin_model.kinematics_config.n_dof
+
+    # @property
+    # def ws_dim(self):
+    #     breakpoint()
+    #     return self.robot_impl.kin_model.kinematics_config.n_dof
+
     def get_position(self, trajs):
         return trajs[..., :self.get_n_dof()]
 

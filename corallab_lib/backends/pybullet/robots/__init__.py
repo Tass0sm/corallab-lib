@@ -5,6 +5,7 @@ from .ur10 import *
 from .panda import *
 
 from .dual_ur10 import *
+from .dual_ur5 import *
 
 
 # from .robot_ur5 import *

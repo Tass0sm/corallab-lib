@@ -1,11 +1,14 @@
 import numpy as np
 import torch
+from jaxtyping import Array, Float, Bool
 
 from torch_robotics.torch_utils.torch_utils import to_torch, to_numpy
 from .env_impl import CuroboEnv
 from .robot_impl import CuroboRobot
 
 from curobo.wrap.model.robot_world import RobotWorld, RobotWorldConfig, sum_mask, mask
+from curobo.util.sample_lib import HaltonGenerator
+from curobo.wrap.reacher.ik_solver import IKSolver, IKSolverConfig
 from curobo.util.trajectory import *
 
 
@@ -19,6 +22,7 @@ class CuroboMotionPlanningProblem:
             val_world_collision_activation_distance: float = 0.0,
             local_collision_step : float = 0.03,
             local_collision_max_dist : float = 0.1,
+            seed : int = 0,
             **kwargs
     ):
         assert isinstance(env, CuroboEnv) or env is None
@@ -37,7 +41,34 @@ class CuroboMotionPlanningProblem:
             # self_collision_activation_distance=self_collision_activation_distance,
         )
 
+        sample_gen_override = HaltonGenerator(
+            config.kinematics.get_dof(),
+            config.tensor_args,
+            up_bounds=config.kinematics.get_joint_limits().position[1],
+            low_bounds=config.kinematics.get_joint_limits().position[0],
+            seed=seed,
+        )
+        config.sampler = sample_gen_override
+
         self.curobo_fn = RobotWorld(config)
+
+        # FOR COLLISION_FREE INVERSE KINEMATICS
+
+        ik_config = IKSolverConfig.load_from_robot_config(
+            robot.config,
+            env.config,
+            rotation_threshold=0.05,
+            position_threshold=0.005,
+            num_seeds=20,
+            self_collision_check=True,
+            self_collision_opt=True,
+            # use_gradient_descent=True,
+            # store_debug=True,
+            tensor_args=self.curobo_fn.tensor_args,
+            use_cuda_graph=True,
+        )
+        self.ik_solver = IKSolver(ik_config)
+
         self.tensor_args = self.curobo_fn.tensor_args.as_torch_dict()
 
         self.self_collision_activation_distance = self_collision_activation_distance
@@ -77,6 +108,36 @@ class CuroboMotionPlanningProblem:
 
         return samples.squeeze(), None
 
+    def coll_free_ik(
+            self,
+            link_poses,
+            num_solutions : int = 1,
+            current_config = None
+    ):
+        """Poses is a dict from link name to Pose. Eventually this will be it's
+        own object.
+
+        """
+
+        batch_size = link_poses["ee_link_0"].shape[0]
+
+        if current_config is not None:
+            seed_config = current_config.unsqueeze(0).unsqueeze(1).expand(batch_size, -1, -1)
+            retract_conifg = current_config.unsqueeze(0).expand(batch_size, -1)
+        else:
+            seed_config = None
+            retract_conifg = None
+
+        ik_results = self.ik_solver.solve_batch(
+            link_poses["ee_link_0"],
+            link_poses=link_poses,
+            return_seeds=num_solutions,
+            seed_config=seed_config,
+            retract_config=retract_conifg,
+        )
+
+        return ik_results # .js_solution.position
+
     def distance_q(self, q1, q2):
         return torch.linalg.norm(q1 - q2, dim=-1)
 
@@ -111,16 +172,14 @@ class CuroboMotionPlanningProblem:
         any_collision = self.compute_collision(local_motion_states, **kwargs).any().item()
         return not any_collision
 
-    def compute_collision(self, qs, margin=0.0):
-        """Reimplementing """
+    def check_collision(self, q: Float[Array, "b h d"], **kwargs) -> Bool[Array, "b h"]:
+        if isinstance(q, np.ndarray):
+            q = torch.tensor(q, **self.curobo_fn.tensor_args.as_torch_dict())
 
-        if isinstance(qs, np.ndarray):
-            qs = torch.tensor(qs, **self.curobo_fn.tensor_args.as_torch_dict())
-
-        if qs.ndim == 1:
-            qs = qs.unsqueeze(0)
-
-        return self.curobo_fn.validate(qs).logical_not()
+        b, h, dof = q.shape
+        flat_qs = q.reshape((b*h, dof))
+        colls = self.curobo_fn.validate(flat_qs).logical_not()
+        return colls.reshape((b, h))
 
     def compute_collision_info(self, qs, margin=0.0):
         info = {
@@ -223,7 +282,7 @@ class CuroboMotionPlanningProblem:
         # compute collisions on a finer interpolated trajectory
 
         # TODO: Make interpolation?
-        trajs_interpolated = trajs_new
+        trajs_interpolated = trajs_new.contiguous()
         # trajs_interpolated = interpolate_traj_via_points(trajs_new, num_interpolation=num_interpolation)
 
         # Set 0 margin for collision checking, which means we allow trajectories to pass very close to objects.
@@ -304,6 +363,8 @@ class CuroboMotionPlanningProblem:
             world_margin_override : Optional[float] = None,
             **kwargs
     ):
+        trajs = trajs.contiguous()
+
         return self._validate_trajectory(
             trajs,
             self_margin_override=self_margin_override,
@@ -317,6 +378,8 @@ class CuroboMotionPlanningProblem:
             world_margin_override : Optional[float] = None,
             **kwargs
     ):
+        trajs = trajs.contiguous()
+
         collision_at_points = self._validate_trajectory(
             trajs,
             self_margin_override=self_margin_override,
@@ -331,6 +394,8 @@ class CuroboMotionPlanningProblem:
             world_margin_override : Optional[float] = None,
             **kwargs
     ):
+        trajs = trajs.contiguous()
+
         # If at least one trajectory is collision free, then we consider success
         any_success = self._validate_trajectory(
             trajs,

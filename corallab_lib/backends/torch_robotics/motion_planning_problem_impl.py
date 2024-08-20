@@ -3,6 +3,8 @@ from jaxtyping import Array, Float, Bool
 
 from torch_robotics.tasks.tasks import PlanningTask
 from torch_robotics.torch_utils.torch_utils import DEFAULT_TENSOR_ARGS, to_torch, to_numpy
+from torch_robotics.environments.primitives import MultiBoxField
+
 from .env_impl import TorchRoboticsEnv
 from .robot_impl import TorchRoboticsRobot
 
@@ -19,10 +21,18 @@ class TorchRoboticsMotionPlanningProblem(MotionPlanningProblemInterface):
             local_collision_max_dist : float = 0.1,
             obstacle_cutoff_margin : float = 0.005,
             tensor_args: dict = DEFAULT_TENSOR_ARGS,
+            seed=0,
             **kwargs
     ):
         assert isinstance(env, TorchRoboticsEnv) or env is None
         assert isinstance(robot, TorchRoboticsRobot) or robot is None
+
+        # torch_robotics uses the global rng so need to seed the global rng
+        # here.
+        torch.manual_seed(seed)
+        torch.cuda.manual_seed(seed)
+        # https://pytorch.org/docs/stable/notes/randomness.html#cuda-convolution-benchmarking
+        # torch.backends.cudnn.benchmark = False
 
         self.env = env
         self.robot = robot
@@ -93,7 +103,7 @@ class TorchRoboticsMotionPlanningProblem(MotionPlanningProblemInterface):
 
     def check_local_motion(self, q1, q2, step=None, no_max_dist=False, **kwargs):
         local_motion_states = self.local_motion(q1, q2, step=step, no_max_dist=no_max_dist)
-        any_collision = self.compute_collision(local_motion_states, **kwargs).any().item()
+        any_collision = self.check_collision(local_motion_states, **kwargs).any().item()
         return not any_collision
 
     def compute_collision_info(self, q, **kwargs):
@@ -115,3 +125,29 @@ class TorchRoboticsMotionPlanningProblem(MotionPlanningProblemInterface):
 
     def compute_success_free_trajs(self, trajs, **kwargs):
         return self.task_impl.compute_success_free_trajs(trajs, **kwargs)
+
+
+    # Extra APIs
+
+    # Linear Constraint Obstacles
+
+    def has_linear_constraint_obstacles(self):
+        return "2D" in self.env.name
+
+    def get_linear_constraint_obstacles(self):
+        q_mins, q_maxs = [], []
+
+        for obj_field in self.env.env_impl.obj_fixed_list:
+            for field in obj_field.fields:
+                if isinstance(field, MultiBoxField):
+                    q_mins_i = field.centers - field.sizes / 2
+                    q_maxs_i = field.centers + field.sizes / 2
+                else:
+                    raise NotImplementedError()
+
+                q_mins.append(q_mins_i)
+                q_maxs.append(q_maxs_i)
+
+        q_mins = torch.cat(q_mins)
+        q_maxs = torch.cat(q_maxs)
+        return q_mins, q_maxs

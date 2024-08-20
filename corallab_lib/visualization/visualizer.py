@@ -13,12 +13,12 @@ class Visualizer:
 
     def __init__(
             self,
-            task=None,
+            problem=None,
             planner=None
     ):
-        self.task = task
-        self.env = self.task.env
-        self.robot = self.task.robot
+        self.problem = problem
+        self.env = self.problem.env
+        self.robot = self.problem.robot
         self.planner = planner
 
         self.colors = {'collision': 'black', 'free': 'orange'}
@@ -46,7 +46,7 @@ class Visualizer:
         B, H, D = trajs_np.shape
 
         # Separate trajectories in collision and free (not in collision)
-        trajs_coll, trajs_free = self.task.get_trajs_collision_and_free(trajs)
+        trajs_coll, trajs_free = self.problem.get_trajs_collision_and_free(trajs)
 
         trajs_coll_pos_np = to_numpy([])
         trajs_coll_vel_np = to_numpy([])

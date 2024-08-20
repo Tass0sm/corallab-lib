@@ -74,6 +74,10 @@ class TorchRoboticsEnv:
         return cls(None, impl=impl, **kwargs)
 
     @property
+    def id(self):
+        return self.env_impl.name
+
+    @property
     def name(self):
         return self.env_impl.name
 

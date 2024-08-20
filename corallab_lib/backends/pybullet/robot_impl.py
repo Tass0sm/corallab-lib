@@ -21,6 +21,10 @@ class PybulletRobot(RobotInterface):
             # **kwargs
         )
 
+    @property
+    def q_dim(self):
+        return self.robot_impl.arm_num_dofs
+
     def get_position(self, trajs):
         return trajs[..., :self.robot_impl.arm_num_dofs]
 

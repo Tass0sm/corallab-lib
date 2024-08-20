@@ -31,6 +31,10 @@ class TorchRoboticsRobot(RobotInterface):
         return cls(None, impl=impl, **kwargs)
 
     @property
+    def id(self):
+        return self.robot_impl.name
+
+    @property
     def robot_id(self):
         return self.robot_impl.name
 
