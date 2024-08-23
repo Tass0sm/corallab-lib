@@ -1,17 +1,25 @@
 import os
+import corallab_assets
 
-# from curobo.cuda_robot_model.cuda_robot_model import CudaRobotModel
-# from curobo.types.base import TensorDeviceType
-# from curobo.types.robot import RobotConfig
-
-from .utils import find_config_dict
+from pydrake.multibody.parsing import Parser
+from pydrake.multibody.plant import AddMultibodyPlantSceneGraph
+from pydrake.systems.analysis import Simulator
+from pydrake.systems.framework import DiagramBuilder
 
 
 class UR5:
 
     def __init__(self, **kwargs):
-        # config_file_basename = "ur5e.yml"
-        # config_dict = find_config_dict(config_file_basename)
-        # self.config = RobotConfig.from_dict(config_dict, self.tensor_args)
-        # self.kin_model = CudaRobotModel(self.config.kinematics)
-        pass
+        self.urdf_path = str(corallab_assets.get_resource_path("ur5/ur5_test.urdf"))
+
+        builder = DiagramBuilder()
+        plant, _ = AddMultibodyPlantSceneGraph(builder, 0.0)
+        (model_idx,) = Parser(plant).AddModels(self.urdf_path)
+
+        world = plant.world_frame()
+        base = plant.GetFrameByName("base_link")
+        plant.WeldFrames(world, base)
+
+        plant.Finalize()
+        self.plant = plant
+        self.model_idx = model_idx

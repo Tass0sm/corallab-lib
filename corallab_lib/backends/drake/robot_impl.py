@@ -28,16 +28,9 @@ class DrakeRobot():
         RobotClass = getattr(robots, id)
         self.robot_impl = RobotClass(**kwargs)
 
-        builder = DiagramBuilder()
-        plant, _ = AddMultibodyPlantSceneGraph(builder, 0.0)
-        Parser(plant).AddModels(self.robot_impl.urdf_path)
-
-        world = plant.world_frame()
-        base = plant.GetFrameByName("base_fixture_link")
-        plant.WeldFrames(world, base)
-
-        plant.Finalize()
-        self.plant = plant
+        self.urdf_path = self.robot_impl.urdf_path
+        self.plant = self.robot_impl.plant
+        self.model_idx = self.robot_impl.model_idx
 
     # @property
     # def robot_id(self):
