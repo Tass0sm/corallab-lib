@@ -14,7 +14,7 @@ class EnvTable3D:
 
         self.table_center = torch.tensor([0.0, 0.0, 0.0])
         self.table_pose = [*self.table_center.tolist(), 1., 0., 0., 0.]
-        self.table_dimensions = torch.tensor([0.4, 0.4, 0.2])
+        self.table_dimensions = torch.tensor([0.3, 1.2, 0.2])
         table_half_dimensions = self.table_dimensions / 2
 
         self.table_bounds = torch.vstack([self.table_center - table_half_dimensions,

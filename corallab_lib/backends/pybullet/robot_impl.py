@@ -13,6 +13,8 @@ class PybulletRobot(RobotInterface):
             urdf_override=None,
             **kwargs
     ):
+        self.id = id
+
         self.urdf_override = urdf_override
 
         RobotClass = getattr(robots, id)
@@ -21,9 +23,18 @@ class PybulletRobot(RobotInterface):
             # **kwargs
         )
 
+        if hasattr(self.robot_impl, "retract_config"):
+            self.retract_config = self.robot_impl.retract_config
+
+    def set_id(self, id):
+        self.id = id
+
     @property
     def q_dim(self):
         return self.robot_impl.arm_num_dofs
+
+    def link_names(self):
+        return self.robot_impl.get_link_names()
 
     def get_position(self, trajs):
         return trajs[..., :self.robot_impl.arm_num_dofs]
@@ -69,3 +80,11 @@ class PybulletRobot(RobotInterface):
 
 
         return torch.tensor(results, **self.tensor_args)
+
+    # Multi-Agent API
+
+    def is_multi_agent(self):
+        return self.robot_impl.is_multi_agent()
+
+    def get_subrobots(self):
+        return self.robot_impl.get_subrobots()

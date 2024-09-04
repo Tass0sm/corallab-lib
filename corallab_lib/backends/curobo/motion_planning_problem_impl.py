@@ -54,20 +54,20 @@ class CuroboMotionPlanningProblem:
 
         # FOR COLLISION_FREE INVERSE KINEMATICS
 
-        ik_config = IKSolverConfig.load_from_robot_config(
-            robot.config,
-            env.config,
-            rotation_threshold=0.05,
-            position_threshold=0.005,
-            num_seeds=20,
-            self_collision_check=True,
-            self_collision_opt=True,
-            # use_gradient_descent=True,
-            # store_debug=True,
-            tensor_args=self.curobo_fn.tensor_args,
-            use_cuda_graph=True,
-        )
-        self.ik_solver = IKSolver(ik_config)
+        # ik_config = IKSolverConfig.load_from_robot_config(
+        #     robot.config,
+        #     env.config,
+        #     rotation_threshold=0.05,
+        #     position_threshold=0.005,
+        #     num_seeds=20,
+        #     self_collision_check=True,
+        #     self_collision_opt=True,
+        #     # use_gradient_descent=True,
+        #     # store_debug=True,
+        #     tensor_args=self.curobo_fn.tensor_args,
+        #     use_cuda_graph=True,
+        # )
+        # self.ik_solver = IKSolver(ik_config)
 
         self.tensor_args = self.curobo_fn.tensor_args.as_torch_dict()
 
@@ -108,35 +108,35 @@ class CuroboMotionPlanningProblem:
 
         return samples.squeeze(), None
 
-    def coll_free_ik(
-            self,
-            link_poses,
-            num_solutions : int = 1,
-            current_config = None
-    ):
-        """Poses is a dict from link name to Pose. Eventually this will be it's
-        own object.
+    # def coll_free_ik(
+    #         self,
+    #         link_poses,
+    #         num_solutions : int = 1,
+    #         current_config = None
+    # ):
+    #     """Poses is a dict from link name to Pose. Eventually this will be it's
+    #     own object.
 
-        """
+    #     """
 
-        batch_size = link_poses["ee_link_0"].shape[0]
+    #     batch_size = link_poses["ee_link_0"].shape[0]
 
-        if current_config is not None:
-            seed_config = current_config.unsqueeze(0).unsqueeze(1).expand(batch_size, -1, -1)
-            retract_conifg = current_config.unsqueeze(0).expand(batch_size, -1)
-        else:
-            seed_config = None
-            retract_conifg = None
+    #     if current_config is not None:
+    #         seed_config = current_config.unsqueeze(0).unsqueeze(1).expand(batch_size, -1, -1)
+    #         # retract_conifg = current_config.unsqueeze(0).expand(batch_size, -1)
+    #     else:
+    #         seed_config = None
+    #         # retract_conifg = None
 
-        ik_results = self.ik_solver.solve_batch(
-            link_poses["ee_link_0"],
-            link_poses=link_poses,
-            return_seeds=num_solutions,
-            seed_config=seed_config,
-            retract_config=retract_conifg,
-        )
+    #     ik_results = self.ik_solver.solve_batch(
+    #         link_poses["ee_link_0"],
+    #         link_poses=link_poses,
+    #         return_seeds=num_solutions,
+    #         seed_config=seed_config,
+    #         # retract_config=retract_conifg,
+    #     )
 
-        return ik_results # .js_solution.position
+    #     return ik_results # .js_solution.position
 
     def distance_q(self, q1, q2):
         return torch.linalg.norm(q1 - q2, dim=-1)
@@ -188,7 +188,7 @@ class CuroboMotionPlanningProblem:
             "self_collision_robots": None,
         }
 
-        in_collision = self.compute_collision(qs, margin=margin)
+        in_collision = self.check_collision(qs, margin=margin)
 
         # TODO: FIX THIS TERRIBLE HACK
         if in_collision:

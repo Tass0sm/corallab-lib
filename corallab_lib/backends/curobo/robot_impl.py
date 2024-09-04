@@ -11,6 +11,7 @@ from curobo.types.base import TensorDeviceType
 from curobo.types.robot import RobotConfig
 from curobo.util_file import get_robot_path, join_path, load_yaml
 
+from corallab_lib import Pose, RobotPoses
 import corallab_assets
 
 from . import robots
@@ -39,8 +40,11 @@ class CuroboRobot(RobotInterface):
 
         RobotClass = getattr(robots, id)
         self.robot_impl = RobotClass(**kwargs)
-
         self.config = self.robot_impl.config
+        self.retract_config = self.robot_impl.retract_config
+
+    def set_id(self, id):
+        self.id = id
 
     @property
     def robot_id(self):
@@ -53,6 +57,9 @@ class CuroboRobot(RobotInterface):
     @property
     def q_dim(self):
         return self.robot_impl.kin_model.kinematics_config.n_dof
+
+    def link_names(self):
+        return self.config.kinematics.link_names
 
     # @property
     # def ws_dim(self):
@@ -101,6 +108,24 @@ class CuroboRobot(RobotInterface):
         kin_state = self.robot_impl.kin_model.get_state(qs)
         spheres = kin_state.link_spheres_tensor.view(b, h, -1, 4)
         return spheres
+
+    def differentiable_fk(self, qs, **kwargs):
+
+        qs = qs.cuda()
+
+        if qs.ndim == 3:
+            b, h, dof = qs.shape
+            qs = qs.view(b * h, dof)
+        else:
+            b = 1
+            h = 1
+
+        kin_state = self.robot_impl.kin_model.get_state(qs)
+        link_poses_tmp = kin_state.link_poses
+        link_poses = RobotPoses({
+            k: Pose(v.position, v.quaternion) for k, v in link_poses_tmp.items()
+        })
+        return link_poses
 
     # Multi-Agent API
 

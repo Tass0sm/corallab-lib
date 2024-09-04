@@ -1,9 +1,11 @@
 """Credit to: https://github.com/ElectronicElephant/pybullet_ur5_robotiq"""
 
-import pybullet as p
+import pybullet as pb
 import numpy as np
 from scipy.spatial.transform import Rotation as R
 from collections import namedtuple
+
+import corallab_lib.backends.pybullet.ompl.utils as pb_utils
 from corallab_lib.backends.pybullet.ompl.ompl_robot_mixin import OMPLRobotMixin
 
 
@@ -44,17 +46,21 @@ class RobotBase(OMPLRobotMixin):
             gripper_range: List[Min, Max]
         """
         self.base_pos = pos
-        self.base_ori = p.getQuaternionFromEuler(ori)
+        self.base_ori = pb.getQuaternionFromEuler(ori)
         self.target_rot = target_rot
         self.target_trans = target_trans
 
-    def load(self, p=p, urdf_override=None):
+    def load(self, p=pb, urdf_override=None):
         self.__init_robot__(p=p, urdf_override=urdf_override)
         self.__parse_joint_info__()
         self.__post_load__()
 
     def step_simulation(self):
-        raise RuntimeError('`step_simulation` method of RobotBase Class should be hooked by the environment.')
+        # raise RuntimeError('`step_simulation` method of RobotBase Class should be hooked by the environment.')
+        self._p.stepSimulation()
+
+    def controllable_joint_mask(self, i):
+        return False
 
     def __parse_joint_info__(self):
         numJoints = self._p.getNumJoints(self.id)
@@ -73,12 +79,14 @@ class RobotBase(OMPLRobotMixin):
             jointUpperLimit = info[9]
             jointMaxForce = info[10]
             jointMaxVelocity = info[11]
-            controllable = (jointType != p.JOINT_FIXED)
-            if controllable:
-                self.controllable_joints.append(jointID)
-                self._p.setJointMotorControl2(self.id, jointID, p.VELOCITY_CONTROL, targetVelocity=0, force=0)
+            controllable = (jointType != pb.JOINT_FIXED) and not self.controllable_joint_mask(jointName, info)
             info = jointInfo(jointID,jointName,jointType,jointDamping,jointFriction,jointLowerLimit,
                             jointUpperLimit,jointMaxForce,jointMaxVelocity,controllable)
+
+            if controllable:
+                self.controllable_joints.append(jointID)
+                self._p.setJointMotorControl2(self.id, jointID, pb.VELOCITY_CONTROL, targetVelocity=0, force=0)
+
             self.joints.append(info)
 
         assert len(self.controllable_joints) >= self.arm_num_dofs
@@ -94,6 +102,17 @@ class RobotBase(OMPLRobotMixin):
 
     def __post_load__(self):
         pass
+
+    # def get_link_names(self):
+        # _link_name_to_index = {self._p.getBodyInfo(self.id)[0].decode('UTF-8'):-1,}
+
+        # for _id in range(self._p.getNumJoints(self.id)):
+        #     _name = self._p.getJointInfo(self.id, _id)[12].decode('UTF-8')
+        #     _link_name_to_index[_name] = _id
+
+        # breakpoint()
+        # return []
+        # return self.
 
     def reset(self):
         self.reset_arm()
@@ -270,7 +289,7 @@ class RobotBase(OMPLRobotMixin):
             self._p.setJointMotorControlArray(
                 bodyIndex=self.id,
                 jointIndices=self.arm_controllable_joints,
-                controlMode=p.POSITION_CONTROL,
+                controlMode=pb.POSITION_CONTROL,
                 targetPositions=step_q,
                 positionGains=np.ones(len(self.arm_controllable_joints)),
             )

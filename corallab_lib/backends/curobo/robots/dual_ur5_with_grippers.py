@@ -9,12 +9,12 @@ from corallab_lib import Robot
 from .utils import find_config_dict
 
 
-class DualUR5:
+class DualUR5WithGrippers:
 
     def __init__(self, **kwargs):
         self.tensor_args = TensorDeviceType()
 
-        config_file_basename = "dual_ur5/dual_ur5.py"
+        config_file_basename = "dual_ur5/dual_ur5_with_grippers.py"
         config_dict = find_config_dict(config_file_basename)
         self.config = RobotConfig.from_dict(config_dict, self.tensor_args)
         self.kin_model = CudaRobotModel(self.config.kinematics)
@@ -38,11 +38,13 @@ class DualUR5:
             base_pos=base_pos_0,
             backend="curobo"
         )
+        UR5_0.set_id("UR5_0")
 
         UR5_1 = Robot(
             "UR5",
             base_pos=base_pos_1,
             backend="curobo"
         )
+        UR5_1.set_id("UR5_1")
 
         return [UR5_0, UR5_1]

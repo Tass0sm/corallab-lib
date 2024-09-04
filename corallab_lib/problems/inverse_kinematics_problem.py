@@ -1,6 +1,7 @@
 import sys
 from ..backend_manager import backend_manager
 
+from corallab_lib.robot_poses import RobotPoses
 # import torch
 # from jaxtyping import Array, Float, Bool
 
@@ -16,7 +17,7 @@ class InverseKinematicsProblem:
             # env_impl=None,
             robot=None,
             # robot_impl=None,
-            goal_poses=None,
+            goal_poses : RobotPoses = None,
             retract_config=None,
             # from_impl=None,
             # backend=None,
@@ -24,34 +25,8 @@ class InverseKinematicsProblem:
     ):
         self.robot = robot
         self.goal_poses = goal_poses
-
-        self.goal_poses = goal_poses
         self.retract_config = retract_config
-
-        # MotionPlanningProblemImpl = backend_manager.get_backend_attr(
-        #     "MotionPlanningProblemImpl",
-        #     backend=backend
-        # )
-
-        # if from_impl:
-        #     self.problem_impl = MotionPlanningProblemImpl.from_impl(
-        #         from_impl,
-        #         *args,
-        #         env=env.env_impl,
-        #         robot=robot.robot_impl,
-        #         **kwargs
-        #     )
-        # else:
-        #     env_impl = env_impl or env.env_impl
-        #     robot_impl = robot_impl or robot.robot_impl
-
-        #     self.problem_impl = MotionPlanningProblemImpl(
-        #         *args,
-        #         env=env_impl,
-        #         robot=robot_impl,
-        #         **kwargs
-        #     )
-        pass
+        self.batch_size = goal_poses.batch_size
 
     # def __getattr__(self, name):
     #     if hasattr(self.problem_impl, name):

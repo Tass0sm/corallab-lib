@@ -1,4 +1,5 @@
 import torch
+from typing import Optional
 from jaxtyping import Array, Float, Bool
 
 from torch_robotics.tasks.tasks import PlanningTask
@@ -110,8 +111,17 @@ class TorchRoboticsMotionPlanningProblem(MotionPlanningProblemInterface):
         q = to_torch(q, **self.tensor_args)
         return self.task_impl.compute_collision_info(q, **kwargs)
 
-    def check_collision(self, q: Float[Array, "b h d"], **kwargs) -> Bool[Array, "b h"]:
+    def check_collision(
+            self,
+            q : Float[Array, "b h d"],
+            margin : Optional[float] = None,
+            **kwargs
+    ) -> Bool[Array, "b h"]:
         q = to_torch(q, **self.tensor_args)
+
+        if margin is not None:
+            kwargs["margin"] = margin
+
         return self.task_impl.compute_collision(q, **kwargs)
 
     def get_trajs_collision_and_free(self, trajs, **kwargs):

@@ -38,6 +38,9 @@ class TorchRoboticsDynamicPlanningProblem:
                 **kwargs
             )
 
+        self.t_max = self.task_impl.t_max
+        self.v_max = self.task_impl.v_max
+
     def add_dynamic_obstacle(self, robot, traj, time):
         robot = robot.robot_impl
         self.task_impl.add_dynamic_obstacle(robot, traj, time)
@@ -45,23 +48,23 @@ class TorchRoboticsDynamicPlanningProblem:
     def clear_dynamic_obstacles(self):
         self.task_impl.clear_dynamic_obstacles()
 
-    def static_compute_collision(self, q, **kwargs):
+    def static_check_collision(self, q, **kwargs):
         q = to_torch(q, **self.tensor_args)
         return self.task_impl.static_compute_collision(q, **kwargs)
 
-    def compute_collision(self, time, q, **kwargs):
+    def check_collision(self, time, q, **kwargs):
         q = to_torch(q, **self.tensor_args)
         time = to_torch(time, **self.tensor_args)
         return self.task_impl.compute_collision(time, q, **kwargs)
 
-    # def get_q_dim(self):
-    #     return self.robot.get_n_dof()
+    def get_q_dim(self):
+        return self.task_impl.robot.q_dim
 
-    # def get_q_min(self):
-    #     return self.robot.get_q_min()
+    def get_q_min(self):
+        return self.task_impl.robot.q_min.cpu()
 
-    # def get_q_max(self):
-    #     return self.robot.get_q_max()
+    def get_q_max(self):
+        return self.task_impl.robot.q_max.cpu()
 
     # def tmp(self):
     #     pass

@@ -33,6 +33,7 @@ class PybulletMotionPlanningProblem:
         self.gen = np.random.default_rng(seed=0)
 
         self.robot.robot_impl.load(
+            p=self.env.client,
             urdf_override=self.robot.urdf_override
         )
 
@@ -142,6 +143,9 @@ class PybulletMotionPlanningProblem:
         local_motion_states = self.local_motion(q1, q2, step=step, no_max_dist=no_max_dist)
         any_collision = self.compute_collision(local_motion_states, **kwargs).any().item()
         return not any_collision
+
+    def check_collision(self, qs, **kwargs):
+        return self.compute_collision(qs, **kwargs)
 
     def compute_collision(self, qs, **kwargs):
 

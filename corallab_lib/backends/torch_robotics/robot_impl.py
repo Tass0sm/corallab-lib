@@ -67,6 +67,10 @@ class TorchRoboticsRobot(RobotInterface):
     def fk(self, q, **kwargs):
         return self.robot_impl.fk_map_collision(q, **kwargs)
 
+    def differentiable_fk(self, q):
+        breakpoint()
+        return self.robot_impl.fk_map_collision(q, **kwargs)
+
     def get_margins(self):
         return to_torch(self.robot_impl.link_margins_for_object_collision_checking, **self.tensor_args)
 

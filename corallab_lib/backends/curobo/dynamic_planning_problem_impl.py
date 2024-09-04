@@ -30,10 +30,13 @@ class DynamicObstacle:
             entity,
             traj,
             timesteps,
-            tensor_args : dict = {}
+            tensor_args : dict = DEFAULT_TENSOR_ARGS
     ):
         if isinstance(traj, np.ndarray):
-            traj = torch.tensor(traj, **tensor_args)
+            traj = to_torch(traj, **tensor_args)
+
+        if isinstance(timesteps, np.ndarray):
+            timesteps = to_torch(timesteps, **tensor_args)
 
         if traj.ndim == 2:
             traj = traj.unsqueeze(0)
@@ -41,7 +44,7 @@ class DynamicObstacle:
         assert timesteps.shape[0] == traj.shape[1]
 
         self.entity = entity
-        self.traj = traj
+        self.traj = traj.to(**tensor_args)
         self.timesteps = timesteps.to(**tensor_args)
         self.tensor_args = tensor_args
 
@@ -83,9 +86,14 @@ class DynamicObstacle:
 class CuroboDynamicPlanningProblem(CuroboMotionPlanningProblem):
     def __init__(
             self,
+            t_max : float = 64.0,
+            v_max : float = 0.1,
             **kwargs
     ):
-        super().__init__(None, **kwargs)
+        super().__init__(**kwargs)
+
+        self.t_max = t_max
+        self.v_max = v_max
 
         self.dynamic_obstacles = []
 
@@ -96,18 +104,17 @@ class CuroboDynamicPlanningProblem(CuroboMotionPlanningProblem):
     def clear_dynamic_obstacles(self):
         self.dynamic_obstacles = []
 
-    def static_compute_collision(self, qs, **kwargs):
-        return super().compute_collision(qs, **kwargs)
+    def static_check_collision(self, qs, **kwargs):
+        return super().check_collision(qs, **kwargs)
 
-    def compute_collision(self, time, qs, **kwargs):
+    def check_collision(self, time, qs, **kwargs):
         qs = to_torch(qs, **self.tensor_args)
 
         b, h, dof = qs.shape
-        qs = qs.view(b * h, dof)
 
         time = to_torch(time, **self.tensor_args)
 
-        in_static_collision = super().compute_collision(qs, **kwargs)
+        in_static_collision = super().check_collision(qs, **kwargs)
         in_static_collision = in_static_collision.view(b, h)
 
         if len(self.dynamic_obstacles) > 0:
@@ -115,6 +122,7 @@ class CuroboDynamicPlanningProblem(CuroboMotionPlanningProblem):
             dynamic_spheres_np = dynamic_spheres.cpu().numpy()
 
             # run collision, self collision, bounds
+            qs = qs.view(b * h, dof)
             kin_state = self.curobo_fn.get_kinematics(qs)
             main_spheres = kin_state.link_spheres_tensor.view(b, h, -1, 4)
             main_spheres_np = main_spheres.cpu().numpy()

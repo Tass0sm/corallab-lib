@@ -4,40 +4,51 @@ import pybullet_data
 
 from pybullet_utils.bullet_client import BulletClient
 
+from . import envs
+
 
 class PybulletEnv:
     def __init__(
             self,
             id,
             connection_mode=p.GUI,
-            ws_limits=None,
-            add_plane=True,
+            hostname=None,
+            # ws_limits=None,
+            # add_plane=True,
             **kwargs
     ):
+        self.id = id
+
         if isinstance(connection_mode, str):
             assert hasattr(p, connection_mode), "If connection mode is a string, it must be 'DIRECT' or 'GUI'"
             connection_mode = getattr(p, connection_mode)
 
         self.client = BulletClient(
             connection_mode=connection_mode,
+            hostName=hostname,
             # **kwargs
         )
         self.client.setAdditionalSearchPath(pybullet_data.getDataPath())
         self.client.setGravity(0, 0, -9.81)
 
-        self.ws_limits = ws_limits if ws_limits is not None else np.array([[-1, -1, 0],
-                                                                           [ 1,  1, 1]])
-        self.ws_min = self.ws_limits[0]
-        self.ws_max = self.ws_limits[1]
-
         self.pb_objs = []
 
-        if add_plane:
-            plane_height = self.ws_min[2]
-            self.plane_id = self.client.loadURDF("plane.urdf", basePosition=(0, 0, plane_height))
-            self.pb_objs.append(self.plane_id)
-        else:
-            self.plane_id = None        
+        if hasattr(envs, id):
+            EnvClass = getattr(envs, id)
+            EnvClass.setup(self)
+
+        # self.ws_limits = ws_limits if ws_limits is not None else np.array([[-1, -1, 0],
+        #                                                                    [ 1,  1, 1]])
+        # self.ws_min = self.ws_limits[0]
+        # self.ws_max = self.ws_limits[1]
+
+
+        # if add_plane:
+        #     plane_height = self.ws_min[2]
+        #     self.plane_id = self.client.loadURDF("plane.urdf", basePosition=(0, 0, plane_height))
+        #     self.pb_objs.append(self.plane_id)
+        # else:
+        #     self.plane_id = None
 
     def get_ws_dim(self):
         return 3
