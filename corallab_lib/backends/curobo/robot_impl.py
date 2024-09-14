@@ -5,6 +5,8 @@ import einops
 import importlib
 import os.path
 
+from torch_robotics.environments.primitives import MultiSphereField
+
 # cuRobo
 from curobo.cuda_robot_model.cuda_robot_model import CudaRobotModel, CudaRobotModelConfig
 from curobo.types.base import TensorDeviceType
@@ -12,6 +14,7 @@ from curobo.types.robot import RobotConfig
 from curobo.util_file import get_robot_path, join_path, load_yaml
 
 from corallab_lib import Pose, RobotPoses
+from corallab_lib.visualization import plot_frame
 import corallab_assets
 
 from . import robots
@@ -126,6 +129,79 @@ class CuroboRobot(RobotInterface):
             k: Pose(v.position, v.quaternion) for k, v in link_poses_tmp.items()
         })
         return link_poses
+
+    # Rendering
+
+    def render(self, ax, q=None, color='blue', arrow_length=0.15, arrow_alpha=1.0, arrow_linewidth=2.0,
+               draw_links_spheres=True, **kwargs):
+        # # draw skeleton
+        # skeleton = get_skeleton_from_model(self.diff_ur5, q, self.diff_ur5.get_link_names())
+        # skeleton.draw_skeleton(ax=ax, color=color)
+
+        if q.ndim == 1:
+            q = q.unsqueeze(0)
+
+        if q.ndim > 2:
+            raise NotImplementedError("Rendering states with more than 2 dims is not supported")
+
+        # forward kinematics
+        link_poses = self.differentiable_fk(q)
+
+        # draw link collision points
+        if draw_links_spheres:
+            spheres = self.fk_map_collision(q).squeeze((0, 1))
+            spheres_pos = spheres[:, :3]
+            spheres_radii = spheres[:, 3]
+
+            # spheres = self.robot_impl.kin_model.get_robot_as_spheres(q)[0]
+            # spheres_pos = [s.pose[:3] for s in spheres]
+            # spheres_radii = [s.radius for s in spheres]
+
+            sphere_field = MultiSphereField(
+                spheres_pos,
+                spheres_radii,
+            )
+            sphere_field.render(ax, color='red', cmap='Reds', **kwargs)
+
+        # draw link frames
+        for name, pose in link_poses.items():
+            plot_frame(ax, pose)
+            # arrow_length=arrow_length, arrow_alpha=arrow_alpha, arrow_linewidth=arrow_linewidth
+
+        # # draw grasped object
+        # if self.grasped_object is not None:
+        #     frame_grasped_object = fks_dict[self.link_name_grasped_object]
+
+        #     # draw object
+        #     pos = frame_grasped_object.translation.squeeze()
+        #     ori = q_convert_wxyz(frame_grasped_object.get_quaternion().squeeze())
+        #     self.grasped_object.render(ax, pos=pos, ori=ori, color=color)
+
+        #     # draw object collision points
+        #     points_in_object_frame = self.grasped_object.base_points_for_collision
+        #     points_in_robot_base_frame = frame_grasped_object.transform_point(points_in_object_frame).squeeze()
+        #     points_in_robot_base_frame_np = to_numpy(points_in_robot_base_frame)
+        #     ax.scatter(
+        #         points_in_robot_base_frame_np[:, 0],
+        #         points_in_robot_base_frame_np[:, 1],
+        #         points_in_robot_base_frame_np[:, 2],
+        #         color=color
+        #     )
+        pass
+
+    def render_trajectories(self, ax, trajs=None, start_state=None, goal_state=None, colors=['gray'], **kwargs):
+        if trajs is not None:
+            trajs_pos = self.get_position(trajs)
+            for traj, color in zip(trajs_pos, colors):
+                for t in range(traj.shape[0]):
+                    q = traj[t]
+                    self.render(ax, q, color, **kwargs, arrow_length=0.1, arrow_alpha=0.5, arrow_linewidth=1.)
+
+        if start_state is not None:
+            self.render(ax, start_state, color='green')
+        if goal_state is not None:
+            self.render(ax, goal_state, color='purple')
+
 
     # Multi-Agent API
 

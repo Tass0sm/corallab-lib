@@ -8,8 +8,8 @@ class UR5:
     def __init__(
         self,
         ip_address,
-        base_pos=(0, 0, 0),
-        base_orn=(0, 0, 0, 1),
+        # base_pos=(0, 0, 0),
+        # base_orn=(0, 0, 0, 1),
         gripper=None,
         move_timestep=0,
         disabled=False
@@ -28,9 +28,9 @@ class UR5:
         self.con.setTcp([0, 0, 0.145, 0, 0, 0])
 
         self.gripper = None
-        self.base_pos = base_pos
-        self.base_orn = base_orn
-        self.base_transform = get_transform(rotq=base_orn, pos=base_pos)
+        # self.base_pos = base_pos
+        # self.base_orn = base_orn
+        # self.base_transform = get_transform(rotq=base_orn, pos=base_pos)
         self.move_timestep = move_timestep
 
     def move_q(self, configuration):
@@ -65,31 +65,31 @@ class UR5:
     def exit_teach_mode(self):
         self.con.endTeachMode()
 
-    def convert_pose_to_base_frame(self, pos, rot):
-        """convert position (meters given in the world frame) and rot (a scipy
-        spatial rotation) to a pose (x, y, z, rx, ry, rz) in the robot's base
-        frame
+    # def convert_pose_to_base_frame(self, pos, rot):
+    #     """convert position (meters given in the world frame) and rot (a scipy
+    #     spatial rotation) to a pose (x, y, z, rx, ry, rz) in the robot's base
+    #     frame
 
-        T_w * p = T_b * p'
-        T_b^(-1) * T_w * p = p'
-        T_b^(-1) * I * p = p'
-        T_b^(-1) * p = p'
+    #     T_w * p = T_b * p'
+    #     T_b^(-1) * T_w * p = p'
+    #     T_b^(-1) * I * p = p'
+    #     T_b^(-1) * p = p'
 
-        """
+    #     """
 
-        T_b_inv = invert_transform(self.base_transform)
-        R_b_inv = get_rotation(t_matrix=T_b_inv)
+    #     T_b_inv = invert_transform(self.base_transform)
+    #     R_b_inv = get_rotation(t_matrix=T_b_inv)
 
-        # change basis of pos
-        pos_B = transform_point(T_b_inv, pos)
+    #     # change basis of pos
+    #     pos_B = transform_point(T_b_inv, pos)
 
-        # change basis of orn
-        new_rot = rot * R_b_inv
-        rotvec = new_rot.as_rotvec(degrees=False)
+    #     # change basis of orn
+    #     new_rot = rot * R_b_inv
+    #     rotvec = new_rot.as_rotvec(degrees=False)
 
-        # combine
-        pose = np.hstack([pos, rotvec])
-        return pose
+    #     # combine
+    #     pose = np.hstack([pos, rotvec])
+    #     return pose
 
     def get_joint_positions(self):
         return self.rec.getActualQ()
@@ -105,27 +105,27 @@ class UR5:
 
         return pos, q
 
-    def move_ee(self, pos, orn, flip=True):
-        """Move end effector to position POS (meters given in the world frame)
-        with orientation ORN (a quaternion).
+    # def move_ee(self, pos, orn, flip=True):
+    #     """Move end effector to position POS (meters given in the world frame)
+    #     with orientation ORN (a quaternion).
 
-        In pybullet the orientations of the end effector are left-handed and
-        defined with Z pointing into the robot. That way, you can give an
-        object's orientation and the robot will assume an orientation that can
-        interface that object from the top. On the robot, this frame is
-        apparently flipped upside down. So, by default, we flip the input
-        orientation by 180 degrees about its x-axis to get something that
-        matches this convention.
+    #     In pybullet the orientations of the end effector are left-handed and
+    #     defined with Z pointing into the robot. That way, you can give an
+    #     object's orientation and the robot will assume an orientation that can
+    #     interface that object from the top. On the robot, this frame is
+    #     apparently flipped upside down. So, by default, we flip the input
+    #     orientation by 180 degrees about its x-axis to get something that
+    #     matches this convention.
 
-        """
+    #     """
 
-        if flip:
-            rot = R.from_quat(orn)
-            rot_x_180 = R.from_euler("xyz", [180, 0, 0], degrees=True)
-            rot = rot * rot_x_180
+    #     if flip:
+    #         rot = R.from_quat(orn)
+    #         rot_x_180 = R.from_euler("xyz", [180, 0, 0], degrees=True)
+    #         rot = rot * rot_x_180
 
-        pose_base = self.convert_pose_to_base_frame(pos, rot)
-        self.con.moveL(pose_base)
+    #     pose_base = self.convert_pose_to_base_frame(pos, rot)
+    #     self.con.moveL(pose_base)
 
     def move_ee_down(self, pos, orn=(1, 0, 0, 0), **kwargs):
         """

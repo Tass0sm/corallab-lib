@@ -26,6 +26,7 @@ class Visualizer:
         self.cmaps = {'collision': 'Greys', 'free': 'Oranges'}
         self.cmaps_robot = {'collision': 'Greys', 'free': 'YlOrRd'}
 
+    # JOINT SPACE
 
     def plot_joint_space_state_trajectories(
             self,
@@ -127,7 +128,6 @@ class Visualizer:
 
         return fig, axs
 
-
     def animate_opt_iters_joint_space_state(
             self, trajs=None, traj_best=None, n_frames=10, **kwargs
     ):
@@ -167,6 +167,48 @@ class Visualizer:
                 )
 
         create_animation_video(fig, animate_fn, n_frames=n_frames, **kwargs)
+
+    def _create_env_fig_and_axes(self):
+        fig = plt.figure(layout='tight')
+        if self.env.dim == 3:
+            ax = fig.add_subplot(projection='3d')
+            ax.set_box_aspect([1,1,1])
+        else:
+            ax = fig.add_subplot()
+            ax.set_aspect('equal', adjustable='box')
+
+        return fig, ax
+
+    def render_robot_trajectories(self, fig=None, ax=None, render_planner=False, trajs=None, traj_best=None, **kwargs):
+        assert hasattr(self.robot, "render_trajectories"), "Robot for visualizer must have a 'render_trajectories' method"
+
+        if fig is None or ax is None:
+            fig, ax = self._create_env_fig_and_axes()
+
+        # breakpoint()
+        # if render_planner:
+        #     self.planner.render(ax)
+
+        # self.env.render(ax)
+
+        # if trajs is not None:
+        #     _, trajs_coll_idxs, _, trajs_free_idxs, _ = self.problem.get_valid_and_invalid(solution, return_indices=True)
+        #     # breakpoint()
+
+        #     kwargs['colors'] = []
+        #     for i in range(len(trajs_coll_idxs) + len(trajs_free_idxs)):
+        #         kwargs['colors'].append(self.colors['collision'] if i in trajs_coll_idxs else self.colors['free'])
+
+        #     kwargs['c_scatter'] = self.problem.check_collision(trajs).int().cpu().numpy()
+
+        self.robot.render_trajectories(ax, trajs=trajs, **kwargs)
+
+        # if traj_best is not None:
+        #     kwargs['colors'] = ['blue']
+        #     self.robot.render_trajectories(ax, trajs=traj_best.unsqueeze(0), **kwargs)
+
+        return fig, ax
+
 
 
 def create_animation_video(fig, animate_fn, anim_time=5, n_frames=100, video_filepath='video.mp4', **kwargs):

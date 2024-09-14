@@ -33,6 +33,12 @@ class MotionPlanningProblem:
             backend=backend
         )
 
+        # TODO: check
+        if backend is not None:
+            self.backend = backend
+        else:
+            self.backend = backend_manager.backend
+
         if from_impl:
             self.problem_impl = MotionPlanningProblemImpl.from_impl(
                 from_impl,
@@ -56,8 +62,8 @@ class MotionPlanningProblem:
         if start_state_pos is None or goal_state_pos is None:
             random_start_pos, random_goal_pos = self._generate_random_start_and_goal(threshold_start_goal_pos)
 
-        self.start_state_pos = start_state_pos or random_start_pos
-        self.goal_state_pos = goal_state_pos or random_goal_pos
+        self.start_state_pos = start_state_pos if start_state_pos is not None else random_start_pos
+        self.goal_state_pos = goal_state_pos if goal_state_pos is not None else random_goal_pos
 
     def __getattr__(self, name):
         if hasattr(self.problem_impl, name):
@@ -118,7 +124,8 @@ class MotionPlanningProblem:
 
     def get_valid_and_invalid(
             self,
-            q: Float[Array, "b h d"],
+            q : Float[Array, "b h d"],
+            return_indices : bool = False,
             **kwargs
     ) -> (Bool[Array, "b"], Bool[Array, "b"]):
         validity = self.check_solutions(q, **kwargs)
@@ -140,4 +147,7 @@ class MotionPlanningProblem:
         if trajs_invalid.nelement() == 0:
             trajs_invalid = None
 
-        return trajs_valid, trajs_invalid
+        if return_indices:
+            return trajs_valid, valid_idxs, trajs_invalid, invalid_idxs
+        else:
+            return trajs_valid, trajs_invalid

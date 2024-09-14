@@ -7,13 +7,13 @@ import corallab_assets
 
 from corallab_lib import Robot
 from .robot_base import RobotBase
-from .triple_ur5 import TripleUR5
+from .triple_ur5e import TripleUR5e
 
 TRIPLE_UR5_ASSET_PATH = str(corallab_assets.get_resource_path("triple_ur5"))
-TRIPLE_UR5_URDF_PATH = str(corallab_assets.get_resource_path("triple_ur5/triple_ur5_with_grippers.urdf"))
+TRIPLE_UR5_URDF_PATH = str(corallab_assets.get_resource_path("triple_ur5/triple_ur5e_with_grippers.urdf"))
 
 
-class TripleUR5WithGrippers(TripleUR5):
+class TripleUR5eWithGrippers(TripleUR5e):
     def __init_robot__(self, p=pb, urdf_override=None):
         self.eef_id = 6
         self.arm_num_dofs = 18
@@ -40,33 +40,33 @@ class TripleUR5WithGrippers(TripleUR5):
 
     def __post_load__(self):
         # To control the gripper
-        mimic_parent_name = 'finger_joint_0'
-        mimic_children_names = {'right_outer_knuckle_joint_0': 1,
-                                'left_inner_knuckle_joint_0': 1,
-                                'right_inner_knuckle_joint_0': 1,
-                                'left_inner_finger_joint_0': -1,
-                                'right_inner_finger_joint_0': -1}
-        self.mimic_joint0_id = self.__setup_mimic_joints__(mimic_parent_name, mimic_children_names)
+        mimic_parent_name_0 = 'finger_joint_0'
+        mimic_children_names_0 = {'right_outer_knuckle_joint_0': 1,
+                                  'left_inner_knuckle_joint_0': 1,
+                                  'right_inner_knuckle_joint_0': 1,
+                                  'left_inner_finger_joint_0': -1,
+                                  'right_inner_finger_joint_0': -1}
+        self.mimic_joint0_id = self.__setup_mimic_joints__(mimic_parent_name_0, mimic_children_names_0)
 
-        mimic_parent_name = 'finger_joint_1'
-        mimic_children_names = {'right_outer_knuckle_joint_1': 1,
-                                'left_inner_knuckle_joint_1': 1,
-                                'right_inner_knuckle_joint_1': 1,
-                                'left_inner_finger_joint_1': -1,
-                                'right_inner_finger_joint_1': -1}
-        self.mimic_joint1_id = self.__setup_mimic_joints__(mimic_parent_name, mimic_children_names)
+        mimic_parent_name_1 = 'finger_joint_1'
+        mimic_children_names_1 = {'right_outer_knuckle_joint_1': 1,
+                                  'left_inner_knuckle_joint_1': 1,
+                                  'right_inner_knuckle_joint_1': 1,
+                                  'left_inner_finger_joint_1': -1,
+                                  'right_inner_finger_joint_1': -1}
+        self.mimic_joint1_id = self.__setup_mimic_joints__(mimic_parent_name_1, mimic_children_names_1)
 
-        mimic_parent_name = 'finger_joint_2'
-        mimic_children_names = {'right_outer_knuckle_joint_2': 1,
-                                'left_inner_knuckle_joint_2': 1,
-                                'right_inner_knuckle_joint_2': 1,
-                                'left_inner_finger_joint_2': -1,
-                                'right_inner_finger_joint_2': -1}
-        self.mimic_joint2_id = self.__setup_mimic_joints__(mimic_parent_name, mimic_children_names)
+        mimic_parent_name_2 = 'finger_joint_2'
+        mimic_children_names_2 = {'right_outer_knuckle_joint_2': 1,
+                                  'left_inner_knuckle_joint_2': 1,
+                                  'right_inner_knuckle_joint_2': 1,
+                                  'left_inner_finger_joint_2': -1,
+                                  'right_inner_finger_joint_2': -1}
+        self.mimic_joint2_id = self.__setup_mimic_joints__(mimic_parent_name_2, mimic_children_names_2)
 
-        self.ee_link_0_id = [joint.id for joint in self.joints if joint.name == "ee_fixed_joint_0"][0]
-        self.ee_link_1_id = [joint.id for joint in self.joints if joint.name == "ee_fixed_joint_1"][0]
-        self.ee_link_2_id = [joint.id for joint in self.joints if joint.name == "ee_fixed_joint_2"][0]
+        self.ee_link_0_id = [joint.id for joint in self.joints if joint.name == "flange-ee_link_0"][0]
+        self.ee_link_1_id = [joint.id for joint in self.joints if joint.name == "flange-ee_link_1"][0]
+        self.ee_link_2_id = [joint.id for joint in self.joints if joint.name == "flange-ee_link_2"][0]
 
     def __setup_mimic_joints__(self, mimic_parent_name, mimic_children_names):
         mimic_parent_id = [joint.id for joint in self.joints if joint.name == mimic_parent_name][0]
@@ -94,10 +94,12 @@ class TripleUR5WithGrippers(TripleUR5):
                                       maxVelocity=self.joints[self.mimic_joint1_id].maxVelocity)
 
         self._p.setJointMotorControl2(self.id, self.mimic_joint2_id, pb.POSITION_CONTROL, targetPosition=open_angle,
-                                      force=10000 or self.joints[self.mimic_joint1_id].maxForce,
-                                      maxVelocity=self.joints[self.mimic_joint1_id].maxVelocity)
+                                      force=10000 or self.joints[self.mimic_joint2_id].maxForce,
+                                      maxVelocity=self.joints[self.mimic_joint2_id].maxVelocity)
 
     def fake_open_grippers(self, ids):
+        self.gripper_target = self.gripper_range[0] + 0.05
+        self.move_gripper(self.gripper_target)
         self.fake_open_gripper0(ids[0])
         self.fake_open_gripper1(ids[1])
         self.fake_open_gripper2(ids[2])
@@ -112,6 +114,8 @@ class TripleUR5WithGrippers(TripleUR5):
         self._p.removeConstraint(self.gripper2_constraint_id)
 
     def fake_close_grippers(self, ids):
+        self.gripper_target = self.gripper_range[0] + 0.025
+        self.move_gripper(self.gripper_target)
         self.fake_close_gripper0(ids[0])
         self.fake_close_gripper1(ids[1])
         self.fake_close_gripper2(ids[2])

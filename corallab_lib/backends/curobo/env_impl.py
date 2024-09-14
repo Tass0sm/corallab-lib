@@ -25,7 +25,7 @@ class CuroboEnv(EnvInterface):
 
         self.config = self.env_impl.config
 
-        if id == "EnvTable3D":
+        if "Table" in id:
             self.table_bounds = self.env_impl.table_bounds
             self.table_height = self.env_impl.table_height
 
@@ -66,6 +66,10 @@ class CuroboEnv(EnvInterface):
     @property
     def name(self):
         return self.id
+
+    @property
+    def dim(self):
+        return 3
 
     # def get_ws_dim(self):
     #     return self.env_impl.dim

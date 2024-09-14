@@ -7,12 +7,12 @@ from curobo.types.robot import RobotConfig
 from .utils import find_config_dict
 
 
-class UR5:
+class UR5e:
 
     def __init__(self, base_pos=None, **kwargs):
         self.tensor_args = TensorDeviceType()
 
-        config_file_basename = "ur5/ur5.py"
+        config_file_basename = "ur5e.yml"
         config_dict = find_config_dict(config_file_basename)
         self.config = RobotConfig.from_dict(config_dict, self.tensor_args)
 

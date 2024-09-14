@@ -17,7 +17,7 @@ class UR5:
         (model_idx,) = Parser(plant).AddModels(self.urdf_path)
 
         world = plant.world_frame()
-        base = plant.GetFrameByName("base_link")
+        base = plant.GetFrameByName("base_fixture_link")
         plant.WeldFrames(world, base)
 
         plant.Finalize()

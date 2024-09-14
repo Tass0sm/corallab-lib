@@ -1,5 +1,6 @@
 """Credit to: https://github.com/ElectronicElephant/pybullet_ur5_robotiq"""
 
+import time
 import pybullet as pb
 import numpy as np
 from scipy.spatial.transform import Rotation as R
@@ -59,7 +60,7 @@ class RobotBase(OMPLRobotMixin):
         # raise RuntimeError('`step_simulation` method of RobotBase Class should be hooked by the environment.')
         self._p.stepSimulation()
 
-    def controllable_joint_mask(self, i):
+    def controllable_joint_mask(self, joint_name, info):
         return False
 
     def __parse_joint_info__(self):
@@ -269,9 +270,10 @@ class RobotBase(OMPLRobotMixin):
             self,
             tar_q,
             error_thresh=1e-2,
-            speed=0.01,
+            speed=0.02,
             break_cond=lambda: False,
             max_iter=5000,
+            hooks=[],
             **kwargs,
     ):
         """Written with help of TransporterNet code: https://arxiv.org/pdf/2010.14406.pdf"""
@@ -293,6 +295,9 @@ class RobotBase(OMPLRobotMixin):
                 targetPositions=step_q,
                 positionGains=np.ones(len(self.arm_controllable_joints)),
             )
+
+            for hook in hooks:
+                hook(step_q)
 
             self.move_gripper(self.gripper_target)
 
@@ -316,6 +321,7 @@ class RobotBase(OMPLRobotMixin):
             self.set_q(cur_q)
             self.move_gripper(self.gripper_target)
             self.step_simulation()
+            time.sleep(0.1)
 
     ####
     # Util

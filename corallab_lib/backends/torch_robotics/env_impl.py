@@ -81,6 +81,10 @@ class TorchRoboticsEnv:
     def name(self):
         return self.env_impl.name
 
+    @property
+    def dim(self):
+        return self.env_impl.dim
+
     def get_ws_dim(self):
         return self.env_impl.dim
 

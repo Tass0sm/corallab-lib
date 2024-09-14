@@ -5,10 +5,10 @@ from corallab_lib import Robot
 from .utils import RobotBase
 
 
-class DualUR5(RobotBase):
+class DualUR5e(RobotBase):
 
     def __init__(self, **kwargs):
-        super().__init__("dual_ur5/dual_ur5.py", **kwargs)
+        super().__init__("dual_ur5/dual_ur5e.py", **kwargs)
 
     # Multi-Agent API
     def is_multi_agent(self):
@@ -23,16 +23,16 @@ class DualUR5(RobotBase):
         base_pos_0 = fixed_transforms[l0, :3, 3]
         base_pos_1 = fixed_transforms[l1, :3, 3]
 
-        UR5_0 = Robot(
-            "UR5",
+        UR5e_0 = Robot(
+            "UR5e",
             base_pos=base_pos_0,
             backend="curobo"
         )
 
-        UR5_1 = Robot(
-            "UR5",
+        UR5e_1 = Robot(
+            "UR5e",
             base_pos=base_pos_1,
             backend="curobo"
         )
 
-        return [UR5_0, UR5_1]
+        return [UR5e_0, UR5e_1]

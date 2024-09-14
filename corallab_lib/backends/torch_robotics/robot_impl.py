@@ -1,3 +1,5 @@
+import torch
+
 from corallab_lib import Robot
 
 from torch_robotics import robots
@@ -61,8 +63,19 @@ class TorchRoboticsRobot(RobotInterface):
     def get_q_max(self):
         return self.robot_impl.q_max
 
+    def get_max_velocity(self):
+        # basically looking for a max velocity that allows the robot to
+        # comfortably go between extremes within 64 steps
+        return torch.tensor([0.08] * self.q_dim, **self.tensor_args)
+
     def random_q(self, n_samples=10):
         return self.robot_impl.random_q(n_samples=n_samples)
+
+    def fk_map_collision(self, qs, **kwargs):
+        sphere_centers = self.robot_impl.fk_map_collision(qs, **kwargs)
+        sphere_margins = self.robot_impl.link_margins_for_object_collision_checking_tensor
+        sphere_margins = sphere_margins.expand(sphere_centers.shape[:-1]).unsqueeze(-1)
+        return torch.cat((sphere_centers, sphere_margins), dim=-1)
 
     def fk(self, q, **kwargs):
         return self.robot_impl.fk_map_collision(q, **kwargs)
@@ -77,7 +90,7 @@ class TorchRoboticsRobot(RobotInterface):
     # Multi-Agent API
 
     def is_multi_agent(self):
-        return self.robot_impl.name == "MultiRobot"
+        return isinstance(self.robot_impl, robots.MultiRobot)
 
     def get_subrobots(self):
         robs = []

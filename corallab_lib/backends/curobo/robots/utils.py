@@ -1,12 +1,12 @@
 import os
+import importlib
+import torch
 
-# cuRobo
-from curobo.cuda_robot_model.cuda_robot_model import CudaRobotModel, CudaRobotModelConfig
+from curobo.cuda_robot_model.cuda_robot_model import CudaRobotModel
 from curobo.types.base import TensorDeviceType
 from curobo.types.robot import RobotConfig
 from curobo.util_file import get_robot_path, join_path, load_yaml
 
-import importlib
 import corallab_assets
 
 
@@ -31,3 +31,13 @@ def find_config_dict(config_file_basename):
             return robot_config_module.robot_cfg
     else:
         raise FileNotFoundError
+
+
+class RobotBase:
+
+    def __init__(self, config_file_basename, **kwargs):
+        self.tensor_args = TensorDeviceType()
+        config_dict = find_config_dict(config_file_basename)
+        self.config = RobotConfig.from_dict(config_dict, self.tensor_args)
+        self.kin_model = CudaRobotModel(self.config.kinematics)
+        self.retract_config = self.kin_model.retract_config

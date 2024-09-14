@@ -6,18 +6,17 @@ from pydrake.multibody.plant import AddMultibodyPlantSceneGraph
 from pydrake.systems.analysis import Simulator
 from pydrake.systems.framework import DiagramBuilder
 
+class RobotBase:
 
-class DualUR5:
-
-    def __init__(self, **kwargs):
-        self.urdf_path = str(corallab_assets.get_resource_path("dual_ur5/dual_ur5.urdf"))
+    def __init__(self, urdf_path, **kwargs):
+        self.urdf_path = urdf_path
 
         builder = DiagramBuilder()
         plant, _ = AddMultibodyPlantSceneGraph(builder, 0.0)
         (model_idx,) = Parser(plant).AddModels(self.urdf_path)
 
         world = plant.world_frame()
-        base = plant.GetFrameByName("base_fixture_link")
+        base = plant.GetFrameByName("shared_base_link")
         plant.WeldFrames(world, base)
 
         plant.Finalize()

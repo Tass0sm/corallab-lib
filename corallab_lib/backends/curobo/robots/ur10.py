@@ -14,15 +14,13 @@ class UR10:
 
         config_file_basename = "ur10e.yml"
         config_dict = find_config_dict(config_file_basename)
-
         self.config = RobotConfig.from_dict(config_dict, self.tensor_args)
 
-        # TODO: Find if there is a better way.
-        self.base_pos = base_pos
         if base_pos is not None:
-            self.config.kinematics.kinematics_config.fixed_transforms[0, :3, 3] = base_pos
+            self.config.kinematics.kinematics_config.fixed_transforms[0, :3, -1] = base_pos
 
         self.kin_model = CudaRobotModel(self.config.kinematics)
+        self.retract_config = self.kin_model.retract_config
 
     @property
     def robot_id(self):
