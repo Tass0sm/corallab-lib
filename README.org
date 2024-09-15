@@ -2,23 +2,23 @@
 
 Provide a common API to many useful robotics libraries.
 
-* Install
+* Supported Backends
 
-** Local
-poetry install
-poetry install --extras pybullet
-poetry install --extras torch-robotics
+1. Pybullet
+2. Curobo
+3. Drake
+4. torch-robotics
 
-* Entities
-** Robots
+* Problem Types
 
-** Tasks
-Tasks bundle a robot, an environment, and provide functions which
-require both of them. These functions are useful for solving a motion
-planning problem or something.
+1. Motion Planning Problem
+2. Motion Planning Problem with Dynamic Obstacles
+3. Pebble Motion Problem
+4. Dynamic Pebble Motion Problem
+5. Inverse Kinematics
 
-** Envs
-Envs encode physical properties of a certain space.
+* Misc
 
-** Gyms
-Gyms encode dynamical systems or processes.
+1. Signal Temporal Logic Expressions
+   1. Differentiable
+   2. Encodable in Linear-Constraint-Formulae
