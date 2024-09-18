@@ -188,6 +188,7 @@ class DifferentiableSTL(torch.nn.Module, metaclass=ABCMeta):
         reversed_input_env = {}
 
         for k, v in env.items():
+            assert v.ndim == 3, "Inputs to STL expression must have shape (batch x time x signal_dim)"
             reversed_input_env[k] = torch.flip(v, [1])
 
         return reversed_input_env
@@ -377,6 +378,15 @@ class TemporalOperator(DifferentiableSTL):
             outputs.append(o)
             states.append(hc)
         return outputs, states
+
+    def robustness_trace_from_trace(self, trace, scale=-1, agm=False, distributed=False):
+        outputs, states = self._run_cell(
+            trace,
+            scale=scale,
+            agm=agm,
+            distributed=distributed
+        )
+        return torch.cat(outputs, dim=1)                  # [batch_size, time_dim, ...]
 
     def _robustness_trace(self, inputs, pscale=1, scale=-1, keepdim=True, agm=False, distributed=False, **kwargs):
         # Compute the robustness trace of the subformula and that is the input

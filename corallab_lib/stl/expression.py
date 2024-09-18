@@ -449,10 +449,15 @@ class Until(Node):
 
         self.left_child: Node = left_child
         self.right_child: Node = right_child
+
+
         self.unbound: bool = unbound
         self.right_unbound: bool = right_unbound
         self.left_time_bound: int = left_time_bound
         self.right_time_bound: int = right_time_bound + 1
+
+        self.interval = [self.left_time_bound, self.right_time_bound]
+
         self.subformulas = [left_child, right_child]
 
         if (self.unbound is False) and (self.right_unbound is False) and \
@@ -480,6 +485,81 @@ class Until(Node):
         else:
             # diff = torch.le(torch.tensor([self.left_time_bound]), 0).float()
             return sum_children_depth + self.right_time_bound - 1
+
+    def _robustness_trace(self, env: dict, pscale=1, scale=-1, keepdim=True, agm=False, distributed=False, **kwargs):
+        '''
+        trace1 is the robustness trace of ϕ
+        trace2 is the robustness trace of ψ
+        trace1 and trace2 are size [batch_size, time_dim, x_dim]
+        '''
+        # assert isinstance(self.subformula1, STL_Formula), "Subformula1 needs to be an stl formula"
+        # assert isinstance(self.subformula2, STL_Formula), "Subformula2 needs to be an stl formula"
+        LARGE_NUMBER = 1E6
+
+        # These are reversed traces...
+        reversed_trace1 = self.left_child(env, pscale=pscale, scale=scale, keepdim=keepdim, agm=agm, distributed=distributed, **kwargs)
+        reversed_trace2 = self.right_child(env, pscale=pscale, scale=scale, keepdim=keepdim, agm=agm, distributed=distributed, **kwargs)
+
+        always_phi = Always(self.left_child)
+        minish = stlcg.Minish()
+        maxish = stlcg.Maxish()
+
+        LHS = reversed_trace2.unsqueeze(-1).repeat([1, 1, 1, reversed_trace2.shape[1]]).permute(0, 3, 2, 1)
+
+        # Case 1:
+        if self.interval is None or (self.interval[1] == np.inf) & (self.interval[0] == 0):
+            RHS = torch.ones_like(LHS)*-LARGE_NUMBER
+
+            for i in range(reversed_trace2.shape[1]):
+                # Left trace from 0 - i
+                always_phi_trace_for_st0_to_ti = always_phi.robustness_trace_from_trace(reversed_trace1[:, i:])
+                RHS[:,i:,:,i] = always_phi_trace_for_st0_to_ti
+
+            return maxish(
+                minish(torch.stack([LHS, RHS], dim=-1), scale=scale, dim=-1, keepdim=False, agm=agm, distributed=distributed),
+                scale=scale, dim=-1, keepdim=False, agm=agm, distributed=distributed
+            )
+
+        # Case 2
+        elif self.interval[1] < np.Inf:  # [a, b] where b < ∞
+            a = int(self.interval[0])
+            b = int(self.interval[1])
+            RHS = [torch.ones_like(reversed_trace1)[:, :b] * -LARGE_NUMBER]
+
+            breakpoint()
+
+            for i in range(b, reversed_trace2.shape[1]):
+                reversed_t_i = i + 1 #?
+                reversed_t_prime = i - a + 1
+                reversed_t_prime_plus_b = i - b
+                psi_trace = reversed_trace2[:, reversed_t_prime_plus_b:reversed_t_prime]
+
+                phi_trace = reversed_trace2[:, reversed_t_prime_plus_b:reversed_t_prime]
+
+                relevant = trace1[:,:i+1,:]
+
+                s_ti_to_ti_plus_b = trace1[:,:i+1,:]
+
+
+                # computing the robustness trace of "always phi" over the reversed signal
+
+                trace1[:, i:]
+                always_phi_trace_for_sti_to_ti_plus_b = always_phi.robustness_trace_from_trace()
+
+                B = Alw(relevant.flip(1), scale=scale, keepdim=keepdim, distributed=distributed)[:,a:b+1,:].flip(1).unsqueeze(-1)
+                RHS.append(maxish(minish(torch.cat([A,B], dim=-1), dim=-1, scale=scale, keepdim=False, distributed=distributed), dim=1, scale=scale, keepdim=keepdim, distributed=distributed))
+
+            return torch.cat(RHS, dim=1);
+        else:
+            a = int(interval[0])   # [a, ∞] where a < ∞
+            RHS = [torch.ones_like(trace1)[:,:a,:] * -LARGE_NUMBER]
+            for i in range(a,trace2.shape[1]):
+                A = trace2[:,:i-a+1,:].unsqueeze(-1)
+                relevant = trace1[:,:i+1,:]
+                B = Alw(relevant.flip(1), scale=scale, keepdim=keepdim, distributed=distributed)[:,a:,:].flip(1).unsqueeze(-1)
+                RHS.append(maxish(minish(torch.cat([A,B], dim=-1), dim=-1, scale=scale, keepdim=False, distributed=distributed), dim=1, scale=scale, keepdim=keepdim, distributed=distributed))
+            return torch.cat(RHS, dim=1);
+
 
 
 class Not(Node):
@@ -618,7 +698,7 @@ class Comparison(Atom):
         )
         return s
 
-    def _robustness_trace(self, env: dict,, pscale=1.0, **kwargs):
+    def _robustness_trace(self, env: dict, pscale=1.0, **kwargs):
 
         x = self.var.get_value(env) # horizon x dim
 

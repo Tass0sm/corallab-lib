@@ -5,7 +5,7 @@ import torch.nn as nn
 from torch import Tensor
 
 from .stlcg_utils import Maxish, Minish
-from .expression import Var, Node, And, Or, LinearExp, NegLinearExp
+from .expression import Var, Node, And, Or, Atom
 
 
 class Conjunction(Node):
