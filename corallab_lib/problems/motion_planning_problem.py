@@ -114,7 +114,11 @@ class MotionPlanningProblem:
         q_interp = interpolate_traj_via_points(q, num_interpolation=num_interpolation)
         colls = self.check_collision(q_interp, margin=0.0, **kwargs)
         colls = to_torch(colls)
-        return colls.logical_not().all(axis=-1)
+
+        valid_start = torch.allclose(q[:, 0, :], self.start_state_pos)
+        valid_end = torch.allclose(q[:, -1, :], self.goal_state_pos)
+
+        return valid_start and valid_end and colls.logical_not().all(axis=-1)
 
     def check_any_valid(self, q: Float[Array, "b h d"], **kwargs) -> Bool[Array, "b"]:
         return self.check_solutions(q, **kwargs).any()
