@@ -1,0 +1,527 @@
+[project]
+authors = ["Tassos Manganaris <tassos.manganaris@gmail.com>"]
+channels = ["nvidia", "conda-forge"]
+# "robostack-staging"
+description = "Add a short description here"
+name = "corallab-lib"
+platforms = ["linux-64"]
+version = "0.1.0"
+
+[system-requirements]
+cuda = "12" # or any other version of cuda you want to use
+
+[tasks]
+
+[dependencies]
+python = ">=3.10.15,<4"
+# cudnn = ">=8.0.4,<9"
+# cudatoolkit = ">=11.7.0,<12"
+# _libgcc_mutex = { version = "==0.1", build = "conda_forge" }
+# _openmp_mutex = { version = "==4.5", build = "2_kmp_llvm" }
+# _sysroot_linux-64_curr_repodata_hack = { version = "==3", build = "h69a702a_14" }
+# alsa-lib = { version = "==1.2.12", build = "h4ab18f5_0" }
+# attr = { version = "==2.5.1", build = "h166bdaf_1" }
+# bazel = { version = "==7.2.1", build = "hc2c2f25_0" }
+# binutils = { version = "==2.40", build = "h4852527_7" }
+# binutils_impl_linux-64 = { version = "==2.40", build = "ha1999f0_7" }
+# binutils_linux-64 = { version = "==2.40", build = "hb3c18ed_4" }
+# blis = { version = "==0.9.0", build = "h4ab18f5_2" }
+# boost = { version = "==1.85.0", build = "hb563948_2" }
+# bzip2 = { version = "==1.0.8", build = "hd590300_5" }
+# c-ares = { version = "==1.32.3", build = "h4bc722e_0" }
+# c-compiler = { version = "==1.5.2", build = "h0b41bf4_0" }
+# ca-certificates = { version = "==2024.7.4", build = "hbcca054_0" }
+# cairo = { version = "==1.18.0", build = "h3faef2a_0" }
+# compilers = { version = "==1.5.2", build = "ha770c72_0" }
+# cuda = { version = "==12.1.1", build = "ha804496_0" }
+# cuda-cccl = { version = "==12.1.109", build = "ha770c72_0" }
+# cuda-cccl-impl = { version = "==2.0.1", build = "ha770c72_1" }
+# cuda-cccl_linux-64 = { version = "==12.1.109", build = "ha770c72_0" }
+# cuda-command-line-tools = { version = "==12.1.1", build = "ha770c72_0" }
+# cuda-compiler = { version = "==12.1.1", build = "hbad6d8a_0" }
+# cuda-cudart = { version = "==12.1.105", build = "hd3aeb46_0" }
+# cuda-cudart-dev = { version = "==12.1.105", build = "hd3aeb46_0" }
+# cuda-cudart-dev_linux-64 = { version = "==12.1.105", build = "h59595ed_0" }
+# cuda-cudart-static = { version = "==12.1.105", build = "hd3aeb46_0" }
+# cuda-cudart-static_linux-64 = { version = "==12.1.105", build = "h59595ed_0" }
+# cuda-cudart_linux-64 = { version = "==12.1.105", build = "h59595ed_0" }
+# cuda-cuobjdump = { version = "==12.1.111", build = "h59595ed_0" }
+# cuda-cupti = { version = "==12.1.105", build = "h59595ed_0" }
+# cuda-cupti-dev = { version = "==12.1.105", build = "h59595ed_0" }
+# cuda-cupti-static = { version = "==12.1.105", build = "0" }
+# cuda-cuxxfilt = { version = "==12.1.105", build = "h59595ed_0" }
+# cuda-demo-suite = { version = "==12.4.127", build = "0" }
+# cuda-documentation = { version = "==12.4.127", build = "0" }
+# cuda-driver-dev = { version = "==12.1.105", build = "hd3aeb46_0" }
+# cuda-driver-dev_linux-64 = { version = "==12.1.105", build = "h59595ed_0" }
+# cuda-gdb = { version = "==12.1.105", build = "hd47b8d6_0" }
+# cuda-libraries = { version = "==12.1.1", build = "ha770c72_0" }
+# cuda-libraries-dev = { version = "==12.5.0", build = "0" }
+# cuda-libraries-static = { version = "==12.1.1", build = "0" }
+# cuda-nsight = { version = "==12.1.105", build = "ha770c72_0" }
+# cuda-nsight-compute = { version = "==12.1.1", build = "0" }
+# cuda-nvcc = { version = "==12.1.105", build = "hcdd1206_1" }
+# cuda-nvcc-dev_linux-64 = { version = "==12.1.105", build = "ha770c72_0" }
+# cuda-nvcc-impl = { version = "==12.1.105", build = "hd3aeb46_0" }
+# cuda-nvcc-tools = { version = "==12.1.105", build = "hd3aeb46_0" }
+# cuda-nvcc_linux-64 = { version = "==12.1.105", build = "h8a487aa_1" }
+# cuda-nvdisasm = { version = "==12.1.105", build = "h59595ed_0" }
+# cuda-nvml-dev = { version = "==12.1.105", build = "h59595ed_0" }
+# cuda-nvprof = { version = "==12.1.105", build = "h59595ed_0" }
+# cuda-nvprune = { version = "==12.1.105", build = "h59595ed_0" }
+# cuda-nvrtc = { version = "==12.1.105", build = "hd3aeb46_0" }
+# cuda-nvrtc-dev = { version = "==12.1.105", build = "hd3aeb46_0" }
+# cuda-nvrtc-static = { version = "==12.1.105", build = "0" }
+# cuda-nvtx = { version = "==12.1.105", build = "h59595ed_0" }
+# cuda-nvvp = { version = "==12.1.105", build = "h59595ed_0" }
+# cuda-opencl = { version = "==12.1.105", build = "h59595ed_0" }
+# cuda-opencl-dev = { version = "==12.1.105", build = "h59595ed_0" }
+# cuda-profiler-api = { version = "==12.1.105", build = "ha770c72_0" }
+# cuda-runtime = { version = "==12.1.1", build = "ha804496_0" }
+# cuda-sanitizer-api = { version = "==12.1.105", build = "h59595ed_0" }
+# cuda-toolkit = { version = "==12.1.1", build = "0" }
+# cuda-tools = { version = "==12.1.1", build = "ha770c72_0" }
+# cuda-version = { version = "==12.1", build = "h1d6eff3_3" }
+# cuda-visual-tools = { version = "==12.1.1", build = "0" }
+# cxx-compiler = { version = "==1.5.2", build = "hf52228f_0" }
+# dbus = { version = "==1.13.6", build = "h5008d03_3" }
+# eigen = { version = "==3.4.0", build = "h00ab1b0_0" }
+# elfutils = { version = "==0.191", build = "h924a536_0" }
+# expat = { version = "==2.6.2", build = "h59595ed_0" }
+# flann = { version = "==1.9.2", build = "h2b5ea80_0" }
+# fmt = { version = "==8.1.1", build = "h4bd325d_0" }
+# font-ttf-dejavu-sans-mono = { version = "==2.37", build = "hab24e00_0" }
+# font-ttf-inconsolata = { version = "==3.0", build = "h77eed37_0" }
+# font-ttf-source-code-pro = { version = "==2.38", build = "h77eed37_0" }
+# font-ttf-ubuntu = { version = "==0.83", build = "h77eed37_2" }
+# fontconfig = { version = "==2.14.2", build = "h14ed4e7_0" }
+# fonts-conda-ecosystem = { version = "==1", build = "0" }
+# fonts-conda-forge = { version = "==1", build = "0" }
+# fortran-compiler = { version = "==1.5.2", build = "hdb1a99f_0" }
+# freetype = { version = "==2.12.1", build = "h267a509_2" }
+# gcc = { version = "==11.4.0", build = "h602e360_13" }
+# gcc_impl_linux-64 = { version = "==11.4.0", build = "h00c12a0_13" }
+# gcc_linux-64 = { version = "==11.4.0", build = "ha077dfb_4" }
+# gds-tools = { version = "==1.6.1.9", build = "hd3aeb46_0" }
+# gettext = { version = "==0.22.5", build = "h59595ed_2" }
+# gettext-tools = { version = "==0.22.5", build = "h59595ed_2" }
+# gfortran = { version = "==11.4.0", build = "h602e360_13" }
+# gfortran_impl_linux-64 = { version = "==11.4.0", build = "hd465bd8_13" }
+# gfortran_linux-64 = { version = "==11.4.0", build = "hddf7001_4" }
+# giflib = { version = "==5.2.2", build = "hd590300_0" }
+# glib = { version = "==2.80.2", build = "h8a4344b_1" }
+# glib-tools = { version = "==2.80.2", build = "h73ef956_1" }
+# gmp = { version = "==6.3.0", build = "h59595ed_1" }
+# gnutls = { version = "==3.8.7", build = "h32866dd_0" }
+# graphite2 = { version = "==1.3.13", build = "h59595ed_1003" }
+# gst-plugins-base = { version = "==1.24.4", build = "h9ad1361_0" }
+# gstreamer = { version = "==1.24.4", build = "haf2f30d_0" }
+# gxx = { version = "==11.4.0", build = "h602e360_13" }
+# gxx_impl_linux-64 = { version = "==11.4.0", build = "h634f3ee_13" }
+# gxx_linux-64 = { version = "==11.4.0", build = "h35bfe5d_4" }
+# harfbuzz = { version = "==8.5.0", build = "hfac3d4d_0" }
+# hdf5 = { version = "==1.14.3", build = "nompi_hdf9ad27_105" }
+# icu = { version = "==73.2", build = "h59595ed_0" }
+# ijar = { version = "==7.2.1", build = "he02047a_0" }
+# kernel-headers_linux-64 = { version = "==3.10.0", build = "h4a8ded7_14" }
+# keyutils = { version = "==1.6.1", build = "h166bdaf_0" }
+# krb5 = { version = "==1.21.2", build = "h659d440_0" }
+# lame = { version = "==3.100", build = "h166bdaf_1003" }
+# lcms2 = { version = "==2.16", build = "hb7c19ff_0" }
+# ld_impl_linux-64 = { version = "==2.40", build = "hf3520f5_7" }
+# lerc = { version = "==4.0.0", build = "h27087fc_0" }
+# libabseil = { version = "==20240116.2", build = "cxx17_he02047a_1" }
+# libaec = { version = "==1.1.3", build = "h59595ed_0" }
+# libarchive = { version = "==3.7.4", build = "hfca40fe_0" }
+# libasprintf = { version = "==0.22.5", build = "h661eb56_2" }
+# libasprintf-devel = { version = "==0.22.5", build = "h661eb56_2" }
+# libblas = { version = "==3.9.0", build = "6_ha36c22a_netlib" }
+# libboost = { version = "==1.85.0", build = "hba137d9_2" }
+# libboost-devel = { version = "==1.85.0", build = "h00ab1b0_2" }
+# libboost-headers = { version = "==1.85.0", build = "ha770c72_2" }
+# libboost-python = { version = "==1.85.0", build = "py38h3135665_2" }
+# libboost-python-devel = { version = "==1.85.0", build = "py38hb563948_2" }
+# libcap = { version = "==2.69", build = "h0f662aa_0" }
+# libcblas = { version = "==3.9.0", build = "6_ha36c22a_netlib" }
+# libclang-cpp15 = { version = "==15.0.7", build = "default_h127d8a8_5" }
+# libclang13 = { version = "==18.1.8", build = "default_h6ae225f_0" }
+# libcublas = { version = "==12.1.3.1", build = "hd3aeb46_0" }
+# libcublas-dev = { version = "==12.1.0.26", build = "0" }
+# libcublas-static = { version = "==12.1.3.1", build = "hd3aeb46_0" }
+# libcufft = { version = "==11.0.2.54", build = "hd3aeb46_0" }
+# libcufft-dev = { version = "==11.0.2.4", build = "0" }
+# libcufft-static = { version = "==11.0.2.54", build = "hd3aeb46_0" }
+# libcufile = { version = "==1.6.1.9", build = "hd3aeb46_0" }
+# libcufile-dev = { version = "==1.6.1.9", build = "hd3aeb46_0" }
+# libcufile-static = { version = "==1.6.1.9", build = "0" }
+# libcups = { version = "==2.3.3", build = "h4637d8d_4" }
+# libcurand = { version = "==10.3.2.106", build = "hd3aeb46_0" }
+# libcurand-dev = { version = "==10.3.2.106", build = "hd3aeb46_0" }
+# libcurand-static = { version = "==10.3.2.106", build = "0" }
+# libcurl = { version = "==8.8.0", build = "hca28451_0" }
+# libcusolver = { version = "==11.4.5.107", build = "hd3aeb46_0" }
+# libcusolver-dev = { version = "==11.4.4.55", build = "0" }
+# libcusolver-static = { version = "==11.4.5.107", build = "hd3aeb46_0" }
+# libcusparse = { version = "==12.1.0.106", build = "hd3aeb46_0" }
+# libcusparse-dev = { version = "==12.0.2.55", build = "0" }
+# libcusparse-static = { version = "==12.1.0.106", build = "hd3aeb46_0" }
+# libdeflate = { version = "==1.21", build = "h4bc722e_0" }
+# libdrm = { version = "==2.4.122", build = "h4ab18f5_0" }
+# libedit = { version = "==3.1.20191231", build = "he28a2e2_2" }
+# libev = { version = "==4.33", build = "hd590300_2" }
+# libevent = { version = "==2.1.12", build = "hf998b51_1" }
+# libexpat = { version = "==2.6.2", build = "h59595ed_0" }
+# libffi = { version = "==3.4.2", build = "h7f98852_5" }
+# libflac = { version = "==1.4.3", build = "h59595ed_0" }
+# libgcc-devel_linux-64 = { version = "==11.4.0", build = "h8f596e0_113" }
+# libgcc-ng = { version = "==13.2.0", build = "h77fa898_11" }
+# libgcrypt = { version = "==1.10.3", build = "hd590300_0" }
+# libgettextpo = { version = "==0.22.5", build = "h59595ed_2" }
+# libgettextpo-devel = { version = "==0.22.5", build = "h59595ed_2" }
+# libgfortran-ng = { version = "==13.2.0", build = "h69a702a_11" }
+# libgfortran5 = { version = "==13.2.0", build = "h3d2ce59_11" }
+# libglib = { version = "==2.80.2", build = "h8a4344b_1" }
+# libgomp = { version = "==13.2.0", build = "h77fa898_11" }
+# libgpg-error = { version = "==1.49", build = "h4f305b6_0" }
+# libgrpc = { version = "==1.62.2", build = "h15f2491_0" }
+# libhwloc = { version = "==2.10.0", build = "default_h5622ce7_1001" }
+# libiconv = { version = "==1.17", build = "hd590300_2" }
+# libidn2 = { version = "==2.3.7", build = "hd590300_0" }
+# libjpeg-turbo = { version = "==3.0.0", build = "hd590300_1" }
+# liblapack = { version = "==3.9.0", build = "6_ha36c22a_netlib" }
+# libllvm15 = { version = "==15.0.7", build = "hb3ce162_4" }
+# libllvm18 = { version = "==18.1.8", build = "hc9dba70_0" }
+# libmicrohttpd = { version = "==1.0.1", build = "hbc5bc17_1" }
+# libnghttp2 = { version = "==1.58.0", build = "h47da74e_1" }
+# libnpp = { version = "==12.1.0.40", build = "hd3aeb46_0" }
+# libnpp-dev = { version = "==12.0.2.50", build = "0" }
+# libnpp-static = { version = "==12.1.0.40", build = "hd3aeb46_0" }
+# libnsl = { version = "==2.0.1", build = "hd590300_0" }
+# libnuma = { version = "==2.0.18", build = "h4ab18f5_2" }
+# libnvfatbin = { version = "==12.4.127", build = "0" }
+# libnvfatbin-dev = { version = "==12.4.127", build = "0" }
+# libnvjitlink = { version = "==12.1.105", build = "hd3aeb46_0" }
+# libnvjitlink-dev = { version = "==12.1.105", build = "hd3aeb46_0" }
+# libnvjitlink-static = { version = "==12.1.105", build = "hd3aeb46_0" }
+# libnvjpeg = { version = "==12.2.0.2", build = "h59595ed_0" }
+# libnvjpeg-dev = { version = "==12.1.1.14", build = "0" }
+# libnvjpeg-static = { version = "==12.2.0.2", build = "ha770c72_0" }
+# libnvvm-samples = { version = "==12.1.105", build = "0" }
+# libogg = { version = "==1.3.4", build = "h7f98852_1" }
+# libopenblas = { version = "==0.3.27", build = "pthreads_hac2b453_1" }
+# libopus = { version = "==1.3.1", build = "h7f98852_1" }
+# libpciaccess = { version = "==0.18", build = "hd590300_0" }
+# libpng = { version = "==1.6.43", build = "h2797004_0" }
+# libpq = { version = "==16.3", build = "ha72fbe1_0" }
+# libprotobuf = { version = "==4.25.3", build = "h08a7969_0" }
+# libre2-11 = { version = "==2023.9.1", build = "h5a48ba9_2" }
+# libsanitizer = { version = "==11.4.0", build = "h5763a12_13" }
+# libsndfile = { version = "==1.2.2", build = "hc60ed4a_1" }
+# libsqlite = { version = "==3.46.0", build = "hde9e2c9_0" }
+# libssh2 = { version = "==1.11.0", build = "h0841786_0" }
+# libstdcxx-devel_linux-64 = { version = "==11.4.0", build = "h8f596e0_113" }
+# libstdcxx-ng = { version = "==13.2.0", build = "hc0a3c3a_11" }
+# libsystemd0 = { version = "==255", build = "h3516f8a_1" }
+# libtasn1 = { version = "==4.19.0", build = "h166bdaf_0" }
+# libtiff = { version = "==4.6.0", build = "h46a8edc_4" }
+# libunistring = { version = "==0.9.10", build = "h7f98852_0" }
+# libuuid = { version = "==2.38.1", build = "h0b41bf4_0" }
+# libvorbis = { version = "==1.3.7", build = "h9c3ff4c_0" }
+# libwebp-base = { version = "==1.4.0", build = "hd590300_0" }
+# libxcb = { version = "==1.15", build = "h0b41bf4_0" }
+# libxcrypt = { version = "==4.4.36", build = "hd590300_1" }
+# libxkbcommon = { version = "==1.7.0", build = "h662e7e4_0" }
+# libxkbfile = { version = "==1.1.0", build = "h166bdaf_1" }
+# libxml2 = { version = "==2.12.7", build = "hc051c1a_1" }
+# libzlib = { version = "==1.3.1", build = "h4ab18f5_1" }
+# llvm-openmp = { version = "==15.0.7", build = "h0cdce71_0" }
+# lz4-c = { version = "==1.9.4", build = "hcb278e6_0" }
+# lzo = { version = "==2.10", build = "hd590300_1001" }
+# make = { version = "==4.3", build = "hd18ef5c_1" }
+# mesalib = { version = "==24.1.0", build = "hfa94a56_0" }
+# mkl = { version = "==2022.2.1", build = "h84fe81f_16997" }
+# mpg123 = { version = "==1.32.6", build = "h59595ed_0" }
+# mpi = { version = "==1.0", build = "mpich" }
+# mpich = { version = "==4.2.1", build = "h63d650b_101" }
+# mysql-common = { version = "==8.3.0", build = "hf1915f5_4" }
+# mysql-libs = { version = "==8.3.0", build = "hca2cd23_4" }
+# ncurses = { version = "==6.5", build = "h59595ed_0" }
+# nettle = { version = "==3.9.1", build = "h7ab15ed_0" }
+# ninja = { version = "==1.12.1", build = "h297d8ca_0" }
+# nlopt = { version = "==2.7.1", build = "py38hb4e9328_5" }
+# nsight-compute = { version = "==2023.1.1.4", build = "h3718151_0" }
+# nspr = { version = "==4.35", build = "h27087fc_0" }
+# nss = { version = "==3.101", build = "h593d115_0" }
+# numpy = { version = "==1.24.4", build = "py38h59b608b_0" }
+# ocl-icd = { version = "==2.3.2", build = "hd590300_1" }
+# openjdk = { version = "==21.0.2", build = "haa376d0_0" }
+# openssl = { version = "==3.3.1", build = "h4bc722e_2" }
+# p11-kit = { version = "==0.24.1", build = "hc5aa10d_0" }
+# pcre2 = { version = "==10.44", build = "h0f59acf_0" }
+# pip = { version = "==24.0", build = "pyhd8ed1ab_0" }
+# pixman = { version = "==0.43.2", build = "h59595ed_0" }
+# pkg-config = { version = "==0.29.2", build = "h4bc722e_1009" }
+# pthread-stubs = { version = "==0.4", build = "h36c2ea0_1001" }
+# pulseaudio-client = { version = "==17.0", build = "hb77b528_0" }
+# pyflann = { version = "==1.9.2", build = "py38h7f3f72f_1" }
+# python = { version = "==3.8.19", build = "hd12c33a_0_cpython" }
+# python_abi = { version = "==3.8", build = "5_cp38" }
+# qt-main = { version = "==5.15.8", build = "hc9dc06e_21" }
+# re2 = { version = "==2023.9.1", build = "h7f4b329_2" }
+# readline = { version = "==8.2", build = "h8228510_1" }
+# setuptools = { version = "==70.1.0", build = "pyhd8ed1ab_0" }
+# singlejar = { version = "==7.2.1", build = "h7e0c224_0" }
+# spdlog = { version = "==1.10.0", build = "h924138e_0" }
+# sysroot_linux-64 = { version = "==2.17", build = "h4a8ded7_14" }
+# tbb = { version = "==2021.12.0", build = "h297d8ca_1" }
+# tk = { version = "==8.6.13", build = "noxft_h4845f30_101" }
+# triangle = { version = "==1.6", build = "h5257236_4" }
+# wayland = { version = "==1.23.0", build = "h5291e77_0" }
+# wheel = { version = "==0.43.0", build = "pyhd8ed1ab_1" }
+# which = { version = "==2.21", build = "h0b41bf4_1" }
+# xcb-util = { version = "==0.4.0", build = "hd590300_1" }
+# xcb-util-image = { version = "==0.4.0", build = "h8ee46fc_1" }
+# xcb-util-keysyms = { version = "==0.4.0", build = "h8ee46fc_1" }
+# xcb-util-renderutil = { version = "==0.3.9", build = "hd590300_1" }
+# xcb-util-wm = { version = "==0.4.1", build = "h8ee46fc_1" }
+# xkeyboard-config = { version = "==2.42", build = "h4ab18f5_0" }
+# xorg-compositeproto = { version = "==0.4.2", build = "h7f98852_1001" }
+# xorg-damageproto = { version = "==1.2.1", build = "h7f98852_1002" }
+# xorg-fixesproto = { version = "==5.0", build = "h7f98852_1002" }
+# xorg-glproto = { version = "==1.4.17", build = "h7f98852_1002" }
+# xorg-inputproto = { version = "==2.3.2", build = "h7f98852_1002" }
+# xorg-kbproto = { version = "==1.0.7", build = "h7f98852_1002" }
+# xorg-libice = { version = "==1.1.1", build = "hd590300_0" }
+# xorg-libsm = { version = "==1.2.4", build = "h7391055_0" }
+# xorg-libx11 = { version = "==1.8.9", build = "h8ee46fc_0" }
+# xorg-libxau = { version = "==1.0.11", build = "hd590300_0" }
+# xorg-libxcomposite = { version = "==0.4.6", build = "h0b41bf4_1" }
+# xorg-libxdamage = { version = "==1.1.5", build = "h7f98852_1" }
+# xorg-libxdmcp = { version = "==1.1.3", build = "h7f98852_0" }
+# xorg-libxext = { version = "==1.3.4", build = "h0b41bf4_2" }
+# xorg-libxfixes = { version = "==5.0.3", build = "h7f98852_1004" }
+# xorg-libxi = { version = "==1.7.10", build = "h7f98852_0" }
+# xorg-libxrandr = { version = "==1.5.2", build = "h7f98852_1" }
+# xorg-libxrender = { version = "==0.9.11", build = "hd590300_0" }
+# xorg-libxt = { version = "==1.3.0", build = "hd590300_1" }
+# xorg-libxtst = { version = "==1.2.3", build = "h7f98852_1002" }
+# xorg-randrproto = { version = "==1.5.0", build = "h7f98852_1001" }
+# xorg-recordproto = { version = "==1.14.2", build = "h7f98852_1002" }
+# xorg-renderproto = { version = "==0.11.1", build = "h7f98852_1002" }
+# xorg-util-macros = { version = "==1.19.3", build = "h7f98852_0" }
+# xorg-xextproto = { version = "==7.3.0", build = "h0b41bf4_1003" }
+# xorg-xf86vidmodeproto = { version = "==2.3.1", build = "h7f98852_1002" }
+# xorg-xproto = { version = "==7.0.31", build = "h7f98852_1007" }
+# xz = { version = "==5.2.6", build = "h166bdaf_0" }
+# zlib = { version = "==1.3.1", build = "h4ab18f5_1" }
+# zstd = { version = "==1.5.6", build = "ha6fb4c9_0" }
+
+[pypi-dependencies]
+corallab-lib = { path = ".", editable = true }
+matplotlib = ">=3.9.2, <4"
+jaxtyping = ">=0.2.34, <0.3"
+
+[feature.brax.pypi-dependencies]
+jax = { version = ">=0.4.33, <0.5", extras = ["cuda12"] }
+brax = ">=0.10.5, <0.11"
+flax = ">=0.9.0, <0.10"
+
+[feature.mujoco.pypi-dependencies]
+mujoco = "*"
+
+[feature.robosuite.pypi-dependencies]
+robosuite = { path = "/home/tassos/phd/qureshi/robosuite" }
+numba = ">=0.60.0, <0.61"
+
+# [feature.d4rl.pypi-dependencies]
+# d4rl = { path = "/home/tassos/phd/qureshi/d4rl" }
+# Doesn't work!!!
+# mjrl = { path = "/home/tassos/phd/qureshi/mjrl" }
+
+# aiohttp = "==3.9.5"
+# aiosignal = "==1.3.1"
+# alembic = "==1.13.1"
+# aniso8601 = "==9.0.1"
+# anyio = "==4.4.0"
+# async-timeout = "==4.0.3"
+# attrs = "==23.2.0"
+# blinker = "==1.8.2"
+# cachetools = "==5.3.3"
+# certifi = "==2024.6.2"
+# cffi = "==1.15.1"
+# chardet = "==5.2.0"
+# charset-normalizer = "==3.3.2"
+# cholespy = "==1.0.0"
+# click = "==8.1.7"
+# colorlog = "==6.8.2"
+# contourpy = "==1.1.1"
+# corallab-assets = "==0.2.0"
+# corallab-lib = "==0.1.0"
+# corallab-planners = "==0.1.0"
+# cvxopt = "==1.3.2"
+# cycler = "==0.12.1"
+# decorator = "==4.4.2"
+# docker = "==7.1.0"
+# docker-pycreds = "==0.4.0"
+# drake = "==1.26.0"
+# einops = "==0.7.0"
+# embreex = "==2.17.7.post4"
+# entrypoints = "==0.4"
+# exceptiongroup = "==1.2.1"
+# farama-notifications = "==0.0.4"
+# filelock = "==3.13.1"
+# flask = "==3.0.3"
+# fonttools = "==4.53.0"
+# frozenlist = "==1.4.1"
+# fsspec = "==2024.2.0"
+# gillespy2 = "==1.8.2"
+# gitdb = "==4.0.11"
+# gitpython = "==3.1.43"
+# graphene = "==3.3"
+# graphql-core = "==3.2.3"
+# graphql-relay = "==3.2.0"
+# greenlet = "==3.0.3"
+# gunicorn = "==22.0.0"
+# gurobipy = "==11.0.3"
+# gymnasium = "==0.29.1"
+# h11 = "==0.14.0"
+# httpcore = "==1.0.5"
+# httpx = "==0.27.0"
+# huggingface-hub = "==0.23.4"
+# idna = "==3.7"
+# ikpy = "==3.4.2"
+# imageio = "==2.34.1"
+# imageio-ffmpeg = "==0.5.1"
+# importlib-metadata = "==7.1.0"
+# importlib-resources = "==6.4.0"
+# itsdangerous = "==2.2.0"
+# jinja2 = "==3.1.3"
+# jsonschema = "==4.22.0"
+# jsonschema-specifications = "==2023.12.1"
+# kiwisolver = "==1.4.5"
+# lazy-loader = "==0.4"
+# lightning = "==2.3.1"
+# lightning-utilities = "==0.11.3.post0"
+# lxml = "==5.2.2"
+# mako = "==1.3.5"
+# mapbox-earcut = "==1.0.1"
+# markdown = "==3.6"
+# markupsafe = "==2.1.5"
+# matplotlib = "==3.7.5"
+# mip = "==1.15.0"
+# mlflow = "==2.14.1"
+# modular-diffusion = "==0.1.0"
+# moviepy = "==1.0.3"
+# mp-baselines = "==0.1.0"
+# mpd = "==0.1.0"
+# mpmath = "==1.3.0"
+# multidict = "==6.0.5"
+# networkx = "==3.0"
+# numpy-quaternion = "==2023.0.3"
+# nvidia-cublas-cu12 = "==12.1.3.1"
+# nvidia-cuda-cupti-cu12 = "==12.1.105"
+# nvidia-cuda-nvrtc-cu12 = "==12.1.105"
+# nvidia-cuda-runtime-cu12 = "==12.1.105"
+# nvidia-cudnn-cu12 = "==8.9.2.26"
+# nvidia-cufft-cu12 = "==11.0.2.54"
+# nvidia-curand-cu12 = "==10.3.2.106"
+# nvidia-curobo = "==0.0.0"
+# nvidia-cusolver-cu12 = "==11.4.5.107"
+# nvidia-cusparse-cu12 = "==12.1.0.106"
+# nvidia-nccl-cu12 = "==2.20.5"
+# nvidia-nvjitlink-cu12 = "==12.1.105"
+# nvidia-nvtx-cu12 = "==12.1.105"
+# opentelemetry-api = "==1.25.0"
+# opentelemetry-sdk = "==1.25.0"
+# opentelemetry-semantic-conventions = "==0.46b0"
+# packaging = "==24.1"
+# pandas = "==2.0.3"
+# pillow = "==10.3.0"
+# pkgutil-resolve-name = "==1.3.10"
+# platformdirs = "==4.2.2"
+# plotly = "==5.23.0"
+# proglog = "==0.1.10"
+# protobuf = "==4.25.3"
+# psutil = "==6.0.0"
+# pyarrow = "==15.0.2"
+# pybind11 = "==2.12.0"
+# pybullet = "==3.2.6"
+# pybullet-envs-gymnasium = "==0.4.0"
+# pycddlib = "==2.1.7"
+# pycollada = "==0.8"
+# pycparser = "==2.22"
+# pydot = "==3.0.1"
+# pygame = "==2.5.2"
+# pygccxml = "==2.5.0"
+# pyparsing = "==3.1.2"
+# pyplusplus = "==1.8.5"
+# pypoman = "==1.1.0"
+# python-dateutil = "==2.9.0.post0"
+# pytorch-lightning = "==2.3.1"
+# pytz = "==2024.1"
+# pywavelets = "==1.4.1"
+# pyyaml = "==6.0.1"
+# querystring-parser = "==1.2.4"
+# referencing = "==0.35.1"
+# requests = "==2.32.3"
+# rpds-py = "==0.18.1"
+# rtree = "==1.2.0"
+# safetensors = "==0.4.3"
+# scikit-image = "==0.21.0"
+# scikit-learn = "==1.3.2"
+# scons = "==4.8.0"
+# sentry-sdk = "==2.6.0"
+# setproctitle = "==1.3.3"
+# setuptools-scm = "==8.1.0"
+# shapely = "==2.0.4"
+# six = "==1.16.0"
+# smmap = "==5.0.1"
+# sniffio = "==1.3.1"
+# sqlalchemy = "==2.0.31"
+# sqlparse = "==0.5.0"
+# stl-planner = "==0.1.0"
+# stlcg = "==0.1.0"
+# svg-path = "==6.3"
+# sympy = "==1.12"
+# tenacity = "==9.0.0"
+# tifffile = "==2023.7.10"
+# timm = "==1.0.7"
+# tomli = "==2.0.1"
+# torch = "==2.3.1+cu121"
+# torch-robotics = "==0.1.0"
+# torchmetrics = "==1.4.0.post0"
+# torchpwl = "==0.2.0"
+# torchvision = "==0.18.1"
+# tqdm = "==4.66.4"
+# trimesh = "==4.4.1"
+# triton = "==2.3.1"
+# typeguard = "==4.3.0"
+# typing-extensions = "==4.12.2"
+# tzdata = "==2024.1"
+# ur-rtde = "==1.5.9"
+# urdf-parser-py = "==0.0.4"
+# urllib3 = "==2.2.2"
+# vhacdx = "==0.0.8"
+# wandb = "==0.17.2"
+# warp-lang = "==1.2.1"
+# werkzeug = "==3.0.3"
+# wip-trajectory-generator = "==0.1.0"
+# xatlas = "==0.0.9"
+# xxhash = "==3.4.1"
+# yarl = "==1.9.4"
+# yourdfpy = "==0.0.56"
+# zipp = "==3.19.2"
+
+# [feature.brax.dependencies]
+# brax = "*"
+# jax = ">=0.4.31,<0.5"
+# jaxlib = { version = "*", build = "*cuda*" }
+# jax
+# cuda-nvcc = { version = "*", channel = "nvidia" }
+
+[environments]
+default = { solve-group = "default" }
+# d4rl = { features = ["d4rl"], solve-group = "default" }
+robosuite = { features = ["robosuite"], solve-group = "default" }
+mujoco = { features = ["mujoco"], solve-group = "default" }
+brax = { features = ["brax"], solve-group = "default" }

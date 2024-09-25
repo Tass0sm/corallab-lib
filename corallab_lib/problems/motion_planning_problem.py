@@ -3,7 +3,8 @@ from ..backend_manager import backend_manager
 
 import torch
 import numpy as np
-from jaxtyping import Array, Float, Bool
+from torch import Tensor
+from jaxtyping import Float, Bool
 
 from torch_robotics.torch_utils.torch_utils import to_torch
 from torch_robotics.trajectory.utils import interpolate_traj_via_points
@@ -90,10 +91,10 @@ class MotionPlanningProblem:
             goal_state_pos = q_free[1]
 
             if isinstance(start_state_pos, np.ndarray):
-                start_state_pos = to_torch(start_state_pos, **self.problem_impl.tensor_args)
+                start_state_pos = torch.tensor(start_state_pos, **self.problem_impl.tensor_args)
 
             if isinstance(goal_state_pos, np.ndarray):
-                goal_state_pos = to_torch(goal_state_pos, **self.problem_impl.tensor_args)
+                goal_state_pos = torch.tensor(goal_state_pos, **self.problem_impl.tensor_args)
 
             if torch.linalg.norm(start_state_pos - goal_state_pos) > threshold_start_goal_pos:
                 break
@@ -107,31 +108,31 @@ class MotionPlanningProblem:
 
     def check_solutions(
             self,
-            q: Float[Array, "b h d"],
+            q: Float[Tensor, "b h d"],
             num_interpolation : int = 5,
             **kwargs
-    ) -> Bool[Array, "b"]:
+    ) -> Bool[Tensor, "b"]:
         q_interp = interpolate_traj_via_points(q, num_interpolation=num_interpolation)
         colls = self.check_collision(q_interp, margin=0.0, **kwargs)
-        colls = to_torch(colls)
+        colls = torch.tensor(colls)
 
         valid_start = torch.allclose(q[:, 0, :], self.start_state_pos)
         valid_end = torch.allclose(q[:, -1, :], self.goal_state_pos)
 
         return valid_start and valid_end and colls.logical_not().all(axis=-1)
 
-    def check_any_valid(self, q: Float[Array, "b h d"], **kwargs) -> Bool[Array, "b"]:
+    def check_any_valid(self, q: Float[Tensor, "b h d"], **kwargs) -> Bool[Tensor, "b"]:
         return self.check_solutions(q, **kwargs).any()
 
-    def compute_fraction_valid(self, q: Float[Array, "b h d"], **kwargs) -> Bool[Array, "b"]:
+    def compute_fraction_valid(self, q: Float[Tensor, "b h d"], **kwargs) -> Bool[Tensor, "b"]:
         return self.check_solutions(q, **kwargs).float().mean()
 
     def get_valid_and_invalid(
             self,
-            q : Float[Array, "b h d"],
+            q : Float[Tensor, "b h d"],
             return_indices : bool = False,
             **kwargs
-    ) -> (Bool[Array, "b"], Bool[Array, "b"]):
+    ) -> (Bool[Tensor, "b"], Bool[Tensor, "b"]):
         validity = self.check_solutions(q, **kwargs)
 
         valid_idxs = torch.argwhere(validity)

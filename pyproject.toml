@@ -1,50 +1,17 @@
-[project]
+[tool.poetry]
 name = "corallab-lib"
 version = "0.1.0"
-description = "Common interface to many robotics environments and simulators from many libraries."
-authors = [{name = "Tassos Manganaris", email = "tassos.manganaris@gmail.com"}]
-requires-python = ">=3.8,<3.9"
-dependencies = ["corallab-assets @ git+https://github.com/corallab-base/assets.git@0.2.2", "pygame", "gymnasium"]
+description = ""
+authors = ["Tassos Manganaris <tassos.manganaris@gmail.com>"]
+readme = "README.org"
+packages = [{include = "corallab_lib"}]
 
-[tool.pixi.project]
-channels = ["nvidia", "conda-forge", "pytorch"]
-platforms = ["linux-64"]
-conda-pypi-map = { "pytorch" = "local/pytorch_mapping.json" }
+
+[tool.poetry.dependencies]
+python = ">=3.9,<4"
+jaxtyping = "^0.2.34"
+
 
 [build-system]
-requires = ["setuptools"]
-build-backend = "setuptools.build_meta"
-
-[tool.setuptools]
-packages = ["corallab_lib"]
-
-# Tasks
-
-[tool.pixi.tasks]
-
-# Dependencies
-
-[tool.pixi.dependencies]
-python = "3.8.*"
-numpy = "<1.24"
-cuda = { version = "*" }
-pytorch = { version = "2.3.*", channel="pytorch" }
-pytorch-cuda = {version = "12.1.*", channel="pytorch"}
-
-[project.optional-dependencies]
-pybullet = ["pybullet", "pybullet-envs-gymnasium"]
-torch-robotics = ["torch-robotics"]
-curobo = ["nvidia_curobo"]
-
-[tool.pixi.pypi-dependencies]
-corallab-lib = { path = ".", editable = true }
-torch-robotics = { path = "/home/tassos/phd/qureshi/first-project/torch_robotics", editable = true }
-
-# TODO: Use NO-BUILD-ISOLATION when its available!
-nvidia_curobo = { path = "/home/tassos/phd/qureshi/curobo" }
-
-# Environments
-
-[tool.pixi.environments]
-default = {features = ["pybullet", "torch-robotics"], solve-group = "default"}
-curobo = {features = ["pybullet", "torch-robotics", "curobo"], solve-group = "default"}
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

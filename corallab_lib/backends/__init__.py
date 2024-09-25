@@ -1,4 +1,5 @@
 backend_list = [
+    "brax",
     "corallab",
     "curobo",
     "mujoco",

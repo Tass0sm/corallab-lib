@@ -1,7 +1,6 @@
 import numpy as np
 import torch
 from torch import Tensor
-import einops
 
 from dataclasses import dataclass, field
 from jaxtyping import Float
