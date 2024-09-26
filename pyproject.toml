@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "corallab-lib"
-version = "0.1.0"
+version = "0.2.0"
 description = ""
 authors = ["Tassos Manganaris <tassos.manganaris@gmail.com>"]
 readme = "README.org"
