@@ -7,7 +7,10 @@ Provide a common API to many useful robotics libraries.
 1. Pybullet
 2. Curobo
 3. Drake
-4. torch-robotics
+4. Torch-Robotics
+5. Robosuite
+6. Gymnasium
+7. Gymnasium-Robotics
 
 * Problem Types
 

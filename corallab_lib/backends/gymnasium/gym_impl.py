@@ -38,3 +38,6 @@ class GymnasiumGym(GymInterface):
 
     # def close(self):
     #     self.gym_impl.close()
+
+    def reset(self):
+        return self.gym_impl.reset()

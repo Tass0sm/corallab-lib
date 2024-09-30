@@ -6,8 +6,22 @@ import numpy as np
 from torch import Tensor
 from jaxtyping import Float, Bool
 
-from torch_robotics.torch_utils.torch_utils import to_torch
-from torch_robotics.trajectory.utils import interpolate_traj_via_points
+
+# from torch_robotics
+def interpolate_traj_via_points(trajs, num_interpolation=10):
+    # Interpolates a trajectory linearly between waypoints
+    H, D = trajs.shape[-2:]
+    if num_interpolation > 0:
+        assert trajs.ndim > 1
+        traj_dim = trajs.shape
+        alpha = torch.linspace(0, 1, num_interpolation + 2).type_as(trajs)[1:num_interpolation + 1]
+        alpha = alpha.view((1,) * len(traj_dim[:-1]) + (-1, 1))
+        interpolated_trajs = trajs[..., 0:traj_dim[-2] - 1, None, :] * alpha + \
+                             trajs[..., 1:traj_dim[-2], None, :] * (1 - alpha)
+        interpolated_trajs = interpolated_trajs.view(traj_dim[:-2] + (-1, D))
+    else:
+        interpolated_trajs = trajs
+    return interpolated_trajs
 
 
 class MotionPlanningProblem:
