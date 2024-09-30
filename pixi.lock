@@ -422,7 +422,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/9a/bb/d43e5c75054e53efce310e79d63df0ac3f25e34c926be5dffb7d283fb2a8/typeguard-2.13.3-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/26/9f/ad63fc0248c5379346306f8668cda6e2e2e9c95e01216d2b8ffd9ff037d0/typing_extensions-4.12.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/62/8b/5ba542fa83c90e09eac972fc9baca7a88e7e7ca4b221a89251954019308b/zipp-3.20.2-py3-none-any.whl
-      - pypi: /home/tassos/phd/qureshi/robosuite
+      - pypi: /home/tassos/phd/research/robosuite
       - pypi: .
 packages:
 - kind: conda
@@ -592,9 +592,9 @@ packages:
   requires_python: '>=3.9'
 - kind: pypi
   name: corallab-lib
-  version: 0.1.0
+  version: 0.2.0
   path: .
-  sha256: 678141cb2ae0db53f9b3666a357c9f50c547c551923f168319ea1d57dab5b8af
+  sha256: 588750fe4f833ea9267c99e30c7abf20893e7ee7416e6d326161978cf6a33595
   requires_dist:
   - jaxtyping>=0.2.34,<0.3.0
   requires_python: '>=3.9,<4'
@@ -2093,7 +2093,7 @@ packages:
 - kind: pypi
   name: robosuite
   version: 1.4.1
-  path: /home/tassos/phd/qureshi/robosuite
+  path: /home/tassos/phd/research/robosuite
   sha256: 53db3ca8983d04ecd0b631d8540023cafd8a7eda49dbdc590c3facfe5758bd76
   requires_dist:
   - numpy>=1.13.3

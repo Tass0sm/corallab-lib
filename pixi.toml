@@ -332,18 +332,13 @@ flax = ">=0.9.0, <0.10"
 mujoco = "*"
 
 [feature.robosuite.pypi-dependencies]
-robosuite = { path = "/home/tassos/phd/qureshi/robosuite" }
+robosuite = { path = "/home/tassos/phd/research/robosuite" }
 numba = ">=0.60.0, <0.61"
 
 [feature.gymnasium-robotics.pypi-dependencies]
 gymnasium-robotics = { git = "https://github.com/Farama-Foundation/Gymnasium-Robotics" }
 mujoco = ">=3.0, <3.2.0"
 gymnasium = ">=1.0.0a2"
-
-# [feature.d4rl.pypi-dependencies]
-# d4rl = { path = "/home/tassos/phd/qureshi/d4rl" }
-# Doesn't work!!!
-# mjrl = { path = "/home/tassos/phd/qureshi/mjrl" }
 
 # aiohttp = "==3.9.5"
 # aiosignal = "==1.3.1"
