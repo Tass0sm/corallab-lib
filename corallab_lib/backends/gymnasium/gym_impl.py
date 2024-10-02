@@ -1,6 +1,7 @@
 import numpy as np
 
 import gymnasium as gym
+from gymnasium.spaces.utils import flatdim
 
 from ..gym_interface import GymInterface
 
@@ -11,15 +12,24 @@ class GymnasiumGym(GymInterface):
             self,
             id: str,
             seed: int = 42,
+            render_mode = None,
             **kwargs
     ):
-        self.gym_impl = gym.make(id, render_mode="human")
+        self.gym_impl = gym.make(id, render_mode=render_mode)
 
         self._obs, self._info = self.gym_impl.reset(seed=seed)
 
-    # @property
-    # def action_space(self):
-    #     return self.gym_impl.action_space
+    @property
+    def state_dim(self):
+        return flatdim(self.gym_impl.observation_space)
+
+    @property
+    def action_dim(self):
+        return flatdim(self.gym_impl.action_space)
+
+    @property
+    def name(self):
+        return self.gym_impl.spec.id
 
     # def seed(self, x):
     #     self.gym_impl.seed(x)
