@@ -11,7 +11,7 @@ if __name__ == "__main__":
     # gym.gym_impl.gym_impl.viewer.set_camera(camera_id=0)
 
     # TODO: Decide on interface
-    env = gym.gym_impl.gym_impl
+    env = gym.gym_impl
 
     # Get action limits
     action_space = env.action_space
