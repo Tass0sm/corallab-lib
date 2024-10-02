@@ -6,12 +6,12 @@ from corallab_lib import Gym
 if __name__ == "__main__":
 
     # initialize the task
-    gym = Gym("Ant-v4", backend="gymnasium")
+    gym = Gym("Ant-v4", render_mode="human", backend="gymnasium")
     gym.reset()
     # gym.gym_impl.gym_impl.viewer.set_camera(camera_id=0)
 
     # TODO: Decide on interface
-    env = gym.gym_impl.gym_impl
+    env = gym.gym_impl
 
     # Get action limits
     action_space = env.action_space
