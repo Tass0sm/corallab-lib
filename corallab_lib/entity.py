@@ -1,10 +1,11 @@
-from .backend_manager import backend_manager
+from .backend_manager import backend_manager as corallab_lib_backend_manager
 
 
-class Entity:
+class BaseEntity:
     def __init__(
             self,
             entity_impl_name,
+            backend_manager,
             *args,
             backend=None,
             from_impl=None,
@@ -26,3 +27,18 @@ class Entity:
         else:
             # Default behaviour
             raise AttributeError
+
+
+class Entity(BaseEntity):
+    def __init__(
+            self,
+            entity_impl_name,
+            *args,
+            **kwargs,
+    ):
+        super().__init__(
+            entity_impl_name,
+            corallab_lib_backend_manager,
+            *args,
+            **kwargs
+        )

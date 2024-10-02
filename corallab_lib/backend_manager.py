@@ -1,14 +1,16 @@
-from .backends import backend_list
+from .backends import backend_list as corallab_lib_backend_list
 import importlib
 
 
 class BackendManager:
-    def __init__(self):
+    def __init__(self, backend_root_package, backend_list):
         self.backend = None
+        self.backend_list = backend_list
+        self.backend_root_package = backend_root_package
         self.backend_kwargs = {}
 
     def set_backend(self, backend: str, **backend_kwargs):
-        assert backend in backend_list
+        assert backend in self.backend_list
         self.backend = backend
         self.backend_kwargs = backend_kwargs
 
@@ -18,7 +20,7 @@ class BackendManager:
         try:
             return importlib.import_module(
                 "." + (backend or self.backend),
-                package="corallab_lib.backends"
+                package=self.backend_root_package
             )
         except KeyError:
             raise Exception("Backend not found!")
@@ -35,4 +37,4 @@ class BackendManager:
 
 
 
-backend_manager = BackendManager()
+backend_manager = BackendManager("corallab_lib.backends", corallab_lib_backend_list)
