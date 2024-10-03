@@ -1,7 +1,8 @@
 import sys
 import numpy as np
 import torch
-from jaxtyping import Array, Float, Bool
+from torch import Tensor
+from jaxtyping import Float, Bool
 
 from torch_robotics.torch_utils.torch_utils import to_torch, to_numpy
 from .env_impl import CuroboEnv
@@ -173,7 +174,7 @@ class CuroboMotionPlanningProblem:
         any_collision = self.compute_collision(local_motion_states, **kwargs).any().item()
         return not any_collision
 
-    def check_collision(self, q: Float[Array, "b h d"], **kwargs) -> Bool[Array, "b h"]:
+    def check_collision(self, q: Float[Tensor, "b h d"], **kwargs) -> Bool[Tensor, "b h"]:
         if isinstance(q, np.ndarray):
             q = torch.tensor(q, **self.curobo_fn.tensor_args.as_torch_dict())
 

@@ -1,6 +1,7 @@
 import torch
+from torch import Tensor
 from typing import Optional
-from jaxtyping import Array, Float, Bool
+from jaxtyping import Float, Bool
 
 from torch_robotics.tasks.tasks import PlanningTask
 from torch_robotics.torch_utils.torch_utils import DEFAULT_TENSOR_ARGS, to_torch, to_numpy
@@ -113,10 +114,10 @@ class TorchRoboticsMotionPlanningProblem(MotionPlanningProblemInterface):
 
     def check_collision(
             self,
-            q : Float[Array, "b h d"],
+            q : Float[Tensor, "b h d"],
             margin : Optional[float] = None,
             **kwargs
-    ) -> Bool[Array, "b h"]:
+    ) -> Bool[Tensor, "b h"]:
         q = to_torch(q, **self.tensor_args)
 
         if margin is not None:
