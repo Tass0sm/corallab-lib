@@ -21,8 +21,8 @@ class DynamicPlanningProblem:
         if from_impl:
             self.problem_impl = DynamicPlanningProblemImpl.from_impl(from_impl, *args, **kwargs)
         else:
-            env_impl = env_impl or env.env_impl
-            robot_impl = robot_impl or robot.robot_impl
+            env_impl = env_impl or env.entity_impl
+            robot_impl = robot_impl or robot.entity_impl
 
             self.problem_impl = DynamicPlanningProblemImpl(
                 *args,

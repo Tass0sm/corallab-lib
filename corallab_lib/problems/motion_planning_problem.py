@@ -58,13 +58,13 @@ class MotionPlanningProblem:
             self.problem_impl = MotionPlanningProblemImpl.from_impl(
                 from_impl,
                 *args,
-                env=env.env_impl,
-                robot=robot.robot_impl,
+                env=env.entity_impl,
+                robot=robot.entity_impl,
                 **kwargs
             )
         else:
-            env_impl = env_impl or env.env_impl
-            robot_impl = robot_impl or robot.robot_impl
+            env_impl = env_impl or env.entity_impl
+            robot_impl = robot_impl or robot.entity_impl
 
             self.problem_impl = MotionPlanningProblemImpl(
                 *args,
