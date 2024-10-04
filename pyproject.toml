@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "corallab-lib"
-version = "0.2.1"
-description = ""
+version = "0.2.2"
+description = "Provide a common API to many useful robotics libraries."
 authors = ["Tassos Manganaris <tassos.manganaris@gmail.com>"]
 readme = "README.org"
 packages = [{include = "corallab_lib"}]

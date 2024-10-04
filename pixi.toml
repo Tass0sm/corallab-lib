@@ -1,11 +1,10 @@
 [project]
 authors = ["Tassos Manganaris <tassos.manganaris@gmail.com>"]
 channels = ["nvidia", "conda-forge"]
-# "robostack-staging"
-description = "Add a short description here"
+description = "Provide a common API to many useful robotics libraries."
 name = "corallab-lib"
 platforms = ["linux-64"]
-version = "0.1.0"
+version = "0.2.2"
 
 [system-requirements]
 cuda = "12" # or any other version of cuda you want to use
