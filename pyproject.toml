@@ -14,8 +14,10 @@ gymnasium-robotics = { git = "https://github.com/Farama-Foundation/Gymnasium-Rob
 mujoco = { version = ">=3.0, <3.2.0", optional = true }
 gymnasium = { version = ">=1.0.0a2", optional = true }
 pygame = { version = "^2.6.1", optional = true }
+pybullet = { version = "^3.2.6", optional = true }
 
 [tool.poetry.extras]
+pybullet = ["pybullet"]
 torch-robotics = ["gymnasium", "pygame"]
 gymnasium-robotics = ["gymnasium-robotics", "mujoco", "gymnasium"]
 
