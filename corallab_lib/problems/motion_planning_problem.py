@@ -78,7 +78,9 @@ class MotionPlanningProblem:
             random_start_pos, random_goal_pos = self._generate_random_start_and_goal(threshold_start_goal_pos)
 
         self.start_state_pos = start_state_pos if start_state_pos is not None else random_start_pos
+        self.start_state_pos = self.start_state_pos.to(**self.tensor_args)
         self.goal_state_pos = goal_state_pos if goal_state_pos is not None else random_goal_pos
+        self.goal_state_pos = self.goal_state_pos.to(**self.tensor_args)
 
     def __getattr__(self, name):
         if hasattr(self.problem_impl, name):
@@ -128,7 +130,7 @@ class MotionPlanningProblem:
     ) -> Bool[Tensor, "b"]:
         q_interp = interpolate_traj_via_points(q, num_interpolation=num_interpolation)
         colls = self.check_collision(q_interp, margin=0.0, **kwargs)
-        colls = torch.tensor(colls)
+        colls = torch.tensor(colls, **self.tensor_args)
 
         valid_start = torch.allclose(q[:, 0, :], self.start_state_pos)
         valid_end = torch.allclose(q[:, -1, :], self.goal_state_pos)
